@@ -1,0 +1,20 @@
+{
+  "short_name": "Apizee Agent",
+  "name": "Apizee Agent",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "related_applications": [
+    {
+      "platform": "apirtc",
+      "url": "https://apirtc.com"
+    }
+  ]
+}
