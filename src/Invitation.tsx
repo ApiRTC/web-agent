@@ -12,6 +12,7 @@ import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import Input from '@mui/material/Input';
+import Link from '@mui/material/Link';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
@@ -226,6 +227,7 @@ Thanks` } = props;
     }, []);
 
     const doPutLinkInComment = useCallback(() => {
+        console.log("inviteLink", inviteLink)
         //TODO
     }, [name, inviteLink]);
 
@@ -266,6 +268,7 @@ Thanks` } = props;
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} />
                 <Button variant='outlined' data-testid="comment-invite-btn" onClick={doPutLinkInComment}>{getInviteText(name)}</Button>
             </Stack>
+            <Link href={inviteLink}>Lien pour {name}</Link>
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="email-input" placeholder={emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)} />

@@ -182,7 +182,7 @@ export function Wrapper(
                         setConversationName(eventObj.name)
                     }
                 } catch (error) {
-                    console.error('Error',error)
+                    console.error('Error', error)
                 }
 
             },
@@ -254,12 +254,19 @@ export function Wrapper(
 
     return <MuiThemeProvider theme={theme}>
         <AppContext.Provider value={{
-            appData: { metadata: { installationId: '', settings: { apiKey: 'myDemoApiKey', cloudUrl: 'https://cloud.apirtc.com' } } },
+            appData: {
+                metadata: {
+                    installationId: '', settings: {
+                        apiKey: 'myDemoApiKey', cloudUrl: 'https://cloud.apirtc.com',
+                        appUrl: 'https://apirtc.github.io/visio-assisted'
+                    }
+                }
+            },
             activated, userId, conversationName, notify: () => { }
         }}>
-            <Box sx={{ margin: '0 2px' }}>
+            {/* <Box sx={{ margin: '0 2px' }}> */}
                 <App />
-            </Box>
+            {/* </Box> */}
         </AppContext.Provider>
     </MuiThemeProvider>
 }

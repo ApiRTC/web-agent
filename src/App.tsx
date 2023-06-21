@@ -24,23 +24,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Icon from '@mui/material/Icon';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-// import { resizeContainer } from '../lib/helpers';
 import { getFromLocalStorage, setLocalStorage } from './utils';
-
-// const millisecondsToHms = (durationMilliseconds: number) => {
-//     const seconds = Math.floor(durationMilliseconds / 1000);
-//     const h = Math.floor(seconds / 3600);
-//     const m = Math.floor(seconds % 3600 / 60);
-//     const s = Math.floor(seconds % 3600 % 60);
-//     return { h, m, s };
-// };
-
-// const hmsToEnglishString = (h: number, m: number, s: number) => {
-//     const hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-//     const mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-//     const sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-//     return `${hDisplay}${mDisplay}${sDisplay}`;
-// };
 
 export type AppProps = {
     invitationLabel?: string,
@@ -66,16 +50,12 @@ export function App(inProps: AppProps) {
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
     } = props;
 
-    // const { client, context, appData, activated, expanded } = useContext(AppContext);
     const { appData, activated, userId, conversationName, notify } = useContext(AppContext);
 
     const installationId = appData.metadata.installationId;
 
     const [credentials, setCredentials] = useState<Credentials>();
     const [registerInformation, setRegisterInformation] = useState<RegisterInformation>();
-
-    //const [ticketId, setTicketId] = useState<string>();
-    //const [conversationName, setConversationName] = useState<string>();
 
     const { value: withAudio, toggle: toggleAudio } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')));
     const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'false')));
@@ -174,8 +154,14 @@ export function App(inProps: AppProps) {
         // It takes a few moments before DOM is actually updated
         // so we have to wait for streams full render before the resizeContainer
         // works with the actual required size.
-        // TODO: notify iframe parent about resize
         //resizeContainer(client, MAX_HEIGHT)
+
+        // Notify iframe parent about resize
+        const message = {
+            type: 'resize'
+        };
+        window.parent.postMessage(message, '*')
+
         return setTimeout(() => {
             //resizeContainer(client, MAX_HEIGHT)
         }, RESIZE_CONTAINER_DELAY);
@@ -189,15 +175,35 @@ export function App(inProps: AppProps) {
     }, [stream]) // depends on what is rendered
 
     const onStart = useCallback(() => {
-    }, []);
+        const message = {
+            type: 'conversation_start',
+            conversationName: conversationName
+        };
+        window.parent.postMessage(message, '*')
+    }, [conversationName]);
 
     const onEnd = useCallback((durationMilliseconds: number) => {
-
-    }, []);
+        const message = {
+            type: 'conversation_end',
+            conversationName: conversationName,
+            durationMilliseconds
+        };
+        window.parent.postMessage(message, '*')
+    }, [conversationName]);
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         return new Promise<void>((resolve, reject) => {
-            // TODO : notify parent window
+            const message = {
+                type: 'snapshot',
+                contact: {
+                    id: contact.getId(),
+                    userData: contact.getUserData()
+                },
+                dataUrl
+            };
+            window.parent.postMessage(message, '*')
+            console.log('onSnapshot postMessage done', message, JSON.stringify(message))
+            resolve();
         });
     }, []);
 
