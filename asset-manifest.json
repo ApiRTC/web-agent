@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/agent-room/static/css/main.e6c13ad2.css",
-    "main.js": "/agent-room/static/js/main.407afef4.js",
+    "main.js": "/agent-room/static/js/main.17334c29.js",
     "static/js/787.8fc3d517.chunk.js": "/agent-room/static/js/787.8fc3d517.chunk.js",
     "index.html": "/agent-room/index.html",
     "main.e6c13ad2.css.map": "/agent-room/static/css/main.e6c13ad2.css.map",
-    "main.407afef4.js.map": "/agent-room/static/js/main.407afef4.js.map",
+    "main.17334c29.js.map": "/agent-room/static/js/main.17334c29.js.map",
     "787.8fc3d517.chunk.js.map": "/agent-room/static/js/787.8fc3d517.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.407afef4.js"
+    "static/js/main.17334c29.js"
   ]
 }
