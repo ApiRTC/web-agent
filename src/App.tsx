@@ -4,9 +4,6 @@ import { Contact, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
 import { Credentials, useCameraStream, useConversation, useSession, useUserMediaDevices } from '@apirtc/react-lib';
 
-// Unfortunately Accordion has display refresh bugs
-// import { Accordion } from '@zendeskgarden/react-accordions';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import Divider from '@mui/material/Divider';

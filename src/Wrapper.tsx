@@ -1,16 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-import Box from '@mui/material/Box';
 import { frFR as mui_frFR } from '@mui/material/locale';
 import { createTheme, ThemeProvider as MuiThemeProvider, ThemeOptions } from '@mui/material/styles';
 
 import { frFR as ApiRtcMuiReactLib_frFR, setLogLevel as setApiRtcMuiReactLibLogLevel } from '@apirtc/mui-react-lib';
 import { setLogLevel as setApiRtcReactLibLogLevel } from '@apirtc/react-lib';
 
-import { frFR } from './locale/frFR';
 import { App } from './App';
 import { AppContext } from './AppContext';
-import { AppData } from './ZAF';
+import { frFR } from './locale/frFR';
 import { setLogLevel } from './logLevel';
 // import { useSearchParams } from 'react-router-dom';
 
@@ -124,9 +122,13 @@ export function Wrapper(
 
     // const [searchParams] = useSearchParams();
 
-    const searchParams = new URLSearchParams(document.location.search);
+    const searchParams = useMemo(() => new URLSearchParams(document.location.search), []);
 
     const [locale, setLocale] = React.useState<string>(languageToLocale(navigator.language));
+
+    const [cloudUrl, setCloudUrl] = useState<string>('https://cloud.apirtc.com');
+    const [apiKey, setApiKey] = useState<string>('myDemoApiKey');
+    const [appUrl, setAppUrl] = useState<string>('https://apirtc.github.io/visio-assisted');
 
     const [userId, setUserId] = useState<string>();
     const [conversationName, setConversationName] = useState<string>();
@@ -150,6 +152,19 @@ export function Wrapper(
     // Effects
 
     useEffect(() => {
+        const cloudUrl: string | null = searchParams.get("cU");
+        if (cloudUrl) {
+            setCloudUrl(cloudUrl)
+        }
+        const apiKey: string | null = searchParams.get("aK");
+        if (apiKey) {
+            setApiKey(apiKey)
+        }
+        const appUrl: string | null = searchParams.get("aU");
+        if (appUrl) {
+            setAppUrl(appUrl)
+        }
+
         const userId: string | null = searchParams.get("uId");
         if (userId) {
             setUserId(userId)
@@ -256,16 +271,16 @@ export function Wrapper(
         <AppContext.Provider value={{
             appData: {
                 metadata: {
-                    installationId: '', settings: {
-                        apiKey: 'myDemoApiKey', cloudUrl: 'https://cloud.apirtc.com',
-                        appUrl: 'https://apirtc.github.io/visio-assisted'
+                    installationId: 'apz_salesforce',
+                    settings: {
+                        apiKey, cloudUrl, appUrl
                     }
                 }
             },
             activated, userId, conversationName, notify: () => { }
         }}>
             {/* <Box sx={{ margin: '0 2px' }}> */}
-                <App />
+            <App />
             {/* </Box> */}
         </AppContext.Provider>
     </MuiThemeProvider>
