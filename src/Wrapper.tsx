@@ -9,14 +9,10 @@ import { setLogLevel as setApiRtcReactLibLogLevel } from '@apirtc/react-lib';
 import { App } from './App';
 import { AppContext } from './AppContext';
 import { frFR } from './locale/frFR';
-import { setLogLevel } from './logLevel';
+import { setLogLevel, LogLevelText } from './logLevel';
 // import { useSearchParams } from 'react-router-dom';
 
-const logLevel = 'warn';
-setLogLevel(logLevel)
-setApiRtcReactLibLogLevel(logLevel)
-setApiRtcMuiReactLibLogLevel(logLevel)
-// apiRTC.setLogLevel(10)
+// declare var apiRTC:any;
 
 const languageToLocale = (language: string) => {
     switch (language) {
@@ -173,6 +169,18 @@ export function Wrapper(
         if (conversationName) {
             setConversationName(conversationName)
         }
+
+        const logLevel: LogLevelText = searchParams.get("lL") as LogLevelText ?? 'warn';
+        setLogLevel(logLevel)
+        setApiRtcReactLibLogLevel(logLevel)
+        setApiRtcMuiReactLibLogLevel(logLevel)
+        //apiRTC.setLogLevel(10)
+
+        const locale: string | null = searchParams.get("l");
+        if (locale) {
+            setLocale(locale)
+        }
+
     }, [searchParams])
 
     useEffect(() => {

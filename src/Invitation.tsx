@@ -201,13 +201,17 @@ Thanks` } = props;
         }
     }, [appData, props.conversationName, name, publishOptions, facingMode])
 
-    const doComment = useCallback((comment: string) => {
-        // TODO : notify parent iframe ?
-    }, []);
 
     const doCopyLink = useCallback(() => {
         console.log("inviteLink", inviteLink)
         navigator.clipboard.writeText(inviteLink);
+
+        const message = {
+            type: 'link_copied',
+            link: inviteLink
+        };
+        window.parent.postMessage(message, '*')
+
     }, [name, inviteLink]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,7 +251,7 @@ Thanks` } = props;
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} />
                 <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>
             </Stack>
-            <Link href={inviteLink}>Lien pour {name}</Link>
+            {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="email-input" placeholder={emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)} />
