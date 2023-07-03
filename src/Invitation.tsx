@@ -29,7 +29,7 @@ import { getFromLocalStorage, setLocalStorage } from './utils';
 
 // declare var apiRTC: any;
 
-// WARN : to be kept in sync with visio-assisted code
+// WARN : to be kept in sync with visio-assisted / z-visio code
 //
 type InvitationData = {
     cloudUrl?: string
@@ -65,7 +65,7 @@ export type InvitationProps = {
     sx?: SxProps,
     conversationName: string,
     moderationEnabledText?: string,
-    getInviteText?: (name: string) => string,
+    copyLinkText?: string,
     sendEmailText?: string,
     sentEmailText?: string,
     emailFailText?: string,
@@ -109,7 +109,7 @@ export function Invitation(inProps: InvitationProps) {
         sentSmsText = "Sms sent",
         smsFailText = "Failed to send sms",
         commentFailText = "Failed add comment",
-        getInviteText = (name: string) => `Invite ${name} in comment`,
+        copyLinkText = "Copy Link",
         facingModeText = "Facing mode",
         userFacingModeText = "user", environmentFacingModeText = "environment",
         namePlaceholder = "Name",
@@ -153,11 +153,6 @@ Thanks` } = props;
         //     setPhone(requester.identities.find(({ type }: any) => type === 'phone_number')?.value ?? EMPTY_STRING);
 
         //     setTicketId(data['ticket.id'])
-        // });
-
-        // TODO : does not work ?
-        // client.on('ticket.requester.email.changed', (event: any) => {
-        //     console.log('ticket.requester.email.changed', event)
         // });
     }, [])
 
@@ -210,25 +205,9 @@ Thanks` } = props;
         // TODO : notify parent iframe ?
     }, []);
 
-    // Using basic cloud authentication
-    const doSendEmail = useCallback(() => {
-        if (email !== "") {
-            //setSending(true)
-            // TODO
-        }
-    }, []);
-
-    // Using basic cloud authentication
-    const doSendSms = useCallback(() => {
-        if (phone !== "") {
-            //setSending(true)
-            //TODO
-        }
-    }, []);
-
-    const doPutLinkInComment = useCallback(() => {
+    const doCopyLink = useCallback(() => {
         console.log("inviteLink", inviteLink)
-        //TODO
+        navigator.clipboard.writeText(inviteLink);
     }, [name, inviteLink]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,10 +245,10 @@ Thanks` } = props;
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} />
-                <Button variant='outlined' data-testid="comment-invite-btn" onClick={doPutLinkInComment}>{getInviteText(name)}</Button>
+                <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>
             </Stack>
             <Link href={inviteLink}>Lien pour {name}</Link>
-            <Stack sx={{ mt: 1 }}
+            {/* <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="email-input" placeholder={emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)} />
                 <Button sx={{ minWidth: 120 }} variant='outlined' disabled={sending} onClick={doSendEmail}>{sendEmailText}</Button>
@@ -278,7 +257,7 @@ Thanks` } = props;
                 direction="row" spacing={1}>
                 <Input data-testid="phone-input" placeholder={phonePlaceholder} value={phone} onChange={e => setPhone(e.target.value)} />
                 <Button sx={{ minWidth: 120 }} variant='outlined' disabled={sending} onClick={doSendSms}>{sendSmsText}</Button>
-            </Stack>
+            </Stack> */}
         </form>
     </Box>
 }

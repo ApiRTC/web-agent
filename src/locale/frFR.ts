@@ -21,7 +21,7 @@ export const frFR: Localization = {
         },
         Invitation: {
             defaultProps: {
-                getInviteText: (name: string) => `Inviter ${name} en commentaire`,
+                copyLinkText: `Copier le lien`,
                 sendEmailText: "Envoyer e-mel",
                 sendSmsText: "Envoyer sms",
                 sentEmailText: "E-mel envoyé",
