@@ -10,6 +10,8 @@ import { App } from './App';
 import { AppContext } from './AppContext';
 import { frFR } from './locale/frFR';
 import { setLogLevel, LogLevelText } from './logLevel';
+import { DEFAULT_APP_CONFIG } from './constants';
+import { AppConfig, UserData } from './types';
 // import { useSearchParams } from 'react-router-dom';
 
 // declare var apiRTC:any;
@@ -33,14 +35,11 @@ function isInstanceOfConversationEvent(object: any): object is ConversationEvent
 
 export type WrapperProps = {
     //  client: any,
-    //appData: AppData
 };
 const COMPONENT_NAME = "Wrapper";
 export function Wrapper(
     // props: WrapperProps
 ) {
-
-    // const { appData } = props;
 
     const [options] = useState<ThemeOptions>({
         palette: {
@@ -117,20 +116,17 @@ export function Wrapper(
     });
 
     // const [searchParams] = useSearchParams();
-
     const searchParams = useMemo(() => new URLSearchParams(document.location.search), []);
 
     const [locale, setLocale] = React.useState<string>(languageToLocale(navigator.language));
 
-    const [cloudUrl, setCloudUrl] = useState<string>('https://cloud.apirtc.com');
-    const [apiKey, setApiKey] = useState<string>('myDemoApiKey');
-    const [appUrl, setAppUrl] = useState<string>('https://apirtc.github.io/visio-assisted');
+    const [appConfig, setAppConfig] = useState<AppConfig>(DEFAULT_APP_CONFIG);
 
-    const [userId, setUserId] = useState<string>();
+    const [userData, setUserData] = useState<UserData>();
+    const [inviteeData, setInviteeData] = useState<UserData>();
+
     const [conversationName, setConversationName] = useState<string>();
 
-    const [context, setContext] = useState<any>();
-    const [expanded, setExpanded] = useState<boolean>(false);
     const [activated, setActivated] = useState<boolean>(true);
 
     const theme = useMemo(() => {
@@ -148,22 +144,22 @@ export function Wrapper(
     // Effects
 
     useEffect(() => {
-        const cloudUrl: string | null = searchParams.get("cU");
-        if (cloudUrl) {
-            setCloudUrl(cloudUrl)
-        }
-        const apiKey: string | null = searchParams.get("aK");
-        if (apiKey) {
-            setApiKey(apiKey)
-        }
-        const appUrl: string | null = searchParams.get("aU");
-        if (appUrl) {
-            setAppUrl(appUrl)
-        }
+        setAppConfig({
+            installationId: searchParams.get("iI") ?? DEFAULT_APP_CONFIG.installationId,
+            apiRtc: {
+                cloudUrl: searchParams.get("cU") ?? DEFAULT_APP_CONFIG.apiRtc.cloudUrl,
+                apiKey: searchParams.get("aK") ?? DEFAULT_APP_CONFIG.apiRtc.apiKey
+            },
+            assistedUrl: searchParams.get("aU") ?? DEFAULT_APP_CONFIG.assistedUrl
+        });
 
         const userId: string | null = searchParams.get("uId");
         if (userId) {
-            setUserId(userId)
+            setUserData({ userId })
+        }
+        const inviteeName: string | null = searchParams.get("iN");
+        if (inviteeName) {
+            setInviteeData({ name: inviteeName })
         }
         const conversationName: string | null = searchParams.get("cN");
         if (conversationName) {
@@ -184,33 +180,62 @@ export function Wrapper(
     }, [searchParams])
 
     useEffect(() => {
-        window.addEventListener(
-            "message",
-            (event) => {
-                console.log('iframe receives message:', event);
 
-                if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
-                    return
+        const receiveMessage = (event: any) => {
+            console.log('iframe receives message:', event);
+
+            if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
+                return
+            }
+
+            // if (event.origin !== "http://example.org:8080") return;
+            // …
+
+            try {
+                const message = event.data;
+
+                // on conversation,
+                if (isInstanceOfConversationEvent(message)) {
+                    setConversationName(message.name)
                 }
 
-                // if (event.origin !== "http://example.org:8080") return;
-                // …
+                if (globalThis.logLevel.isDebugEnabled) {
+                    console.debug(`${COMPONENT_NAME}|receives message`, message);
+                }
 
-                try {
-                    const eventObj = JSON.parse(event.data);
-                    console.log('iframe receives message:', eventObj);
-
-                    // on conversation,
-                    if (isInstanceOfConversationEvent(eventObj)) {
-                        setConversationName(eventObj.name)
+                switch (message.type) {
+                    case 'app_config': {
+                        setAppConfig(message.data)
+                        break;
                     }
-                } catch (error) {
-                    console.error('Error', error)
+                    case 'user_data': {
+                        setUserData(message.data)
+                        break;
+                    }
+                    case 'invitee_data': {
+                        setInviteeData(message.data)
+                        break;
+                    }
+                    default:
+                        console.log(`${COMPONENT_NAME}|Unknown message.type ${message.type}.`);
                 }
 
-            },
-            false
-        );
+            } catch (error) {
+                console.error('Error', error)
+            }
+
+        };
+
+        window.addEventListener('message', receiveMessage, false);
+
+        // Notify the application is ready to receive messages
+        window.parent.postMessage({
+            type: 'ready'
+        }, '*')
+
+        return () => {
+            window.removeEventListener('message', receiveMessage);
+        }
     }, []);
 
     useEffect(() => {
@@ -277,19 +302,12 @@ export function Wrapper(
 
     return <MuiThemeProvider theme={theme}>
         <AppContext.Provider value={{
-            appData: {
-                metadata: {
-                    installationId: 'apz_salesforce',
-                    settings: {
-                        apiKey, cloudUrl, appUrl
-                    }
-                }
-            },
-            activated, userId, conversationName, notify: () => { }
+            appConfig,
+            userData,
+            inviteeData,
+            activated, conversationName, notify: () => { }
         }}>
-            {/* <Box sx={{ margin: '0 2px' }}> */}
             <App />
-            {/* </Box> */}
         </AppContext.Provider>
     </MuiThemeProvider>
 }

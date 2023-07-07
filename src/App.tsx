@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 
 import { Contact, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
@@ -13,7 +13,7 @@ import { useThemeProps } from '@mui/material/styles';
 import { AppContext } from './AppContext';
 import { Invitation } from "./Invitation";
 import { Room } from "./Room";
-import { CODECS, MAX_HEIGHT, RESIZE_CONTAINER_DELAY, VIDEO_ROUNDED_CORNERS } from './constants';
+import { CODECS, RESIZE_CONTAINER_DELAY, VIDEO_ROUNDED_CORNERS } from './constants';
 
 import { Tooltip } from '@mui/material';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -47,12 +47,9 @@ export function App(inProps: AppProps) {
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
     } = props;
 
-    const { appData, activated, userId, conversationName, notify } = useContext(AppContext);
+    const { appConfig, userData, activated, conversationName, notify } = useContext(AppContext);
 
-    const installationId = appData.metadata.installationId;
-
-    const [credentials, setCredentials] = useState<Credentials>();
-    const [registerInformation, setRegisterInformation] = useState<RegisterInformation>();
+    const installationId = appConfig.installationId;
 
     const { value: withAudio, toggle: toggleAudio } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')));
     const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'false')));
@@ -60,6 +57,25 @@ export function App(inProps: AppProps) {
         setLocalStorage(`${installationId}.withAudio`, `${withAudio}`)
         setLocalStorage(`${installationId}.withVideo`, `${withVideo}`)
     }, [installationId, withAudio, withVideo])
+
+    const registerInformation: RegisterInformation = useMemo(() => {
+        return {
+            id: userData?.userId,
+            userData: new UserData({
+                type: "agent",// this, combined with username, might help to count number of agents using the service ?
+                ...userData
+            }),
+            cloudUrl: appConfig.apiRtc.cloudUrl
+        }
+    }, [appConfig, userData]);
+
+    const credentials: Credentials | undefined = useMemo(() => {
+        if (appConfig.apiRtc.apiKey && appConfig.apiRtc.apiKey !== '') {
+            return { apiKey: appConfig.apiRtc.apiKey }
+        } else {
+            return undefined
+        }
+    }, [appConfig]);
 
     const { session } = useSession(activated ? credentials : undefined,
         registerInformation,
@@ -106,47 +122,6 @@ export function App(inProps: AppProps) {
         // thus we need to add 'as any'
         { ...CODECS } as any);
 
-    // ------------------------------------------------------------------------
-    // Effects
-    //
-    useEffect(() => {
-        //client.get(['currentUser', 'ticket.id']).then((data: any) => {
-
-        // const currentUser = data['currentUser'];
-        // if (globalThis.logLevel.isDebugEnabled) {
-        //     console.debug(`${COMPONENT_NAME}|useEffect currentUser`, currentUser)
-        // }
-
-        //setTicketId(data['ticket.id'])
-        //setConversationName(`ticket-${data['ticket.id']}`)
-
-        // get firstName and lastName from Zendesk current user.
-        //const [firstName, lastName] = currentUser.name.split(' ');
-
-        // build RegisterInformation
-        if (userId) {
-            const registerInformation: RegisterInformation = {
-                id: userId,
-                userData: new UserData({
-                    type: "agent",// this, combined with username, might help to count number of agents using the service ?
-                    //username: currentUser.email,
-                    //firstName, lastName
-                })
-            };
-
-            if (appData.metadata.settings.cloudUrl) {
-                registerInformation['cloudUrl'] = appData.metadata.settings.cloudUrl;
-            }
-
-            // finally, set registerInformation and credentials to initiate ApiRTC session hook
-            setRegisterInformation(registerInformation)
-        }
-        //});
-    }, [userId]);
-
-    useEffect(() => {
-        setCredentials({ apiKey: appData.metadata.settings.apiKey })
-    }, [appData]);
     const doResize = () => {
         // It takes a few moments before DOM is actually updated
         // so we have to wait for streams full render before the resizeContainer

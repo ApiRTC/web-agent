@@ -1,18 +1,21 @@
 import { createContext } from 'react';
-import { AppData } from './ZAF';
+import { DEFAULT_APP_CONFIG } from './constants';
+import { AppConfig, UserData } from './types';
 
 export const AppContext = createContext<
     {
-        appData: AppData,
+        appConfig: AppConfig,
+        userData: UserData | undefined,
+        inviteeData: UserData | undefined,
         activated: boolean,
-        userId: string | undefined,
         conversationName: string | undefined,
         notify: (level: 'info' | 'error' | 'warn', message: string) => void
     }>(
         {
-            appData: { metadata: { installationId: '', settings: { apiKey: 'myDemoApiKey', cloudUrl: 'https://cloud.apirtc.com' } } },
+            appConfig: DEFAULT_APP_CONFIG,
+            userData: undefined,
+            inviteeData: undefined,
             activated: true,
-            userId: undefined,
             conversationName: undefined,
             notify: () => { }
         });

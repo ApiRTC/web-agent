@@ -1,9 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-// import { Button } from '@zendeskgarden/react-buttons';
-// import { Field, Input, Label } from '@zendeskgarden/react-forms';
-// import { Row, Col } from '@zendeskgarden/react-grid';
-
 import { SxProps, useThemeProps } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -96,9 +92,9 @@ export type InvitationProps = {
 const COMPONENT_NAME = "Invitation";
 export function Invitation(inProps: InvitationProps) {
 
-    const { appData, notify } = useContext(AppContext);
+    const { appConfig, inviteeData, notify } = useContext(AppContext);
 
-    const installationId = appData.metadata.installationId;
+    const installationId = appConfig.installationId;
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
     const { moderationEnabledText = "Moderated",
@@ -127,9 +123,7 @@ I would like to invite you to a visio call, please click ${link} to join.`,
 Please join at ${link}.
 Thanks` } = props;
 
-    const [ticketId, setTicketId] = useState<string>();
-
-    const [name, setName] = useState<string>(EMPTY_STRING);
+    const [name, setName] = useState<string>(inviteeData?.name || EMPTY_STRING);
     const [email, setEmail] = useState<string>(EMPTY_STRING);
     const [phone, setPhone] = useState<string>(EMPTY_STRING);
     const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(installationId));
@@ -142,30 +136,21 @@ Thanks` } = props;
     const [sending, setSending] = useState<boolean>(false);
 
     useEffect(() => {
-        // TODO: gather requester info from parent iframe
-        // client.get(['ticket.requester', 'ticket.id']).then((data: any) => {
-        //     if (globalThis.logLevel.isDebugEnabled) {
-        //         console.debug(`${COMPONENT_NAME}|ticket.requester, ticket.id`, data['ticket.requester'], data['ticket.id'])
-        //     }
-        //     const requester = data['ticket.requester'];
-        //     setName(requester.name);
-        //     setEmail(requester.email);
-        //     setPhone(requester.identities.find(({ type }: any) => type === 'phone_number')?.value ?? EMPTY_STRING);
-
-        //     setTicketId(data['ticket.id'])
-        // });
-    }, [])
+        if (inviteeData?.name) {
+            setName(inviteeData.name)
+        }
+    }, [inviteeData])
 
     useEffect(() => {
         setLocalStorage(`${installationId}.publishOptions`, JSON.stringify(publishOptions));
         setLocalStorage(`${installationId}.facingMode`, facingMode);
-    }, [publishOptions, facingMode])
+    }, [installationId, publishOptions, facingMode])
 
     useEffect(() => {
         if (name && name !== EMPTY_STRING) {
             const l_invitationData = {
-                cloudUrl: appData.metadata.settings.cloudUrl,
-                apiKey: appData.metadata.settings.apiKey,
+                cloudUrl: appConfig.apiRtc.cloudUrl,
+                apiKey: appConfig.apiRtc.apiKey,
                 conversation: {
                     name: props.conversationName,
                     friendlyName: props.conversationName,
@@ -194,13 +179,12 @@ Thanks` } = props;
             }
             setInvitationData(l_invitationData)
             //setInviteLink(encodeURI(appData.metadata.settings.appUrl + '/' + base64_encode(JSON.stringify(l_invitationData))))
-            setInviteLink(encodeURI(appData.metadata.settings.appUrl + '?i=' + base64_encode(JSON.stringify(l_invitationData))))
+            setInviteLink(encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(l_invitationData))))
         } else {
             setInvitationData(undefined)
             setInviteLink('')
         }
-    }, [appData, props.conversationName, name, publishOptions, facingMode])
-
+    }, [appConfig, props.conversationName, name, publishOptions, facingMode])
 
     const doCopyLink = useCallback(() => {
         console.log("inviteLink", inviteLink)
@@ -208,6 +192,7 @@ Thanks` } = props;
 
         const message = {
             type: 'link_copied',
+            name: name,
             link: inviteLink
         };
         window.parent.postMessage(message, '*')
