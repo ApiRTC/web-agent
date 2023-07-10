@@ -1,7 +1,7 @@
 {
-  "name": "agent-room",
+  "name": "web-agent",
   "version": "0.1.0",
-  "homepage": "https://kmoyse-apizee.github.io/agent-room",
+  "homepage": "https://kmoyse-apizee.github.io/web-agent",
   "private": true,
   "dependencies": {
     "@apirtc/apirtc": "^5.0.13",
