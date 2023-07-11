@@ -142,8 +142,8 @@ Thanks` } = props;
         setLocalStorage(`${installationId}.facingMode`, facingMode);
     }, [installationId, publishOptions, facingMode])
 
-    const invitationData: InvitationData | undefined = useMemo(() => {
-        return name && name !== EMPTY_STRING ? {
+    const invitationLink = useMemo(() => {
+        const invitationData: InvitationData | undefined = name && name !== EMPTY_STRING ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
             conversation: {
@@ -171,12 +171,9 @@ Thanks` } = props;
                 },
                 publishOptions: publishOptions
             }]
-        } : undefined
-    }, [appConfig, props.conversationName, name, publishOptions, facingMode]);
-
-    const invitationLink = useMemo(() => {
+        } : undefined;
         return invitationData ? encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))) : undefined
-    }, [appConfig, invitationData]);
+    }, [appConfig, props.conversationName, name, publishOptions, facingMode]);
 
     const doCopyLink = useCallback(() => {
         if (invitationLink) {
