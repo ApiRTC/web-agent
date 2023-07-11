@@ -182,7 +182,9 @@ export function Wrapper(
     useEffect(() => {
 
         const receiveMessage = (event: any) => {
-            console.log('iframe receives message:', event);
+            if (globalThis.logLevel.isDebugEnabled) {
+                console.debug(`${COMPONENT_NAME}|receives message:`, event);
+            }
 
             if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
                 return
@@ -217,13 +219,13 @@ export function Wrapper(
                         break;
                     }
                     default:
-                        console.log(`${COMPONENT_NAME}|Unknown message.type ${message.type}.`);
+                        if (globalThis.logLevel.isWarnEnabled) {
+                            console.warn(`${COMPONENT_NAME}|receiveMessage, unknown message.type ${message.type}.`);
+                        }
                 }
-
             } catch (error) {
-                console.error('Error', error)
+                console.error(`${COMPONENT_NAME}|receiveMessage error`, error)
             }
-
         };
 
         window.addEventListener('message', receiveMessage, false);
@@ -231,7 +233,7 @@ export function Wrapper(
         // Notify the application is ready to receive messages
         window.parent.postMessage({
             type: 'ready'
-        }, '*')
+        }, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
 
         return () => {
             window.removeEventListener('message', receiveMessage);

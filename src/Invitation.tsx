@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { SxProps, useThemeProps } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -19,7 +19,6 @@ import { GetOrCreateConversationOptions, JoinOptions, PublishOptions } from '@ap
 import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
 
 import { AppContext } from './AppContext';
-import { sendEmail, sendSms } from './cloudMethods';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './utils';
 
@@ -130,9 +129,6 @@ Thanks` } = props;
     const { value: facingMode, index: facingModeIndex,
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES, FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.facingMode`, FACING_MODES[0])));
 
-    const [invitationData, setInvitationData] = useState<InvitationData | undefined>(undefined);
-    const [inviteLink, setInviteLink] = useState<string>('');
-
     const [sending, setSending] = useState<boolean>(false);
 
     useEffect(() => {
@@ -146,58 +142,55 @@ Thanks` } = props;
         setLocalStorage(`${installationId}.facingMode`, facingMode);
     }, [installationId, publishOptions, facingMode])
 
-    useEffect(() => {
-        if (name && name !== EMPTY_STRING) {
-            const l_invitationData = {
-                cloudUrl: appConfig.apiRtc.cloudUrl,
-                apiKey: appConfig.apiRtc.apiKey,
-                conversation: {
-                    name: props.conversationName,
-                    friendlyName: props.conversationName,
-                    getOrCreateOptions: {
-                        moderationEnabled: false,
-                        meshModeEnabled: true
-                    },
-                    joinOptions: { ...CODECS } as any // 'as any' because supportedVideoCodecs is not in apirtc typings
+    const invitationData: InvitationData | undefined = useMemo(() => {
+        return name && name !== EMPTY_STRING ? {
+            cloudUrl: appConfig.apiRtc.cloudUrl,
+            apiKey: appConfig.apiRtc.apiKey,
+            conversation: {
+                name: props.conversationName,
+                friendlyName: props.conversationName,
+                getOrCreateOptions: {
+                    moderationEnabled: false,
+                    meshModeEnabled: true
                 },
-                user: {
-                    firstName: name,
-                    lastName: ""
-                },
-                streams: [{
-                    constraints: {
-                        audio: publishOptions.videoOnly ? false : {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                        },
-                        video: publishOptions.audioOnly ? false : {
-                            advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
-                        }
+                joinOptions: { ...CODECS } as any // 'as any' because supportedVideoCodecs is not in apirtc typings
+            },
+            user: {
+                firstName: name,
+                lastName: ""
+            },
+            streams: [{
+                constraints: {
+                    audio: publishOptions.videoOnly ? false : {
+                        echoCancellation: true,
+                        noiseSuppression: true,
                     },
-                    publishOptions: publishOptions
-                }]
-            }
-            setInvitationData(l_invitationData)
-            //setInviteLink(encodeURI(appData.metadata.settings.appUrl + '/' + base64_encode(JSON.stringify(l_invitationData))))
-            setInviteLink(encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(l_invitationData))))
-        } else {
-            setInvitationData(undefined)
-            setInviteLink('')
-        }
-    }, [appConfig, props.conversationName, name, publishOptions, facingMode])
+                    video: publishOptions.audioOnly ? false : {
+                        advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
+                    }
+                },
+                publishOptions: publishOptions
+            }]
+        } : undefined
+    }, [appConfig, props.conversationName, name, publishOptions, facingMode]);
+
+    const invitationLink = useMemo(() => {
+        return invitationData ? encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))) : undefined
+    }, [appConfig, invitationData]);
 
     const doCopyLink = useCallback(() => {
-        console.log("inviteLink", inviteLink)
-        navigator.clipboard.writeText(inviteLink);
+        if (invitationLink) {
+            // Copy to clipboard
+            navigator.clipboard.writeText(invitationLink);
 
-        const message = {
-            type: 'link_copied',
-            name: name,
-            link: inviteLink
-        };
-        window.parent.postMessage(message, '*')
-
-    }, [name, inviteLink]);
+            // Notify
+            window.parent.postMessage({
+                type: 'link_copied',
+                name: name,
+                link: invitationLink
+            }, '*')
+        }
+    }, [name, invitationLink]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -232,9 +225,11 @@ Thanks` } = props;
                 </FormControl>
             </Stack>
             <Stack sx={{ mt: 1 }}
-                direction="row" spacing={1}>
+                direction="row" spacing={1}
+                alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} />
-                <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>
+                {invitationLink && <Link href={invitationLink}>Link</Link>}
+                {invitationLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}

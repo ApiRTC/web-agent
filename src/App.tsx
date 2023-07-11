@@ -129,10 +129,9 @@ export function App(inProps: AppProps) {
         //resizeContainer(client, MAX_HEIGHT)
 
         // Notify iframe parent about resize
-        const message = {
+        window.parent.postMessage({
             type: 'resize'
-        };
-        window.parent.postMessage(message, '*')
+        }, '*')
 
         return setTimeout(() => {
             //resizeContainer(client, MAX_HEIGHT)
@@ -147,20 +146,18 @@ export function App(inProps: AppProps) {
     }, [stream]) // depends on what is rendered
 
     const onStart = useCallback(() => {
-        const message = {
+        window.parent.postMessage({
             type: 'conversation_start',
             conversationName: conversationName
-        };
-        window.parent.postMessage(message, '*')
+        }, '*')
     }, [conversationName]);
 
     const onEnd = useCallback((durationMilliseconds: number) => {
-        const message = {
+        window.parent.postMessage({
             type: 'conversation_end',
             conversationName: conversationName,
             durationMilliseconds
-        };
-        window.parent.postMessage(message, '*')
+        }, '*')
     }, [conversationName]);
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
@@ -174,7 +171,9 @@ export function App(inProps: AppProps) {
                 dataUrl
             };
             window.parent.postMessage(message, '*')
-            console.log('onSnapshot postMessage done', message, JSON.stringify(message))
+            if (globalThis.logLevel.isDebugEnabled) {
+                console.debug(`${COMPONENT_NAME}|onSnapshot postMessage done`, message)
+            }
             resolve();
         });
     }, []);
