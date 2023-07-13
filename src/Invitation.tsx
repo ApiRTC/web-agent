@@ -139,7 +139,7 @@ Thanks` } = props;
 
     useEffect(() => {
         setLocalStorage(`${installationId}.publishOptions`, JSON.stringify(publishOptions));
-        setLocalStorage(`${installationId}.facingMode`, facingMode);
+        setLocalStorage(`${installationId}.facingMode`, facingMode ?? FACING_MODES[0]);
     }, [installationId, publishOptions, facingMode])
 
     const invitationLink = useMemo(() => {

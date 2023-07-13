@@ -47,7 +47,7 @@ export function App(inProps: AppProps) {
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
     } = props;
 
-    const { appConfig, userData, activated, conversationName, notify } = useContext(AppContext);
+    const { appConfig, userData, connect, join, conversationName, notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 
@@ -77,7 +77,7 @@ export function App(inProps: AppProps) {
         }
     }, [appConfig]);
 
-    const { session } = useSession(activated ? credentials : undefined,
+    const { session } = useSession(connect ? credentials : undefined,
         registerInformation,
         (error) => {
             console.error(`${COMPONENT_NAME}|useSession error`, error)
@@ -88,7 +88,7 @@ export function App(inProps: AppProps) {
     const { userMediaDevices,
         selectedAudioIn, setSelectedAudioIn,
         selectedVideoIn, setSelectedVideoIn } = useUserMediaDevices(
-            activated ? session : undefined,
+            session,
             installationId);
 
     const constraints = useMemo(() => {
@@ -104,8 +104,8 @@ export function App(inProps: AppProps) {
         }
     }, [withAudio, withVideo, selectedAudioIn, selectedVideoIn]);
 
-    const { stream } = useCameraStream(activated
-        && (withAudio || withVideo) ? session : undefined, {
+    const { stream } = useCameraStream(
+        (withAudio || withVideo) ? session : undefined, {
         // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable), so the options object change
         // and re-triggers rendering. To prevent this, build a constraints object using deviceId directly.
         //audioInputId: selectedAudioIn?.id,
@@ -117,7 +117,7 @@ export function App(inProps: AppProps) {
         {
             meshModeEnabled: true
         },
-        true,
+        join,
         // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
         // thus we need to add 'as any'
         { ...CODECS } as any);

@@ -7,7 +7,8 @@ export const AppContext = createContext<
         appConfig: AppConfig,
         userData: UserData | undefined,
         inviteeData: UserData | undefined,
-        activated: boolean,
+        connect: boolean,
+        join: boolean,
         conversationName: string | undefined,
         notify: (level: 'info' | 'error' | 'warn', message: string) => void
     }>(
@@ -15,7 +16,8 @@ export const AppContext = createContext<
             appConfig: DEFAULT_APP_CONFIG,
             userData: undefined,
             inviteeData: undefined,
-            activated: true,
+            connect: true,
+            join: true,
             conversationName: undefined,
             notify: () => { }
         });
