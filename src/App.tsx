@@ -87,9 +87,7 @@ export function App(inProps: AppProps) {
 
     const { userMediaDevices,
         selectedAudioIn, setSelectedAudioIn,
-        selectedVideoIn, setSelectedVideoIn } = useUserMediaDevices(
-            session,
-            installationId);
+        selectedVideoIn, setSelectedVideoIn } = useUserMediaDevices(session, installationId);
 
     const constraints = useMemo(() => {
         return {
@@ -104,14 +102,14 @@ export function App(inProps: AppProps) {
         }
     }, [withAudio, withVideo, selectedAudioIn, selectedVideoIn]);
 
-    const { stream } = useCameraStream(
-        (withAudio || withVideo) ? session : undefined, {
-        // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable), so the options object change
-        // and re-triggers rendering. To prevent this, build a constraints object using deviceId directly.
-        //audioInputId: selectedAudioIn?.id,
-        //videoInputId: selectedVideoIn?.id,
-        constraints: constraints
-    });
+    const { stream } = useCameraStream((withAudio || withVideo) ? session : undefined,
+        {
+            // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable), so the options object change
+            // and re-triggers rendering. To prevent this, build a constraints object using deviceId directly.
+            //audioInputId: selectedAudioIn?.id,
+            //videoInputId: selectedVideoIn?.id,
+            constraints: constraints
+        });
 
     const { conversation } = useConversation(session, conversationName,
         {

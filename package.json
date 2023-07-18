@@ -5,8 +5,8 @@
   "private": true,
   "dependencies": {
     "@apirtc/apirtc": "^5.0.14",
-    "@apirtc/mui-react-lib": "^1.0.7",
-    "@apirtc/react-lib": "^1.0.16",
+    "@apirtc/mui-react-lib": "^1.0.8",
+    "@apirtc/react-lib": "^1.0.17",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",

@@ -225,7 +225,7 @@ Thanks` } = props;
                 direction="row" spacing={1}
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} />
-                {invitationLink && <Link href={invitationLink}>Link</Link>}
+                {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>}
                 {invitationLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
