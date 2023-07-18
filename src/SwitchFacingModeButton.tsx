@@ -3,12 +3,13 @@ import React, { useContext, useState } from 'react';
 import { Box, CircularProgress, useThemeProps } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 
 import { StreamContext } from '@apirtc/mui-react-lib';
 
 export interface SwitchFacingModeButtonProps extends IconButtonProps {
     tooltip?: string,
+    tooltipProps?: Omit<TooltipProps, 'title' | 'children'>,
     children?: React.ReactNode
 };
 const COMPONENT_NAME = "SwitchFacingModeButton";
@@ -19,6 +20,7 @@ export function SwitchFacingModeButton(inProps: SwitchFacingModeButtonProps) {
     const { id = "switch-facing-mode-btn",
         tooltip = "Switch facing mode",
         children, sx,
+        tooltipProps = { placement: 'left', arrow: true },
         ...rest } = props;
     const ariaLabel = props['aria-label'] ?? "switch facing mode";
 
@@ -47,7 +49,7 @@ export function SwitchFacingModeButton(inProps: SwitchFacingModeButtonProps) {
     return <Box sx={{
         position: 'relative'
     }}>
-        <Tooltip title={tooltip}>
+        <Tooltip title={tooltip} {...tooltipProps}>
             <span>{/*required by mui tooltip in case button is disabled */}
                 <IconButton id={id}
                     aria-label={ariaLabel}
