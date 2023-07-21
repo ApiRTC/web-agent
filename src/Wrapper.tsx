@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { frFR as mui_frFR } from '@mui/material/locale';
 import { createTheme, ThemeProvider as MuiThemeProvider, ThemeOptions } from '@mui/material/styles';
@@ -144,82 +144,83 @@ export function Wrapper(
     // ------------------------------------------------------------------------
     // Effects
 
+    const receiveMessage = useCallback((event: any) => {
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`${COMPONENT_NAME}|receives event`, event);
+        }
+
+        if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
+            return
+        }
+
+        // if (event.origin !== "http://example.org:8080") return;
+        // …
+
+        try {
+            const message = event.data;
+
+            if (globalThis.logLevel.isInfoEnabled) {
+                console.info(`${COMPONENT_NAME}|receives message|${conversationName}`, message);
+            }
+
+            // on conversation,
+            // if (isInstanceOfConversationEvent(message)) {
+            //     setConversationName(message.name)
+            // }
+
+            switch (message.type) {
+                case 'app_config': {
+                    setAppConfig(message.data)
+                    break;
+                }
+                case 'user_data': {
+                    setUserData(message.data)
+                    break;
+                }
+                case 'invitee_data': {
+                    setInviteeData(message.data)
+                    break;
+                }
+                case 'connect': {
+                    setConnect(true)
+                    break;
+                }
+                case 'disconnect': {
+                    setConnect(false)
+                    break;
+                }
+                case 'join_conversation': {
+                    setJoin(true)
+                    break;
+                }
+                case 'leave_conversation': {
+                    setJoin(false)
+                    break;
+                }
+                default:
+                    if (globalThis.logLevel.isWarnEnabled) {
+                        console.warn(`${COMPONENT_NAME}|receiveMessage, unknown message.type ${message.type}.`);
+                    }
+            }
+        } catch (error) {
+            console.error(`${COMPONENT_NAME}|receiveMessage error`, error)
+        }
+    }, [conversationName]);
+
     useEffect(() => {
-        const receiveMessage = (event: any) => {
-            if (globalThis.logLevel.isDebugEnabled) {
-                console.debug(`${COMPONENT_NAME}|receives event`, event);
-            }
-
-            if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
-                return
-            }
-
-            // if (event.origin !== "http://example.org:8080") return;
-            // …
-
-            try {
-                const message = event.data;
-
-                if (globalThis.logLevel.isInfoEnabled) {
-                    console.info(`${COMPONENT_NAME}|receives message`, message);
-                }
-
-                // on conversation,
-                // if (isInstanceOfConversationEvent(message)) {
-                //     setConversationName(message.name)
-                // }
-
-                switch (message.type) {
-                    case 'app_config': {
-                        setAppConfig(message.data)
-                        break;
-                    }
-                    case 'user_data': {
-                        setUserData(message.data)
-                        break;
-                    }
-                    case 'invitee_data': {
-                        setInviteeData(message.data)
-                        break;
-                    }
-                    case 'connect': {
-                        setConnect(true)
-                        break;
-                    }
-                    case 'disconnect': {
-                        setConnect(false)
-                        break;
-                    }
-                    case 'join_conversation': {
-                        setJoin(true)
-                        break;
-                    }
-                    case 'leave_conversation': {
-                        setJoin(false)
-                        break;
-                    }
-                    default:
-                        if (globalThis.logLevel.isWarnEnabled) {
-                            console.warn(`${COMPONENT_NAME}|receiveMessage, unknown message.type ${message.type}.`);
-                        }
-                }
-            } catch (error) {
-                console.error(`${COMPONENT_NAME}|receiveMessage error`, error)
-            }
-        };
-
         window.addEventListener('message', receiveMessage, false);
+        return () => {
+            window.removeEventListener('message', receiveMessage);
+        }
+    }, [receiveMessage]);
 
+    useEffect(() => {
         // Notify the application is ready to receive messages
         setTimeout(() => {
             window.parent.postMessage({
                 type: 'ready'
             }, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
         }, 100)
-
-        return () => {
-            window.removeEventListener('message', receiveMessage);
-        }
     }, []);
 
     useEffect(() => {

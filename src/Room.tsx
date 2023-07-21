@@ -16,8 +16,8 @@ import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
 
-import { frFR } from './locale/frFR';
 import { ROOM_THEME_OPTIONS, VIDEO_ROUNDED_CORNERS } from './constants';
+import { frFR } from './locale/frFR';
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
@@ -36,68 +36,74 @@ const COMPONENT_NAME = "Room";
 export function Room(inProps: RoomProps) {
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
-    const { conversation, hangUpText = "HangUp" } = props;
+    const { conversation, hangUpText = "HangUp", stream, onDisplayChange, onStart, onEnd } = props;
 
     const boxRef = useRef<HTMLElement>(null);
 
     const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
     const { publishedStreams, subscribedStreams } = useConversationStreams(
-        conversation, props.stream && hasSubscribedStreams ? [{ stream: props.stream }] : []);
+        conversation, stream && hasSubscribedStreams ? [{ stream: stream }] : []);
 
-    const [start, setStart] = useState(0);
+    if (globalThis.logLevel.isDebugEnabled) {
+        console.debug(`${COMPONENT_NAME}|render|${conversation.getName()}`, stream, publishedStreams, subscribedStreams, hasSubscribedStreams)
+    }
 
-    useEffect(() => {
-        if (conversation) {
-            const on_pointerSharingEnabled = (data: any) => {
-                if (globalThis.logLevel.isDebugEnabled) {
-                    console.debug(`${COMPONENT_NAME}|pointerSharingEnabled`, data)
-                }
-            };
-            conversation.on('pointerSharingEnabled', on_pointerSharingEnabled)
+    // useEffect(() => {
+    //     if (conversation) {
+    //         const on_pointerSharingEnabled = (data: any) => {
+    //             if (globalThis.logLevel.isDebugEnabled) {
+    //                 console.debug(`${COMPONENT_NAME}|pointerSharingEnabled`, data)
+    //             }
+    //         };
+    //         conversation.on('pointerSharingEnabled', on_pointerSharingEnabled)
 
-            const on_pointerLocationChanged = (data: any) => {
-                if (globalThis.logLevel.isDebugEnabled) {
-                    console.debug(`${COMPONENT_NAME}|pointerLocationChanged`, data)
-                }
-            };
-            conversation.on('pointerLocationChanged', on_pointerLocationChanged)
+    //         const on_pointerLocationChanged = (data: any) => {
+    //             if (globalThis.logLevel.isDebugEnabled) {
+    //                 console.debug(`${COMPONENT_NAME}|pointerLocationChanged`, data)
+    //             }
+    //         };
+    //         conversation.on('pointerLocationChanged', on_pointerLocationChanged)
 
-            conversation.enablePointerSharing(true)
+    //         conversation.enablePointerSharing(true)
 
-            return () => {
-                conversation.removeListener('pointerSharingEnabled', on_pointerSharingEnabled)
-                conversation.removeListener('pointerLocationChanged', on_pointerLocationChanged)
-            }
-        }
-    }, [conversation])
+    //         return () => {
+    //             conversation.removeListener('pointerSharingEnabled', on_pointerSharingEnabled)
+    //             conversation.removeListener('pointerLocationChanged', on_pointerLocationChanged)
+    //         }
+    //     }
+    // }, [conversation])
 
     // Manage onStart/onEnd
     //
+    // Reduce subscribedStreams.length to a boolean (which can have ony 2 possible values)
     useEffect(() => {
-        setHasSubscribedStreams((prev: boolean) => {
-            if (prev === false && subscribedStreams.length > 0) {
-                const now = Date.now();
-                if (props.onStart) {
-                    props.onStart(now)
-                }
-                setStart(now)
-            } else if (prev === true && subscribedStreams.length === 0) {
-                if (props.onEnd) {
-                    props.onEnd(Date.now() - start)
+        setHasSubscribedStreams(subscribedStreams.length > 0)
+    }, [subscribedStreams])
+    //
+    // Using hasSubscribedStreams value change allows to detect start and end (has or no more has subscribed streams)
+    useEffect(() => {
+        if (hasSubscribedStreams) {
+            const start = Date.now();
+            if (onStart) {
+                onStart(start)
+            }
+            return () => {
+                // if hasSubscribedStreams was true, it is now false,
+                // so this is the end of a conversation
+                if (onEnd) {
+                    onEnd(Date.now() - start)
                 }
             }
-
-            return subscribedStreams.length > 0;
-        })
-    }, [subscribedStreams])
+        }
+    }, [hasSubscribedStreams, onStart, onEnd]) //onStart, onEnd
 
     useEffect(() => {
         // This is to externally trigger resize when display changes
-        if (props.onDisplayChange) {
-            props.onDisplayChange()
+        if (onDisplayChange) {
+            onDisplayChange()
         }
-    }, [publishedStreams, subscribedStreams])
+    }, [onDisplayChange, publishedStreams, subscribedStreams])
 
     const hangUp = useCallback((event: React.SyntheticEvent) => {
         event.preventDefault()
@@ -113,29 +119,29 @@ export function Room(inProps: RoomProps) {
         })
     }, [conversation]);
 
-    const onStreamMouseDown = useCallback((stream: ApiRTCStream, event: React.MouseEvent) => {
-        if (globalThis.logLevel.isDebugEnabled) {
-            console.debug(`${COMPONENT_NAME}|onStreamMouseDown`, conversation, stream, event)
-            console.debug(`${COMPONENT_NAME}|offset`, (event.target as any).offsetLeft, (event.target as any).offsetTop)
-            console.debug(`${COMPONENT_NAME}|boxRef`, boxRef.current, boxRef?.current?.offsetLeft, boxRef?.current?.offsetTop)
-        }
-        // TODO : this does not work very well
-        // 1- local&distant video may not be same resolution
-        // 2- local&distant may not be displayed same size
-        // => should we provide % of height and width instead of pixels
-        // 3- we have a problem in thi apirtc design to determine on which stream the pointer shall be displayed
-        // 4- boxRef is not the correct offset if it not the first stream displayed, we should refer to the correct stream parent box...
-        // we may then need to use an intermediate component...
-        const x = event.clientX - (boxRef?.current?.offsetLeft ?? 0);
-        const y = event.clientY - (boxRef?.current?.offsetTop ?? 0);
-        const left = `${Math.round(x * 100 / (boxRef?.current?.clientWidth || 100))}%`;
-        const top = `${Math.round(y * 100 / (boxRef?.current?.clientHeight || 100))}%`;
-        if (globalThis.logLevel.isDebugEnabled) {
-            console.debug(`${COMPONENT_NAME}|onStreamMouseDown x, y, top, left`, x, y, top, left)
-        }
-        // x and y are useless, make it 0, 0 to enforce this
-        conversation.sendPointerLocation({ streamId: stream.getId() }, 0, 0, { top, left })
-    }, [conversation]);
+    // const onStreamMouseDown = useCallback((stream: ApiRTCStream, event: React.MouseEvent) => {
+    //     if (globalThis.logLevel.isDebugEnabled) {
+    //         console.debug(`${COMPONENT_NAME}|onStreamMouseDown`, conversation, stream, event)
+    //         console.debug(`${COMPONENT_NAME}|offset`, (event.target as any).offsetLeft, (event.target as any).offsetTop)
+    //         console.debug(`${COMPONENT_NAME}|boxRef`, boxRef.current, boxRef?.current?.offsetLeft, boxRef?.current?.offsetTop)
+    //     }
+    //     // TODO : this does not work very well
+    //     // 1- local&distant video may not be same resolution
+    //     // 2- local&distant may not be displayed same size
+    //     // => should we provide % of height and width instead of pixels
+    //     // 3- we have a problem in thi apirtc design to determine on which stream the pointer shall be displayed
+    //     // 4- boxRef is not the correct offset if it not the first stream displayed, we should refer to the correct stream parent box...
+    //     // we may then need to use an intermediate component...
+    //     const x = event.clientX - (boxRef?.current?.offsetLeft ?? 0);
+    //     const y = event.clientY - (boxRef?.current?.offsetTop ?? 0);
+    //     const left = `${Math.round(x * 100 / (boxRef?.current?.clientWidth || 100))}%`;
+    //     const top = `${Math.round(y * 100 / (boxRef?.current?.clientHeight || 100))}%`;
+    //     if (globalThis.logLevel.isDebugEnabled) {
+    //         console.debug(`${COMPONENT_NAME}|onStreamMouseDown x, y, top, left`, x, y, top, left)
+    //     }
+    //     // x and y are useless, make it 0, 0 to enforce this
+    //     conversation.sendPointerLocation({ streamId: stream.getId() }, 0, 0, { top, left })
+    // }, [conversation]);
 
     return <MuiThemeProvider theme={createTheme(
         {
@@ -179,10 +185,11 @@ export function Room(inProps: RoomProps) {
                         </>}
                         muted={false}
                         name={stream.getContact().getUserData().get('firstName')}
-                        onMouseDown={(event: React.MouseEvent) => {
-                            event.preventDefault()
-                            onStreamMouseDown(stream, event)
-                        }}>
+                    // onMouseDown={(event: React.MouseEvent) => {
+                    //     event.preventDefault()
+                    //     onStreamMouseDown(stream, event)
+                    // }}
+                    >
                         {stream.hasVideo() ? <Video
                             sx={{ ...VIDEO_SIZING }}
                             style={{
