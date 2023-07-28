@@ -20,7 +20,7 @@ import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apir
 
 import { AppContext } from './AppContext';
 import { CODECS } from './constants';
-import { getFromLocalStorage, setLocalStorage } from './utils';
+import { getFromLocalStorage, setLocalStorage } from './local-storage';
 
 // declare var apiRTC: any;
 
@@ -47,8 +47,8 @@ type InvitationData = {
 const EMPTY_STRING = '';
 const FACING_MODES = ['user', 'environment'];
 
-const storageToPublishOptions = (installationId: string): PublishOptions => {
-    const buffer = getFromLocalStorage(`${installationId}.publishOptions`, null);
+const storageToPublishOptions = (key: string): PublishOptions => {
+    const buffer = getFromLocalStorage(key, null);
     if (buffer) {
         return JSON.parse(buffer) as PublishOptions;
     } else {
@@ -125,9 +125,10 @@ Thanks` } = props;
     const [name, setName] = useState<string>(inviteeData?.name || EMPTY_STRING);
     const [email, setEmail] = useState<string>(EMPTY_STRING);
     const [phone, setPhone] = useState<string>(EMPTY_STRING);
-    const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(installationId));
+    const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.invitee.publishOptions`));
     const { value: facingMode, index: facingModeIndex,
-        setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES, FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.facingMode`, FACING_MODES[0])));
+        setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
+            FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.invitee.facingMode`, FACING_MODES[0])));
 
     const [sending, setSending] = useState<boolean>(false);
 
@@ -138,8 +139,8 @@ Thanks` } = props;
     }, [inviteeData])
 
     useEffect(() => {
-        setLocalStorage(`${installationId}.publishOptions`, JSON.stringify(publishOptions));
-        setLocalStorage(`${installationId}.facingMode`, facingMode ?? FACING_MODES[0]);
+        setLocalStorage(`${installationId}.invitee.publishOptions`, JSON.stringify(publishOptions));
+        setLocalStorage(`${installationId}.invitee.facingMode`, facingMode ?? FACING_MODES[0]);
     }, [installationId, publishOptions, facingMode])
 
     const invitationLink = useMemo(() => {
