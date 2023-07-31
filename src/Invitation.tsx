@@ -138,11 +138,12 @@ Thanks` } = props;
 
     const [sending, setSending] = useState<boolean>(false);
 
-    const [inviteShortLink, setInviteShortLink] = useState<string>();
+    const [invitationShortLink, setInvitationShortLink] = useState<string>();
 
     useEffect(() => {
         if (inviteeData?.name) {
             setName(inviteeData.name)
+            setInviteeName(inviteeData.name)
         }
     }, [inviteeData])
 
@@ -151,7 +152,7 @@ Thanks` } = props;
         setLocalStorage(`${installationId}.invitee.facingMode`, facingMode ?? FACING_MODES[0]);
     }, [installationId, publishOptions, facingMode])
 
-    const invitationData = useMemo(() => {
+    const invitationData: InvitationData | undefined = useMemo(() => {
         return inviteeName && inviteeName !== EMPTY_STRING ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
@@ -205,32 +206,33 @@ Thanks` } = props;
                         return response.json()
                     }
                     console.error(`${COMPONENT_NAME}|fetch response in error`, response)
+                    notify('error', `Failed to create short link: received ${response.status}`)
                 }).then((data) => {
                     console.log(`${COMPONENT_NAME}|received invitation`, data)
-                    setInviteShortLink(appConfig.assistedUrl + '?i=' + data._id)
+                    setInvitationShortLink(appConfig.assistedUrl + '?i=' + data._id)
                 })
                 .catch((error) => {
                     console.error(`${COMPONENT_NAME}|fetch error`, error)
                 })
             return () => {
-                setInviteShortLink(undefined)
+                setInvitationShortLink(undefined)
             }
         }
     }, [appConfig, invitationData])
 
     const doCopyLink = useCallback(() => {
-        if (inviteShortLink) {
+        if (invitationShortLink) {
             // Copy to clipboard
-            navigator.clipboard.writeText(inviteShortLink);
+            navigator.clipboard.writeText(invitationShortLink);
 
             // Notify
             window.parent.postMessage({
                 type: 'link_copied',
-                name: name,
-                link: inviteShortLink
+                name: inviteeName,
+                link: invitationShortLink
             }, '*')
         }
-    }, [name, inviteShortLink]);
+    }, [inviteeName, invitationShortLink]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -291,8 +293,8 @@ Thanks` } = props;
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
                 {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>}
-                {inviteShortLink && <Link href={inviteShortLink} target="_blank" rel="noopener">Link</Link>}
-                {inviteShortLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
+                {invitationShortLink && <Link href={invitationShortLink} target="_blank" rel="noopener">Link</Link>}
+                {invitationShortLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}
