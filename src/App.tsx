@@ -240,7 +240,7 @@ export function App(inProps: AppProps) {
                 <Typography variant="h6">{invitationLabel}</Typography>
             </AccordionSummary>
             <AccordionDetails>
-                <Invitation sx={{ mt: 1 }} conversationName={conversationName}></Invitation>
+                {session && <Invitation sx={{ mt: 1 }} conversationName={conversationName}></Invitation>}
             </AccordionDetails>
         </Accordion>}
         <Divider />

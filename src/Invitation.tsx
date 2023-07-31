@@ -14,6 +14,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
 
 import { encode as base64_encode } from 'base-64';
+import debounce from 'lodash.debounce';
 
 import { GetOrCreateConversationOptions, JoinOptions, PublishOptions } from '@apirtc/apirtc';
 import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
@@ -46,6 +47,8 @@ type InvitationData = {
 
 const EMPTY_STRING = '';
 const FACING_MODES = ['user', 'environment'];
+
+declare var apiRTC: any;
 
 const storageToPublishOptions = (key: string): PublishOptions => {
     const buffer = getFromLocalStorage(key, null);
@@ -122,7 +125,10 @@ I would like to invite you to a visio call, please click ${link} to join.`,
 Please join at ${link}.
 Thanks` } = props;
 
+    // name to handle typing
     const [name, setName] = useState<string>(inviteeData?.name || EMPTY_STRING);
+    // inviteeName is the debounced name
+    const [inviteeName, setInviteeName] = useState<string>(inviteeData?.name || EMPTY_STRING);
     const [email, setEmail] = useState<string>(EMPTY_STRING);
     const [phone, setPhone] = useState<string>(EMPTY_STRING);
     const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.invitee.publishOptions`));
@@ -131,6 +137,8 @@ Thanks` } = props;
             FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.invitee.facingMode`, FACING_MODES[0])));
 
     const [sending, setSending] = useState<boolean>(false);
+
+    const [inviteShortLink, setInviteShortLink] = useState<string>();
 
     useEffect(() => {
         if (inviteeData?.name) {
@@ -143,8 +151,8 @@ Thanks` } = props;
         setLocalStorage(`${installationId}.invitee.facingMode`, facingMode ?? FACING_MODES[0]);
     }, [installationId, publishOptions, facingMode])
 
-    const invitationLink = useMemo(() => {
-        const invitationData: InvitationData | undefined = name && name !== EMPTY_STRING ? {
+    const invitationData = useMemo(() => {
+        return inviteeName && inviteeName !== EMPTY_STRING ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
             conversation: {
@@ -157,7 +165,7 @@ Thanks` } = props;
                 joinOptions: { ...CODECS } as any // 'as any' because supportedVideoCodecs is not in apirtc typings
             },
             user: {
-                firstName: name,
+                firstName: inviteeName,
                 lastName: ""
             },
             streams: [{
@@ -173,22 +181,56 @@ Thanks` } = props;
                 publishOptions: publishOptions
             }]
         } : undefined;
+    }, [appConfig, props.conversationName, inviteeName, facingMode, publishOptions]);
+
+    const invitationLink = useMemo(() => {
         return invitationData ? encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))) : undefined
-    }, [appConfig, props.conversationName, name, publishOptions, facingMode]);
+    }, [appConfig, invitationData]);
+
+    useEffect(() => {
+        if (globalThis.logLevel.isInfoEnabled) {
+            console.info(`${COMPONENT_NAME}|useEffect invitationData`, invitationData)
+        }
+        if (invitationData) {
+            fetch(`http://localhost:3007/invitations`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ data: invitationData }),
+                }).then(response => {
+                    if (response.status === 200 || response.status === 201) {
+                        return response.json()
+                    }
+                    console.error(`${COMPONENT_NAME}|fetch response in error`, response)
+                }).then((data) => {
+                    console.log(`${COMPONENT_NAME}|received invitation`, data)
+                    setInviteShortLink(appConfig.assistedUrl + '?i=' + data._id)
+                })
+                .catch((error) => {
+                    console.error(`${COMPONENT_NAME}|fetch error`, error)
+                })
+            return () => {
+                setInviteShortLink(undefined)
+            }
+        }
+    }, [appConfig, invitationData])
 
     const doCopyLink = useCallback(() => {
-        if (invitationLink) {
+        if (inviteShortLink) {
             // Copy to clipboard
-            navigator.clipboard.writeText(invitationLink);
+            navigator.clipboard.writeText(inviteShortLink);
 
             // Notify
             window.parent.postMessage({
                 type: 'link_copied',
                 name: name,
-                link: invitationLink
+                link: inviteShortLink
             }, '*')
         }
-    }, [name, invitationLink]);
+    }, [name, inviteShortLink]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -196,6 +238,28 @@ Thanks` } = props;
 
     const handleFacingModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFacingModeIndex(+(event.target as HTMLInputElement).value)
+    };
+
+    // Debouncing inviteeName is important to reduce the number of calls to invitation-service.
+    // Without debounce the link creation is called for every key stroke.
+    // Use memoized debounce with useCallback.
+    // Without useCallback the debounce function would not sync with the next key stroke.
+    const debouncedSetInviteeName = useCallback(debounce(setInviteeName, 500), []);
+    // Clean it up when component unmounts
+    useEffect(() => {
+        return () => {
+            debouncedSetInviteeName.cancel();
+        };
+    }, [debouncedSetInviteeName]);
+
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault()
+        // set name so that what is typed is rendered immediately
+        setName(event.target.value)
+        // if something is typed the current link must be invalidated
+        setInviteeName(EMPTY_STRING)
+        // Finally manage inviteeName setting through debounce.
+        debouncedSetInviteeName(event.target.value)
     };
 
     return <Box sx={props.sx}>
@@ -225,9 +289,10 @@ Thanks` } = props;
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}
                 alignItems="flex-end">
-                <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} />
+                <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
                 {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>}
-                {invitationLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
+                {inviteShortLink && <Link href={inviteShortLink} target="_blank" rel="noopener">Link</Link>}
+                {inviteShortLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}
