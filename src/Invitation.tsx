@@ -16,7 +16,7 @@ import Stack from '@mui/material/Stack';
 import { encode as base64_encode } from 'base-64';
 import debounce from 'lodash.debounce';
 
-import { GetOrCreateConversationOptions, JoinOptions, PublishOptions } from '@apirtc/apirtc';
+import { GetOrCreateConversationOptions, JoinOptions, PublishOptions, Session } from '@apirtc/apirtc';
 import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
 
 import { AppContext } from './AppContext';
@@ -48,7 +48,7 @@ type InvitationData = {
 const EMPTY_STRING = '';
 const FACING_MODES = ['user', 'environment'];
 
-declare var apiRTC: any;
+// declare var apiRTC: any;
 
 const storageToPublishOptions = (key: string): PublishOptions => {
     const buffer = getFromLocalStorage(key, null);
@@ -61,6 +61,7 @@ const storageToPublishOptions = (key: string): PublishOptions => {
 
 export type InvitationProps = {
     sx?: SxProps,
+    session: Session,
     conversationName: string,
     moderationEnabledText?: string,
     copyLinkText?: string,
@@ -99,7 +100,9 @@ export function Invitation(inProps: InvitationProps) {
     const installationId = appConfig.installationId;
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
-    const { moderationEnabledText = "Moderated",
+    const {
+        session,
+        moderationEnabledText = "Moderated",
         sendEmailText = "Send e-mail",
         sentEmailText = "E-mail sent",
         emailFailText = "Failed to send e-mail",
@@ -197,7 +200,8 @@ Thanks` } = props;
                 {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
+                        // Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
+                        Authorization: `Bearer ${(session as any).JWTApzToken}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ data: invitationData }),
@@ -218,7 +222,7 @@ Thanks` } = props;
                 setInvitationShortLink(undefined)
             }
         }
-    }, [appConfig, invitationData])
+    }, [appConfig, session, invitationData])
 
     const doCopyLink = useCallback(() => {
         if (invitationShortLink) {

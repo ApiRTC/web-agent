@@ -231,7 +231,7 @@ export function App(inProps: AppProps) {
                 </Stack>
             </AccordionDetails>
         </Accordion>
-        {conversationName && <Accordion onChange={doResize}>
+        {session && conversationName && <Accordion onChange={doResize}>
             <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="invitation-content"
@@ -240,7 +240,7 @@ export function App(inProps: AppProps) {
                 <Typography variant="h6">{invitationLabel}</Typography>
             </AccordionSummary>
             <AccordionDetails>
-                {session && <Invitation sx={{ mt: 1 }} conversationName={conversationName}></Invitation>}
+                <Invitation sx={{ mt: 1 }} session={session} conversationName={conversationName}></Invitation>
             </AccordionDetails>
         </Accordion>}
         <Divider />
