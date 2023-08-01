@@ -23,7 +23,7 @@ import { AppContext } from './AppContext';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 
-// declare var apiRTC: any;
+declare var apiRTC: any;
 
 // WARN : to be kept in sync with visio-assisted / z-visio code
 //
@@ -47,8 +47,6 @@ type InvitationData = {
 
 const EMPTY_STRING = '';
 const FACING_MODES = ['user', 'environment'];
-
-// declare var apiRTC: any;
 
 const storageToPublishOptions = (key: string): PublishOptions => {
     const buffer = getFromLocalStorage(key, null);
@@ -200,8 +198,8 @@ Thanks` } = props;
                 {
                     method: 'POST',
                     headers: {
-                        // Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
-                        Authorization: `Bearer ${(session as any).JWTApzToken}`,
+                        Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
+                        // Authorization: `Bearer ${(session as any).JWTApzToken}`, TODO: does not work : why JWTApzToken is not on the Session object returned by useSession ?
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ data: invitationData }),
@@ -222,7 +220,7 @@ Thanks` } = props;
                 setInvitationShortLink(undefined)
             }
         }
-    }, [appConfig, session, invitationData])
+    }, [appConfig, invitationData]) //session
 
     const doCopyLink = useCallback(() => {
         if (invitationShortLink) {
