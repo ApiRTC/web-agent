@@ -209,9 +209,9 @@ Thanks` } = props;
                     }
                     console.error(`${COMPONENT_NAME}|fetch response in error`, response)
                     notify('error', `Failed to create short link: received ${response.status}`)
-                }).then((data) => {
-                    console.log(`${COMPONENT_NAME}|received invitation`, data)
-                    setInvitationShortLink(appConfig.assistedUrl + '?i=' + data._id)
+                }).then((body) => {
+                    console.log(`${COMPONENT_NAME}|received invitation`, body)
+                    setInvitationShortLink(appConfig.assistedUrl + '?i=' + body.id)
                 })
                 .catch((error) => {
                     console.error(`${COMPONENT_NAME}|fetch error`, error)
