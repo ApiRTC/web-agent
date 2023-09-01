@@ -14,5 +14,5 @@ export enum OutputMessageType {
     Ready = 'ready',
     Resize = 'resize',
     Snapshot = 'snapshot',
-    SubscribedStreams = 'subscribedStreams',
+    SubscribedStreams = 'subscribed_streams',
 }
