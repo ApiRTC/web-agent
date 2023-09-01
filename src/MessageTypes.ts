@@ -1,6 +1,7 @@
 export enum InputMessageType {
     Configuration = 'configuration',
     Connect = 'connect',
+    Conversation = 'conversation',
     Disconnect = 'disconnect',
     InviteeData = 'invitee_data',
     JoinConversation = 'join_conversation',

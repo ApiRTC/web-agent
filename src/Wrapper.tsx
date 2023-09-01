@@ -28,11 +28,11 @@ const languageToLocale = (language: string) => {
 
 const APZ_ORANGE = "#F76B40";
 
-export type ConversationEvent = { type: 'conversation', name: string };
-function isInstanceOfConversationEvent(object: any): object is ConversationEvent {
-    if (typeof object !== 'object') return false;
-    return 'type' in object && object['type'] === 'conversation';
-}
+// export type ConversationEvent = { type: 'conversation', name: string };
+// function isInstanceOfConversationEvent(object: any): object is ConversationEvent {
+//     if (typeof object !== 'object') return false;
+//     return 'type' in object && object['type'] === 'conversation';
+// }
 
 export type WrapperProps = {
     //  client: any,
@@ -164,30 +164,25 @@ export function Wrapper(
                 console.info(`${COMPONENT_NAME}|receives message|${conversationName}`, message);
             }
 
-            // on conversation,
-            // if (isInstanceOfConversationEvent(message)) {
-            //     setConversationName(message.name)
-            // }
-
             switch (message.type) {
                 case InputMessageType.Configuration: {
                     setAppConfig(message.data)
-                    break;
-                }
-                case InputMessageType.UserData: {
-                    setUserData(message.data)
-                    break;
-                }
-                case InputMessageType.InviteeData: {
-                    setInviteeData(message.data)
                     break;
                 }
                 case InputMessageType.Connect: {
                     setConnect(true)
                     break;
                 }
+                case InputMessageType.Conversation: {
+                    setConversationName(message.name)
+                    break;
+                }
                 case InputMessageType.Disconnect: {
                     setConnect(false)
+                    break;
+                }
+                case InputMessageType.InviteeData: {
+                    setInviteeData(message.data)
                     break;
                 }
                 case InputMessageType.JoinConversation: {
@@ -196,6 +191,10 @@ export function Wrapper(
                 }
                 case InputMessageType.LeaveConversation: {
                     setJoin(false)
+                    break;
+                }
+                case InputMessageType.UserData: {
+                    setUserData(message.data)
                     break;
                 }
                 default:
