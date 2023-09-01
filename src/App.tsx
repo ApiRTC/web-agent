@@ -22,6 +22,7 @@ import Icon from '@mui/material/Icon';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
+import { OutputMessageType } from './MessageTypes';
 
 export type AppProps = {
     invitationLabel?: string,
@@ -128,7 +129,7 @@ export function App(inProps: AppProps) {
 
         // Notify iframe parent about resize
         window.parent.postMessage({
-            type: 'resize'
+            type: OutputMessageType.Resize
         }, '*')
 
         return setTimeout(() => {
@@ -161,7 +162,7 @@ export function App(inProps: AppProps) {
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         return new Promise<void>((resolve, reject) => {
             const message = {
-                type: 'snapshot',
+                type: OutputMessageType.Snapshot,
                 contact: {
                     id: contact.getId(),
                     userData: contact.getUserData()
@@ -252,8 +253,8 @@ export function App(inProps: AppProps) {
                 conversation={conversation}
                 stream={stream}
                 onSnapshot={onSnapshot}
-                onStart={onStart}
-                onEnd={onEnd}
+                // onStart={onStart}
+                // onEnd={onEnd}
                 onDisplayChange={doResize}
             />
         }

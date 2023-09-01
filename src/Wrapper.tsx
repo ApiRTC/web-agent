@@ -12,6 +12,7 @@ import { frFR } from './locale/frFR';
 import { setLogLevel, LogLevelText } from './logLevel';
 import { DEFAULT_APP_CONFIG } from './constants';
 import { AppConfig, UserData } from './types';
+import { InputMessageType, OutputMessageType } from './MessageTypes';
 // import { useSearchParams } from 'react-router-dom';
 
 // declare var apiRTC:any;
@@ -169,31 +170,31 @@ export function Wrapper(
             // }
 
             switch (message.type) {
-                case 'app_config': {
+                case InputMessageType.Configuration: {
                     setAppConfig(message.data)
                     break;
                 }
-                case 'user_data': {
+                case InputMessageType.UserData: {
                     setUserData(message.data)
                     break;
                 }
-                case 'invitee_data': {
+                case InputMessageType.InviteeData: {
                     setInviteeData(message.data)
                     break;
                 }
-                case 'connect': {
+                case InputMessageType.Connect: {
                     setConnect(true)
                     break;
                 }
-                case 'disconnect': {
+                case InputMessageType.Disconnect: {
                     setConnect(false)
                     break;
                 }
-                case 'join_conversation': {
+                case InputMessageType.JoinConversation: {
                     setJoin(true)
                     break;
                 }
-                case 'leave_conversation': {
+                case InputMessageType.LeaveConversation: {
                     setJoin(false)
                     break;
                 }
@@ -218,7 +219,7 @@ export function Wrapper(
         // Notify the application is ready to receive messages
         setTimeout(() => {
             window.parent.postMessage({
-                type: 'ready'
+                type: OutputMessageType.Ready
             }, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
         }, 100)
     }, []);

@@ -22,6 +22,7 @@ import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apir
 import { AppContext } from './AppContext';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
+import { OutputMessageType } from './MessageTypes';
 
 declare var apiRTC: any;
 
@@ -137,8 +138,6 @@ Thanks` } = props;
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
             FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.invitee.facingMode`, FACING_MODES[0])));
 
-    const [sending, setSending] = useState<boolean>(false);
-
     const [invitationShortLink, setInvitationShortLink] = useState<string>();
 
     useEffect(() => {
@@ -223,18 +222,19 @@ Thanks` } = props;
     }, [appConfig, invitationData]) //session
 
     const doCopyLink = useCallback(() => {
-        if (invitationShortLink) {
+        const link = invitationShortLink ?? invitationLink
+        if (link) {
             // Copy to clipboard
-            navigator.clipboard.writeText(invitationShortLink);
+            navigator.clipboard.writeText(link);
 
             // Notify
             window.parent.postMessage({
-                type: 'link_copied',
+                type: OutputMessageType.LinkCopied,
                 name: inviteeName,
-                link: invitationShortLink
+                link: link
             }, '*')
         }
-    }, [inviteeName, invitationShortLink]);
+    }, [inviteeName, invitationLink, invitationShortLink]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -296,7 +296,7 @@ Thanks` } = props;
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
                 {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>}
                 {invitationShortLink && <Link href={invitationShortLink} target="_blank" rel="noopener">Link</Link>}
-                {invitationShortLink && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
+                {(invitationLink || invitationShortLink) && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}
