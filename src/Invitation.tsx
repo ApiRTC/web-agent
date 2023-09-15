@@ -132,7 +132,7 @@ Thanks` } = props;
     // inviteeName is the debounced name
     const [inviteeName, setInviteeName] = useState<string>(inviteeData?.name || EMPTY_STRING);
     const [email, setEmail] = useState<string>(EMPTY_STRING);
-    const [phone, setPhone] = useState<string>(EMPTY_STRING);
+    const [phone, setPhone] = useState<string>(inviteeData?.phone || EMPTY_STRING);
     const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.invitee.publishOptions`));
     const { value: facingMode, index: facingModeIndex,
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
@@ -146,6 +146,9 @@ Thanks` } = props;
         if (inviteeData?.name) {
             setName(inviteeData.name)
             setInviteeName(inviteeData.name)
+        }
+        if (inviteeData?.phone) {
+            setPhone(inviteeData.phone)
         }
     }, [inviteeData])
 
