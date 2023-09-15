@@ -131,6 +131,9 @@ export function Wrapper(
     const [connect, setConnect] = useState<boolean>(true);
     const [join, setJoin] = useState<boolean>(true);
 
+    const [withAudio, setWithAudio] = useState<boolean | undefined>(undefined);
+    const [withVideo, setWithVideo] = useState<boolean | undefined>(undefined);
+
     const theme = useMemo(() => {
         switch (locale) {
             case 'fr':
@@ -230,7 +233,8 @@ export function Wrapper(
                 cloudUrl: searchParams.get("cU") ?? DEFAULT_APP_CONFIG.apiRtc.cloudUrl,
                 apiKey: searchParams.get("aK") ?? DEFAULT_APP_CONFIG.apiRtc.apiKey
             },
-            assistedUrl: searchParams.get("aU") ?? DEFAULT_APP_CONFIG.assistedUrl
+            assistedUrl: searchParams.get("aU") ?? DEFAULT_APP_CONFIG.assistedUrl,
+            invitationServiceUrl: searchParams.get("iU") ?? DEFAULT_APP_CONFIG.invitationServiceUrl,
         });
 
         const userId: string | null = searchParams.get("uId");

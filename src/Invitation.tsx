@@ -140,6 +140,8 @@ Thanks` } = props;
 
     const [invitationShortLink, setInvitationShortLink] = useState<string>();
 
+    const [sending, setSending] = useState<boolean>(false);
+
     useEffect(() => {
         if (inviteeData?.name) {
             setName(inviteeData.name)
@@ -193,28 +195,26 @@ Thanks` } = props;
             console.info(`${COMPONENT_NAME}|useEffect invitationData`, invitationData)
         }
         if (invitationData) {
-            fetch(`http://localhost:3007/invitations`,
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
-                        // Authorization: `Bearer ${(session as any).JWTApzToken}`, TODO: does not work : why JWTApzToken is not on the Session object returned by useSession ?
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ data: invitationData }),
-                }).then(response => {
-                    if (response.status === 200 || response.status === 201) {
-                        return response.json()
-                    }
-                    console.error(`${COMPONENT_NAME}|fetch response in error`, response)
-                    notify('error', `Failed to create short link: received ${response.status}`)
-                }).then((body) => {
-                    console.log(`${COMPONENT_NAME}|received invitation`, body)
-                    setInvitationShortLink(appConfig.assistedUrl + '?i=' + body.id)
-                })
-                .catch((error) => {
-                    console.error(`${COMPONENT_NAME}|fetch error`, error)
-                })
+            fetch(appConfig.invitationServiceUrl, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
+                    // Authorization: `Bearer ${(session as any).JWTApzToken}`, TODO: does not work : why JWTApzToken is not on the Session object returned by useSession ?
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ data: invitationData }),
+            }).then(response => {
+                if (response.status === 200 || response.status === 201) {
+                    return response.json()
+                }
+                console.error(`${COMPONENT_NAME}|fetch response in error`, response)
+                notify('error', `Failed to create short link: received ${response.status}`)
+            }).then((body) => {
+                console.log(`${COMPONENT_NAME}|received invitation`, body)
+                setInvitationShortLink(appConfig.assistedUrl + '?i=' + body.id)
+            }).catch((error) => {
+                console.error(`${COMPONENT_NAME}|fetch error`, error)
+            })
             return () => {
                 setInvitationShortLink(undefined)
             }
@@ -235,6 +235,47 @@ Thanks` } = props;
             }, '*')
         }
     }, [inviteeName, invitationLink, invitationShortLink]);
+
+    // Using ApiRTC cloud authentication, and zendesk client request
+    const doSendSms = useCallback(() => {
+
+        const link = invitationShortLink ?? invitationLink;
+
+        if (phone !== "" && link) {
+            const url = `${appConfig.apiRtc.cloudUrl ?? 'https://cloud.apirtc.com'}/api/text-message`;
+            setSending(true)
+            // client.request(options).then((data: any) => {
+            //     client.invoke('notify', sentSmsText, 'notice');
+            //     doComment(getSmsSentComment(phone))
+            // })
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
+                    // Authorization: `Bearer ${(session as any).JWTApzToken}`, TODO: does not work : why JWTApzToken is not on the Session object returned by useSession ?
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    to: [phone],
+                    body: getSmsText(name, link)
+                }),
+            }).then(response => {
+                if (response.status === 200 || response.status === 201) {
+                    return response.json()
+                }
+                console.error(`${COMPONENT_NAME}|sens sms failed`, response, smsFailText)
+            }).then((body) => {
+                console.log(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
+            }).catch((error) => {
+                if (globalThis.logLevel.isWarnEnabled) {
+                    console.warn(`${COMPONENT_NAME}|sms send failure`, error)
+                }
+            }).finally(() => {
+                setSending(false)
+            })
+
+        }
+    }, [appConfig, phone, name, invitationLink, invitationShortLink, sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -303,12 +344,12 @@ Thanks` } = props;
                 direction="row" spacing={1}>
                 <Input data-testid="email-input" placeholder={emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)} />
                 <Button sx={{ minWidth: 120 }} variant='outlined' disabled={sending} onClick={doSendEmail}>{sendEmailText}</Button>
-            </Stack>
+            </Stack>*/}
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="phone-input" placeholder={phonePlaceholder} value={phone} onChange={e => setPhone(e.target.value)} />
                 <Button sx={{ minWidth: 120 }} variant='outlined' disabled={sending} onClick={doSendSms}>{sendSmsText}</Button>
-            </Stack> */}
+            </Stack>
         </form>
     </Box>
 }

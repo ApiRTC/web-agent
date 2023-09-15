@@ -12,6 +12,7 @@ import {
 import { useConversationStreams } from "@apirtc/react-lib";
 
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Unstable_Grid2';
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
@@ -44,7 +45,7 @@ export function Room(inProps: RoomProps) {
         // onStart, onEnd
     } = props;
 
-    const boxRef = useRef<HTMLElement>(null);
+    // const boxRef = useRef<HTMLElement>(null);
 
     const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
@@ -172,84 +173,94 @@ export function Room(inProps: RoomProps) {
                 }
             },
         }, frFR, ApiRtcMuiReactLib_frFR)}>
-        <Box sx={{
+        {/* <Box sx={{
             ...props.sx,
             position: 'relative',
-        }} ref={boxRef}>
-            <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
-                {subscribedStreams.map((stream, index) =>
-                    <Stream id={'subscribed-stream-' + index} key={index}
-                        sx={{
-                            ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
-                        }}
-                        stream={stream} detectSpeaking={true}
-                        controls={<>
-                            {stream.hasVideo() && <>
-                                <SwitchFacingModeButton />
-                                {/* TODO : display TorchButton only if 'environment' facing mode */}
-                                <TorchButton />
-                                <SnapshotButton onSnapshot={(dataUrl: string) => {
-                                    if (props.onSnapshot) {
-                                        return props.onSnapshot(stream.getContact(), dataUrl)
-                                    } else {
-                                        return new Promise((resolve) => {
-                                            resolve();
-                                        })
-                                    }
-                                }} />
+        }} ref={boxRef}> */}
+        <Grid sx={{ ...props.sx }} container spacing={1}>
+            <Grid xs={8}>
+                <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
+                    {subscribedStreams.map((stream, index) =>
+                        <Stream id={'subscribed-stream-' + index} key={index}
+                            sx={{
+                                ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
+                            }}
+                            stream={stream} detectSpeaking={true}
+                            controls={<>
+                                {stream.hasVideo() && <>
+                                    <SwitchFacingModeButton />
+                                    {/* TODO : display TorchButton only if 'environment' facing mode */}
+                                    <TorchButton />
+                                    <SnapshotButton onSnapshot={(dataUrl: string) => {
+                                        if (props.onSnapshot) {
+                                            return props.onSnapshot(stream.getContact(), dataUrl)
+                                        } else {
+                                            return new Promise((resolve) => {
+                                                resolve();
+                                            })
+                                        }
+                                    }} />
+                                </>}
+                                <MuteButton />
+                                {stream.hasAudio() && <AudioEnableButton />}
+                                {stream.hasVideo() && <VideoEnableButton />}
                             </>}
-                            <MuteButton />
-                            {stream.hasAudio() && <AudioEnableButton />}
-                            {stream.hasVideo() && <VideoEnableButton />}
-                        </>}
-                        muted={false}
-                        name={stream.getContact().getUserData().get('firstName')}
-                    // onMouseDown={(event: React.MouseEvent) => {
-                    //     event.preventDefault()
-                    //     onStreamMouseDown(stream, event)
-                    // }}
-                    >
-                        {stream.hasVideo() ? <Video
-                            sx={{ ...VIDEO_SIZING }}
-                            style={{
-                                ...VIDEO_SIZING,
-                                ...VIDEO_ROUNDED_CORNERS,
-                                objectFit: 'cover'
-                            }} /> : <Audio />}
-                    </Stream>)}
-            </ApiRtcGrid>
-            <ApiRtcGrid sx={{
+                            muted={false}
+                            name={stream.getContact().getUserData().get('firstName')}
+                        // onMouseDown={(event: React.MouseEvent) => {
+                        //     event.preventDefault()
+                        //     onStreamMouseDown(stream, event)
+                        // }}
+                        >
+                            {stream.hasVideo() ? <Video
+                                sx={{ ...VIDEO_SIZING }}
+                                style={{
+                                    ...VIDEO_SIZING,
+                                    ...VIDEO_ROUNDED_CORNERS,
+                                    objectFit: 'cover'
+                                }} /> : <Audio />}
+                        </Stream>)}
+                </ApiRtcGrid>
+            </Grid>
+            {/* <ApiRtcGrid sx={{
                 position: 'absolute',
                 bottom: '4px', left: '4px',
                 opacity: 0.9,
                 height: '50%', width: { xs: '50%', sm: '40%', md: '30%', lg: '20%' },
-            }}>
-                {publishedStreams.map((stream, index) =>
-                    <Stream id={'published-stream-' + index} key={index}
-                        sx={{
-                            ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
-                        }}
-                        stream={stream} muted={true}
-                        controls={<><AudioEnableButton />{stream.hasVideo() && <VideoEnableButton />}</>}>
-                        {stream.hasVideo() ?
-                            <Video
-                                sx={VIDEO_SIZING}
-                                style={{
-                                    ...VIDEO_SIZING, width: '100%',
-                                    ...VIDEO_ROUNDED_CORNERS,
-                                    objectFit: 'cover'
-                                }} /> :
-                            <Audio />}
-                    </Stream>
-                )}
-            </ApiRtcGrid>
-        </Box >
-        {
-            subscribedStreams.length > 0 &&
-            <Stack direction='column' alignItems='center'>
-                <Button sx={{ mt: 2 }} variant='outlined' color='error'
-                    onClick={hangUp}>{hangUpText}</Button>
-            </Stack>
-        }
+            }}> */}
+            <Grid xs={4}>
+                <Stack direction="column" spacing={1} >
+                    <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
+                        {publishedStreams.map((stream, index) =>
+                            <Stream id={'published-stream-' + index} key={index}
+                                sx={{
+                                    ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
+                                }}
+                                stream={stream} muted={true}
+                                controls={<><AudioEnableButton />{stream.hasVideo() && <VideoEnableButton />}</>}>
+                                {stream.hasVideo() ?
+                                    <Video
+                                        sx={VIDEO_SIZING}
+                                        style={{
+                                            ...VIDEO_SIZING, width: '100%',
+                                            ...VIDEO_ROUNDED_CORNERS,
+                                            objectFit: 'cover'
+                                        }} /> :
+                                    <Audio />}
+                            </Stream>
+                        )}
+                    </ApiRtcGrid>
+                    {
+                        subscribedStreams.length > 0 &&
+                        <Stack direction='column' alignItems='center'>
+                            <Button sx={{ mt: 2 }} variant='outlined' color='error'
+                                onClick={hangUp}>{hangUpText}</Button>
+                        </Stack>
+                    }
+                </Stack>
+                {/* </ApiRtcGrid> */}
+            </Grid>
+            {/* </Box > */}
+        </Grid>
     </MuiThemeProvider>
 }

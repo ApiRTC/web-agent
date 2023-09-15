@@ -48,7 +48,9 @@ export function App(inProps: AppProps) {
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
     } = props;
 
-    const { appConfig, userData, connect, join, conversationName, notify } = useContext(AppContext);
+    const { appConfig, userData,
+        connect, join, conversationName,
+        notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 
