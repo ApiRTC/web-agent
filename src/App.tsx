@@ -63,7 +63,8 @@ export function App(inProps: AppProps) {
 
     const registerInformation: RegisterInformation = useMemo(() => {
         return {
-            id: userData?.userId,
+            // do not set at all id in undefined
+            ...userData?.userId && { id: userData?.userId },
             userData: new UserData({
                 type: "agent",// this, combined with username, might help to count number of agents using the service ?
                 ...userData
