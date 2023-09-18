@@ -338,7 +338,7 @@ Thanks` } = props;
                 direction="row" spacing={1}
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
-                {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>}
+                {/* {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>} */}
                 {invitationShortLink && <Link href={invitationShortLink} target="_blank" rel="noopener">Link</Link>}
                 {(invitationLink || invitationShortLink) && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
             </Stack>
