@@ -47,8 +47,11 @@ All parameters are optional, except **aK**.
 
 When using an iframe url parameters are set only once. To enable real-time interaction, the web-agent application listens to messages.
 
+### In
+
 Using the [Window: postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) method, the host application can control web-agent application behavior.
 
 To post a message, get a handle on the iframe and 
 
+### Out
 

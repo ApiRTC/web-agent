@@ -125,7 +125,8 @@ I would like to invite you to a visio call, please click this <a href='${link}'>
 I would like to invite you to a visio call, please click ${link} to join.`,
         getSmsText = (name: string, link: string) => `Hello ${name},
 Please join at ${link}.
-Thanks` } = props;
+Thanks` // WARNING: do not put a character like '.' close to ${link} because it breaks the hyperlink
+ } = props;
 
     // name to handle typing
     const [name, setName] = useState<string>(inviteeData?.name || EMPTY_STRING);

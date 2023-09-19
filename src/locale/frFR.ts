@@ -43,8 +43,10 @@ Je vous invite en visio, merci de cliquer <a href='${link}'>ici</a> pour me rejo
 Je vous invite en visio, merci de cliquer <a href='${link}'>ici</a> pour me rejoindre.`,
                 getEmailText: (name: string, link: string) => `Bonjour ${name},
 Je vous invite en visio, pour rejoindre : ${link}`,
+// WARNING: do not put a character like '.' close to ${link} because it breaks the hyperlink
                 getSmsText: (name: string, link: string) => `Bonjour ${name},
 Je vous invite en visio, pour rejoindre : ${link}`,
+// WARNING: do not put a character like '.' close to ${link} because it breaks the hyperlink
             }
         },
         Room: {
