@@ -123,9 +123,10 @@ I would like to invite you to a visio call, please click this <a href='${link}'>
 I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
         getEmailText = (name: string, link: string) => `Hello ${name},
 I would like to invite you to a visio call, please click ${link} to join.`,
+        // WARNING: do not put a character like '.' close to ${link} because it sometimes breaks the hyperlink (depending on devices)
         getSmsText = (name: string, link: string) => `Hello ${name},
 Please join at ${link}.
-Thanks` // WARNING: do not put a character like '.' close to ${link} because it breaks the hyperlink
+Thanks`
     } = props;
 
     // name to handle typing
