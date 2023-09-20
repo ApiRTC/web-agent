@@ -4,7 +4,7 @@ import { Stream as ApiRTCStream, Contact, Conversation } from "@apirtc/apirtc";
 import {
     Grid as ApiRtcGrid,
     frFR as ApiRtcMuiReactLib_frFR,
-    Audio, AudioEnableButton,
+    Audio as AudioComponent, AudioEnableButton,
     MuteButton,
     SnapshotButton,
     Stream, TorchButton, Video, VideoEnableButton
@@ -22,7 +22,13 @@ import { frFR } from './locale/frFR';
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 import { OutputMessageType } from "./MessageTypes";
 
+import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav"
+import offNotification from "./assets/mixkit-electric-pop-2365.wav"
+
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
+
+const AUDIO_IN = new Audio(inNotification);
+const AUDIO_OFF = new Audio(offNotification);
 
 export type RoomProps = {
     sx?: SxProps,
@@ -94,6 +100,16 @@ export function Room(inProps: RoomProps) {
             length: subscribedStreams.length,
         }, '*')
     }, [subscribedStreams])//onSubscribedStreamsSizeChange
+
+    useEffect(() => {
+        if (hasSubscribedStreams) {
+            AUDIO_IN.play()
+            return () => {
+                // play sound corresponding to no more subscribedStreams
+                AUDIO_OFF.play()
+            }
+        }
+    }, [hasSubscribedStreams])
 
     //
     // Manage onStart/onEnd
@@ -218,7 +234,7 @@ export function Room(inProps: RoomProps) {
                                     ...VIDEO_SIZING,
                                     ...VIDEO_ROUNDED_CORNERS,
                                     objectFit: 'cover'
-                                }} /> : <Audio />}
+                                }} /> : <AudioComponent />}
                         </Stream>)}
                 </ApiRtcGrid>
             </Grid>
@@ -246,7 +262,7 @@ export function Room(inProps: RoomProps) {
                                             ...VIDEO_ROUNDED_CORNERS,
                                             objectFit: 'cover'
                                         }} /> :
-                                    <Audio />}
+                                    <AudioComponent />}
                             </Stream>
                         )}
                     </ApiRtcGrid>
