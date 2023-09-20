@@ -34,6 +34,19 @@ const APZ_ORANGE = "#F76B40";
 //     return 'type' in object && object['type'] === 'conversation';
 // }
 
+enum RequestParameters {
+    apiKey = "aK",
+    assistedUrl = "aU",
+    conversationName = "cN",
+    cloudUrl = "cU",
+    installationId = "iI",
+    guestName = "gN",
+    invitationServiceUrl = "iU",
+    locale = "l",
+    logLevel = "lL",
+    userId = "uId",
+}
+
 export type WrapperProps = {
     //  client: any,
 };
@@ -228,35 +241,35 @@ export function Wrapper(
 
     useEffect(() => {
         setAppConfig({
-            installationId: searchParams.get("iI") ?? DEFAULT_APP_CONFIG.installationId,
+            installationId: searchParams.get(RequestParameters.installationId) ?? DEFAULT_APP_CONFIG.installationId,
             apiRtc: {
-                cloudUrl: searchParams.get("cU") ?? DEFAULT_APP_CONFIG.apiRtc.cloudUrl,
-                apiKey: searchParams.get("aK") ?? DEFAULT_APP_CONFIG.apiRtc.apiKey
+                cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? DEFAULT_APP_CONFIG.apiRtc.cloudUrl,
+                apiKey: searchParams.get(RequestParameters.apiKey) ?? DEFAULT_APP_CONFIG.apiRtc.apiKey
             },
-            assistedUrl: searchParams.get("aU") ?? DEFAULT_APP_CONFIG.assistedUrl,
-            invitationServiceUrl: searchParams.get("iU") ?? DEFAULT_APP_CONFIG.invitationServiceUrl,
+            assistedUrl: searchParams.get(RequestParameters.assistedUrl) ?? DEFAULT_APP_CONFIG.assistedUrl,
+            invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? DEFAULT_APP_CONFIG.invitationServiceUrl,
         });
 
-        const userId: string | null = searchParams.get("uId");
+        const userId: string | null = searchParams.get(RequestParameters.userId);
         if (userId) {
             setUserData({ userId })
         }
-        const guestName: string | null = searchParams.get("iN");
+        const guestName: string | null = searchParams.get(RequestParameters.guestName);
         if (guestName) {
             setGuestData({ name: guestName })
         }
-        const conversationName: string | null = searchParams.get("cN");
+        const conversationName: string | null = searchParams.get(RequestParameters.conversationName);
         if (conversationName) {
             setConversationName(conversationName)
         }
 
-        const logLevel: LogLevelText = searchParams.get("lL") as LogLevelText ?? 'warn';
+        const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
         setLogLevel(logLevel)
         setApiRtcReactLibLogLevel(logLevel)
         setApiRtcMuiReactLibLogLevel(logLevel)
         //apiRTC.setLogLevel(10)
 
-        const locale: string | null = searchParams.get("l");
+        const locale: string | null = searchParams.get(RequestParameters.locale);
         if (locale) {
             setLocale(locale)
         }

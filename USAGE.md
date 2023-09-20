@@ -35,7 +35,7 @@ To integrate the application with html through iframe you should do something li
 | cN        | conversationName     | the **ApiRtc** **Conversation** name                                       |
 | cU        | cloudUrl             | the cloud url, defaults to https://cloud.apirtc.com                        |
 | iI        | installationId       | used a header for local-storage keys                                       |
-| iN        | inviteeName          | name to be pre-set in the invitation form                                  |
+| gN        | guestName            | name to be pre-set in the invitation form                                  |
 | iU        | invitationServiceUrl | url of the invitation service                                              |
 | l         | locale               | to force locale to fr or en                                                |
 | lL        | logLevel             | can be debug, info, warn, error                                            |
