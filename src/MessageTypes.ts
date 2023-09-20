@@ -3,7 +3,7 @@ export enum InputMessageType {
     Connect = 'connect',
     Conversation = 'conversation',
     Disconnect = 'disconnect',
-    InviteeData = 'invitee_data',
+    GuestData = 'guest_data',
     JoinConversation = 'join_conversation',
     LeaveConversation = 'leave_conversation',
     UserData = 'user_data'

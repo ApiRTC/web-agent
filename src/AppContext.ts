@@ -6,7 +6,7 @@ export const AppContext = createContext<
     {
         appConfig: AppConfig,
         userData: UserData | undefined,
-        inviteeData: UserData | undefined,
+        guestData: UserData | undefined,
         connect: boolean,
         join: boolean,
         conversationName: string | undefined,
@@ -15,7 +15,7 @@ export const AppContext = createContext<
         {
             appConfig: DEFAULT_APP_CONFIG,
             userData: undefined,
-            inviteeData: undefined,
+            guestData: undefined,
             connect: true,
             join: true,
             conversationName: undefined,

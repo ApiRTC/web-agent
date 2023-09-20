@@ -124,7 +124,7 @@ export function Wrapper(
     const [appConfig, setAppConfig] = useState<AppConfig>(DEFAULT_APP_CONFIG);
 
     const [userData, setUserData] = useState<UserData>();
-    const [inviteeData, setInviteeData] = useState<UserData>();
+    const [guestData, setGuestData] = useState<UserData>();
 
     const [conversationName, setConversationName] = useState<string>();
 
@@ -184,8 +184,8 @@ export function Wrapper(
                     setConnect(false)
                     break;
                 }
-                case InputMessageType.InviteeData: {
-                    setInviteeData(message.data)
+                case InputMessageType.GuestData: {
+                    setGuestData(message.data)
                     break;
                 }
                 case InputMessageType.JoinConversation: {
@@ -241,9 +241,9 @@ export function Wrapper(
         if (userId) {
             setUserData({ userId })
         }
-        const inviteeName: string | null = searchParams.get("iN");
-        if (inviteeName) {
-            setInviteeData({ name: inviteeName })
+        const guestName: string | null = searchParams.get("iN");
+        if (guestName) {
+            setGuestData({ name: guestName })
         }
         const conversationName: string | null = searchParams.get("cN");
         if (conversationName) {
@@ -329,7 +329,7 @@ export function Wrapper(
         <AppContext.Provider value={{
             appConfig,
             userData,
-            inviteeData,
+            guestData,
             join, connect,
             conversationName, notify: () => { }
         }}>

@@ -94,7 +94,7 @@ export type InvitationProps = {
 const COMPONENT_NAME = "Invitation";
 export function Invitation(inProps: InvitationProps) {
 
-    const { appConfig, inviteeData, notify } = useContext(AppContext);
+    const { appConfig, guestData, notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 
@@ -126,40 +126,40 @@ I would like to invite you to a visio call, please click ${link} to join.`,
         getSmsText = (name: string, link: string) => `Hello ${name},
 Please join at ${link}.
 Thanks` // WARNING: do not put a character like '.' close to ${link} because it breaks the hyperlink
- } = props;
+    } = props;
 
     // name to handle typing
-    const [name, setName] = useState<string>(inviteeData?.name || EMPTY_STRING);
-    // inviteeName is the debounced name
-    const [inviteeName, setInviteeName] = useState<string>(inviteeData?.name || EMPTY_STRING);
+    const [name, setName] = useState<string>(guestData?.name || EMPTY_STRING);
+    // guestName is the debounced name
+    const [guestName, setGuestName] = useState<string>(guestData?.name || EMPTY_STRING);
     const [email, setEmail] = useState<string>(EMPTY_STRING);
-    const [phone, setPhone] = useState<string>(inviteeData?.phone || EMPTY_STRING);
-    const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.invitee.publishOptions`));
+    const [phone, setPhone] = useState<string>(guestData?.phone || EMPTY_STRING);
+    const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.guest.publishOptions`));
     const { value: facingMode, index: facingModeIndex,
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
-            FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.invitee.facingMode`, FACING_MODES[0])));
+            FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.guest.facingMode`, FACING_MODES[0])));
 
     const [invitationShortLink, setInvitationShortLink] = useState<string>();
 
     const [sending, setSending] = useState<boolean>(false);
 
     useEffect(() => {
-        if (inviteeData?.name) {
-            setName(inviteeData.name)
-            setInviteeName(inviteeData.name)
+        if (guestData?.name) {
+            setName(guestData.name)
+            setGuestName(guestData.name)
         }
-        if (inviteeData?.phone) {
-            setPhone(inviteeData.phone)
+        if (guestData?.phone) {
+            setPhone(guestData.phone)
         }
-    }, [inviteeData])
+    }, [guestData])
 
     useEffect(() => {
-        setLocalStorage(`${installationId}.invitee.publishOptions`, JSON.stringify(publishOptions));
-        setLocalStorage(`${installationId}.invitee.facingMode`, facingMode ?? FACING_MODES[0]);
+        setLocalStorage(`${installationId}.guest.publishOptions`, JSON.stringify(publishOptions));
+        setLocalStorage(`${installationId}.guest.facingMode`, facingMode ?? FACING_MODES[0]);
     }, [installationId, publishOptions, facingMode])
 
     const invitationData: InvitationData | undefined = useMemo(() => {
-        return inviteeName && inviteeName !== EMPTY_STRING ? {
+        return guestName && guestName !== EMPTY_STRING ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
             conversation: {
@@ -172,7 +172,7 @@ Thanks` // WARNING: do not put a character like '.' close to ${link} because it 
                 joinOptions: { ...CODECS } as any // 'as any' because supportedVideoCodecs is not in apirtc typings
             },
             user: {
-                firstName: inviteeName,
+                firstName: guestName,
                 lastName: ""
             },
             streams: [{
@@ -188,7 +188,7 @@ Thanks` // WARNING: do not put a character like '.' close to ${link} because it 
                 publishOptions: publishOptions
             }]
         } : undefined;
-    }, [appConfig, props.conversationName, inviteeName, facingMode, publishOptions]);
+    }, [appConfig, props.conversationName, guestName, facingMode, publishOptions]);
 
     const invitationLink = useMemo(() => {
         return invitationData ? encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))) : undefined
@@ -234,11 +234,11 @@ Thanks` // WARNING: do not put a character like '.' close to ${link} because it 
             // Notify
             window.parent.postMessage({
                 type: OutputMessageType.LinkCopied,
-                name: inviteeName,
+                name: guestName,
                 link: link
             }, '*')
         }
-    }, [inviteeName, invitationLink, invitationShortLink]);
+    }, [guestName, invitationLink, invitationShortLink]);
 
     // Using ApiRTC cloud authentication, and zendesk client request
     const doSendSms = useCallback(() => {
@@ -289,26 +289,26 @@ Thanks` // WARNING: do not put a character like '.' close to ${link} because it 
         setFacingModeIndex(+(event.target as HTMLInputElement).value)
     };
 
-    // Debouncing inviteeName is important to reduce the number of calls to invitation-service.
+    // Debouncing guestName is important to reduce the number of calls to invitation-service.
     // Without debounce the link creation is called for every key stroke.
     // Use memoized debounce with useCallback.
     // Without useCallback the debounce function would not sync with the next key stroke.
-    const debouncedSetInviteeName = useCallback(debounce(setInviteeName, 500), []);
+    const debouncedSetGuestName = useCallback(debounce(setGuestName, 500), []);
     // Clean it up when component unmounts
     useEffect(() => {
         return () => {
-            debouncedSetInviteeName.cancel();
+            debouncedSetGuestName.cancel();
         };
-    }, [debouncedSetInviteeName]);
+    }, [debouncedSetGuestName]);
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault()
         // set name so that what is typed is rendered immediately
         setName(event.target.value)
         // if something is typed the current link must be invalidated
-        setInviteeName(EMPTY_STRING)
-        // Finally manage inviteeName setting through debounce.
-        debouncedSetInviteeName(event.target.value)
+        setGuestName(EMPTY_STRING)
+        // Finally manage guestName setting through debounce.
+        debouncedSetGuestName(event.target.value)
     };
 
     return <Box sx={props.sx}>
