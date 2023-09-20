@@ -1,11 +1,11 @@
 import Localization from '.'
 
-const hmsToString = (h: number, m: number, s: number) => {
-    const hDisplay = h > 0 ? h + (h == 1 ? " heure, " : " heures, ") : "";
-    const mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-    const sDisplay = s > 0 ? s + (s == 1 ? " seconde" : " secondes") : "";
-    return `${hDisplay}${mDisplay}${sDisplay}`;
-};
+// const hmsToString = (h: number, m: number, s: number) => {
+//     const hDisplay = h > 0 ? h + (h === 1 ? " heure, " : " heures, ") : "";
+//     const mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "";
+//     const sDisplay = s > 0 ? s + (s === 1 ? " seconde" : " secondes") : "";
+//     return `${hDisplay}${mDisplay}${sDisplay}`;
+// };
 
 export const frFR: Localization = {
     components: {
