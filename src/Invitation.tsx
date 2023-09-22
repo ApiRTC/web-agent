@@ -41,6 +41,7 @@ type InvitationData = {
         firstName: string, lastName: string
     }
     streams: Array<{
+        type: 'user-media' | 'display-media',
         constraints?: MediaStreamConstraints,
         publishOptions?: PublishOptions
     }>
@@ -176,18 +177,24 @@ Thanks`
                 firstName: guestName,
                 lastName: ""
             },
-            streams: [{
-                constraints: {
-                    audio: publishOptions.videoOnly ? false : {
-                        echoCancellation: true,
-                        noiseSuppression: true,
+            streams: [
+                {
+                    type: 'user-media',
+                    constraints: {
+                        audio: publishOptions.videoOnly ? false : {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                        },
+                        video: publishOptions.audioOnly ? false : {
+                            advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
+                        }
                     },
-                    video: publishOptions.audioOnly ? false : {
-                        advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
-                    }
+                    publishOptions: publishOptions
                 },
-                publishOptions: publishOptions
-            }]
+                {
+                    type: 'display-media'
+                }
+            ]
         } : undefined;
     }, [appConfig, props.conversationName, guestName, facingMode, publishOptions]);
 

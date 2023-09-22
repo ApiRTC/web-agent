@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Stream as ApiRTCStream, Contact, Conversation } from "@apirtc/apirtc";
 import {
@@ -11,19 +11,18 @@ import {
 } from "@apirtc/mui-react-lib";
 import { useConversationStreams } from "@apirtc/react-lib";
 
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Unstable_Grid2';
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import { ROOM_THEME_OPTIONS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { frFR } from './locale/frFR';
-import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 import { OutputMessageType } from "./MessageTypes";
+import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
-import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav"
-import offNotification from "./assets/mixkit-electric-pop-2365.wav"
+import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
+import offNotification from "./assets/mixkit-electric-pop-2365.wav";
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
@@ -53,10 +52,12 @@ export function Room(inProps: RoomProps) {
 
     // const boxRef = useRef<HTMLElement>(null);
 
+    const [screen, setScreen] = useState<ApiRTCStream>();
+
     const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
     const { publishedStreams, subscribedStreams } = useConversationStreams(
-        conversation, stream && hasSubscribedStreams ? [{ stream: stream }] : []);
+        conversation, hasSubscribedStreams ? [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])] : []);
 
     if (globalThis.logLevel.isDebugEnabled) {
         console.debug(`${COMPONENT_NAME}|render|${conversation.getName()}`, stream, publishedStreams, subscribedStreams, hasSubscribedStreams)
@@ -103,10 +104,20 @@ export function Room(inProps: RoomProps) {
 
     useEffect(() => {
         if (hasSubscribedStreams) {
-            AUDIO_IN.play()
+            AUDIO_IN.play().catch((error) => {
+                // Don't forget to catch otherwise the page fails in error cases
+                if (globalThis.logLevel.isWarnEnabled) {
+                    console.warn(`${COMPONENT_NAME}|Audio Error`, error)
+                }
+            })
             return () => {
                 // play sound corresponding to no more subscribedStreams
-                AUDIO_OFF.play()
+                AUDIO_OFF.play().catch((error) => {
+                    // Don't forget to catch otherwise the page fails in error cases
+                    if (globalThis.logLevel.isWarnEnabled) {
+                        console.warn(`${COMPONENT_NAME}|Audio Error`, error)
+                    }
+                })
             }
         }
     }, [hasSubscribedStreams])
@@ -140,6 +151,33 @@ export function Room(inProps: RoomProps) {
             onDisplayChange()
         }
     }, [onDisplayChange, publishedStreams, subscribedStreams])
+
+    const shareScreen = () => {
+        ApiRTCStream.createDisplayMediaStream({}, false).then((localStream: ApiRTCStream) => {
+            if (globalThis.logLevel.isInfoEnabled) {
+                console.info(`${COMPONENT_NAME}|createDisplayMediaStream`, localStream)
+            }
+            setScreen(localStream)
+        }).catch((error: any) => {
+            console.error(`${COMPONENT_NAME}|createDisplayMediaStream error`, error)
+        }).finally(() => {
+            // setGrabbing(false)
+        })
+    };
+
+    useEffect(() => {
+        if (screen) {
+            screen.on('stopped', () => {
+                if (globalThis.logLevel.isInfoEnabled) {
+                    console.log(`${COMPONENT_NAME}|The user has ended sharing the screen`);
+                }
+                setScreen(undefined)
+            });
+            return () => {
+                screen.release()
+            }
+        }
+    }, [screen])
 
     const hangUp = useCallback((event: React.SyntheticEvent) => {
         event.preventDefault()
@@ -269,6 +307,8 @@ export function Room(inProps: RoomProps) {
                     {
                         subscribedStreams.length > 0 &&
                         <Stack direction='column' alignItems='center'>
+                            <Button sx={{ mt: 2 }} variant='outlined'
+                                onClick={shareScreen}>share screen</Button>
                             <Button sx={{ mt: 2 }} variant='outlined' color='error'
                                 onClick={hangUp}>{hangUpText}</Button>
                         </Stack>

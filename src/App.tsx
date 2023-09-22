@@ -21,8 +21,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Icon from '@mui/material/Icon';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { OutputMessageType } from './MessageTypes';
+import { getFromLocalStorage, setLocalStorage } from './local-storage';
 
 export type AppProps = {
     invitationLabel?: string,
