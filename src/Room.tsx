@@ -38,16 +38,18 @@ export type RoomProps = {
     // onEnd?: (durationMilliseconds: number) => void,
     //onSubscribedStreamsSizeChange?: (durationMilliseconds: number) => void,
     onDisplayChange?: () => void,
-    hangUpText?: string
+    hangUpText?: string,
+    shareScreenText?: string
 };
 const COMPONENT_NAME = "Room";
 export function Room(inProps: RoomProps) {
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
-    const { conversation, hangUpText = "HangUp", stream,
+    const { conversation, stream,
         onDisplayChange,
         // onSubscribedStreamsSizeChange,
         // onStart, onEnd
+        hangUpText = "HangUp", shareScreenText = "Share screen",
     } = props;
 
     // const boxRef = useRef<HTMLElement>(null);
@@ -308,7 +310,7 @@ export function Room(inProps: RoomProps) {
                         subscribedStreams.length > 0 &&
                         <Stack direction='column' alignItems='center'>
                             <Button sx={{ mt: 2 }} variant='outlined'
-                                onClick={shareScreen}>share screen</Button>
+                                onClick={shareScreen}>{shareScreenText}</Button>
                             <Button sx={{ mt: 2 }} variant='outlined' color='error'
                                 onClick={hangUp}>{hangUpText}</Button>
                         </Stack>

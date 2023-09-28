@@ -126,7 +126,7 @@ I would like to invite you to a visio call, please click this <a href='${link}'>
 I would like to invite you to a visio call, please click ${link} to join.`,
         // WARNING: do not put a character like '.' close to ${link} because it sometimes breaks the hyperlink (depending on devices)
         getSmsText = (name: string, link: string) => `Hello ${name},
-Please join at ${link}.
+Please join at ${link}
 Thanks`
     } = props;
 
@@ -175,7 +175,7 @@ Thanks`
             },
             user: {
                 firstName: guestName,
-                lastName: ""
+                lastName: "",
             },
             streams: [
                 {
@@ -186,14 +186,15 @@ Thanks`
                             noiseSuppression: true,
                         },
                         video: publishOptions.audioOnly ? false : {
-                            advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
+                            facingMode: facingMode,
+                            // advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
                         }
                     },
                     publishOptions: publishOptions
                 },
-                {
-                    type: 'display-media'
-                }
+                // {
+                //     type: 'display-media'
+                // }
             ]
         } : undefined;
     }, [appConfig, props.conversationName, guestName, facingMode, publishOptions]);

@@ -22,7 +22,7 @@ export default interface Localization {
                 'getEmailHtml' | 'getEmailText' | 'getSmsText'>;
         };
         Room?: {
-            defaultProps: Pick<RoomProps, 'hangUpText'>;
+            defaultProps: Pick<RoomProps, 'hangUpText' | 'shareScreenText'>;
         };
     };
 }
