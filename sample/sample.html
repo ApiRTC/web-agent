@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Sample i-framed web-agent integration" />
+    <title>Sample i-framed web-agent integration</title>
+    <style>
+        body {
+            background-color: #fdf3e8;
+        }
+
+        h1 {
+            color: black;
+            text-align: center;
+        }
+
+        iframe {
+            background-color: white;
+            border: 1px solid;
+        }
+
+        .flex-container {
+            display: flex;
+        }
+
+        .flex-child {
+            flex: 1;
+        }
+
+        .flex-child:first-child {
+            margin-right: 20px;
+        }
+    </style>
+    <script>
+
+        const IFRAME_HOST = "https://kmoyse-apizee.github.io";
+
+        const receiveMessage = (event) => {
+            if (event.origin !== IFRAME_HOST) return;
+
+            const message = event.data;
+
+            switch (message.type) {
+                case "ready": {
+                    // web-agent app is ready to receive messages
+                    console.log("web-agent is ready !")
+                    break;
+                }
+                case "snapshot": {
+                    const dataUrl = message.dataUrl;
+                    console.log("web-agent sent snapshot !")
+                    // display or store the snapshot dataUrl.
+                    break;
+                }
+                default:
+                    console.warn(`Unhandled message.type ${message.type}.`);
+            }
+        };
+
+        window.addEventListener("message", receiveMessage);
+
+        function setConversationName() {
+            let element = document.getElementById('cN');
+
+            let iframe = document.getElementById('i-frame');
+
+            iframe.contentWindow.postMessage(
+                {
+                    type: "conversation",
+                    name: element.value
+                },
+                IFRAME_HOST
+            );
+
+            return false;
+        }
+    </script>
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div class="flex-container">
+        <div class="flex-child">
+            <h1>i-framed web-agent app</h1>
+            <iframe id="i-frame" src="https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&lL=debug" height="720px"
+                width="100%" frameborder="0" referrerpolicy="no-referrer"
+                sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin allow-downloads"
+                allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"></iframe>
+        </div>
+        <div class="flex-child">
+            <h1>real-time control</h1>
+            <form onSubmit="return setConversationName()">
+                <label for="cN">Conversation name:</label><br>
+                <input type="text" id="cN" name="cN">
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

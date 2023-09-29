@@ -105,9 +105,7 @@ To post a message, get a handle on the iframe object and use postMessage like:
 iframe.contentWindow.postMessage(
   {
     type: "conversation",
-    data: {
-      name: "new_conversation_name",
-    },
+    name: "new_conversation_name"
   },
   IFRAME_HOST
 );
@@ -127,3 +125,9 @@ iframe.contentWindow.postMessage(
 | user_data          | data:UserData  | set user data                   |
 
 Note: host application must wait for having received the 'ready' message from web-agent before posting messages.
+
+## Sample
+
+Visit [sample page](https://kmoyse-apizee.github.io/web-agent/sample.html) for a demonstration of dynamic control of the i-framed web-agent app !
+
+The code is available in *sample/sample.html* file.
