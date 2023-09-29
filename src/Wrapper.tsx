@@ -41,6 +41,7 @@ enum RequestParameters {
     cloudUrl = "cU",
     installationId = "iI",
     guestName = "gN",
+    guestPhone = "gP",
     invitationServiceUrl = "iU",
     locale = "l",
     logLevel = "lL",
@@ -254,10 +255,14 @@ export function Wrapper(
         if (userId) {
             setUserData({ userId })
         }
+
+        // guest data
         const guestName: string | null = searchParams.get(RequestParameters.guestName);
-        if (guestName) {
-            setGuestData({ name: guestName })
+        const guestPhone: string | null = searchParams.get(RequestParameters.guestPhone);
+        if (guestName || guestPhone) {
+            setGuestData({ ...(guestName ? { name: guestName } : {}), ...(guestPhone ? { phone: guestPhone } : {}) })
         }
+
         const conversationName: string | null = searchParams.get(RequestParameters.conversationName);
         if (conversationName) {
             setConversationName(conversationName)
@@ -280,63 +285,6 @@ export function Wrapper(
         // To update <html lang='en'> attribute with correct language
         document.documentElement.setAttribute('lang', locale.slice(0, 2))
     }, [locale]);
-
-    // useEffect(() => {
-
-    //     client.context().then((context: any) => {
-    //         if (globalThis.logLevel.isInfoEnabled) {
-    //             console.info(`${COMPONENT_NAME}|client context`, context)
-    //         }
-    //         setContext(context)
-    //     })
-
-    //     client.get(['currentUser', 'isCollapsed']).then((data: any) => {
-    //         // Get locale configured by the current user
-    //         if (data['currentUser'].locale) {
-    //             setLocale(data['currentUser'].locale.toLowerCase())
-    //         }
-    //         setExpanded(!data.isCollapsed)
-    //     });
-
-    //     const onAppExpanded = () => {
-    //         if (globalThis.logLevel.isDebugEnabled) {
-    //             console.debug(`${COMPONENT_NAME}|app.expanded`)
-    //         }
-    //         setExpanded(true)
-    //     };
-    //     client.on('app.expanded', onAppExpanded)
-
-    //     const onAppCollapsed = () => {
-    //         if (globalThis.logLevel.isDebugEnabled) {
-    //             console.debug(`${COMPONENT_NAME}|app.collapsed`)
-    //         }
-    //         setExpanded(false)
-    //     };
-    //     client.on('app.collapsed', onAppCollapsed)
-
-    //     const onAppDeactivated = (data: any) => {
-    //         if (globalThis.logLevel.isDebugEnabled) {
-    //             console.debug(`${COMPONENT_NAME}|app.deactivated`)
-    //         }
-    //         setActivated(false)
-    //     };
-    //     client.on('app.deactivated', onAppDeactivated)
-
-    //     const onAppActivated = (data: any) => {
-    //         if (globalThis.logLevel.isDebugEnabled) {
-    //             console.debug(`${COMPONENT_NAME}|app.activated`)
-    //         }
-    //         setActivated(true)
-    //     };
-    //     client.on('app.activated', onAppActivated)
-
-    //     return () => {
-    //         client.off('app.expanded', onAppExpanded)
-    //         client.off('app.collapsed', onAppCollapsed)
-    //         client.off('app.deactivated', onAppDeactivated)
-    //         client.off('app.activated', onAppActivated)
-    //     }
-    // }, [client]);
 
     return <MuiThemeProvider theme={theme}>
         <AppContext.Provider value={{

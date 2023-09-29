@@ -101,29 +101,29 @@ export function Invitation(inProps: InvitationProps) {
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
     const {
-        session,
-        moderationEnabledText = "Moderated",
-        sendEmailText = "Send e-mail",
-        sentEmailText = "E-mail sent",
-        emailFailText = "Failed to send e-mail",
+        // session,
+        // moderationEnabledText = "Moderated",
+        // sendEmailText = "Send e-mail",
+        // sentEmailText = "E-mail sent",
+        // emailFailText = "Failed to send e-mail",
         sendSmsText = "Send text",
         sentSmsText = "Sms sent",
         smsFailText = "Failed to send sms",
-        commentFailText = "Failed add comment",
+        // commentFailText = "Failed add comment",
         copyLinkText = "Copy Link",
         facingModeText = "Facing mode",
         userFacingModeText = "user", environmentFacingModeText = "environment",
         namePlaceholder = "Name",
-        emailPlaceholder = "Email",
+        // emailPlaceholder = "Email",
         phonePlaceholder = "Phone",
-        getInviteComment = (name: string, link: string) => `Hello ${name},
-I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
-        getEmailSentComment = (to: string) => `An e-mail was sent to ${to}`,
+        //         getInviteComment = (name: string, link: string) => `Hello ${name},
+        // I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
+        // getEmailSentComment = (to: string) => `An e-mail was sent to ${to}`,
         getSmsSentComment = (to: string) => `A short-message was sent to ${to}`,
-        getEmailHtml = (name: string, link: string) => `Hello ${name},
-I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
-        getEmailText = (name: string, link: string) => `Hello ${name},
-I would like to invite you to a visio call, please click ${link} to join.`,
+        //         getEmailHtml = (name: string, link: string) => `Hello ${name},
+        // I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
+        //         getEmailText = (name: string, link: string) => `Hello ${name},
+        // I would like to invite you to a visio call, please click ${link} to join.`,
         // WARNING: do not put a character like '.' close to ${link} because it sometimes breaks the hyperlink (depending on devices)
         getSmsText = (name: string, link: string) => `Hello ${name},
 Please join at ${link}
@@ -134,7 +134,7 @@ Thanks`
     const [name, setName] = useState<string>(guestData?.name || EMPTY_STRING);
     // guestName is the debounced name
     const [guestName, setGuestName] = useState<string>(guestData?.name || EMPTY_STRING);
-    const [email, setEmail] = useState<string>(EMPTY_STRING);
+    // const [email, setEmail] = useState<string>(EMPTY_STRING);
     const [phone, setPhone] = useState<string>(guestData?.phone || EMPTY_STRING);
     const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.guest.publishOptions`));
     const { value: facingMode, index: facingModeIndex,
