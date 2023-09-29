@@ -4,8 +4,8 @@ export enum InputMessageType {
     Conversation = 'conversation',
     Disconnect = 'disconnect',
     GuestData = 'guest_data',
-    JoinConversation = 'join_conversation',
-    LeaveConversation = 'leave_conversation',
+    Join = 'join',
+    Leave = 'leave',
     UserData = 'user_data'
 }
 

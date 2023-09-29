@@ -6,6 +6,8 @@ import { createTheme, ThemeProvider as MuiThemeProvider, ThemeOptions } from '@m
 import { frFR as ApiRtcMuiReactLib_frFR, setLogLevel as setApiRtcMuiReactLibLogLevel } from '@apirtc/mui-react-lib';
 import { setLogLevel as setApiRtcReactLibLogLevel } from '@apirtc/react-lib';
 
+import merge from 'lodash.merge';
+
 import { App } from './App';
 import { AppContext } from './AppContext';
 import { frFR } from './locale/frFR';
@@ -37,12 +39,14 @@ const APZ_ORANGE = "#F76B40";
 enum RequestParameters {
     apiKey = "aK",
     assistedUrl = "aU",
+    connect = "c",
     conversationName = "cN",
     cloudUrl = "cU",
-    installationId = "iI",
     guestName = "gN",
     guestPhone = "gP",
     invitationServiceUrl = "iU",
+    installationId = "iI",
+    join = "j",
     locale = "l",
     logLevel = "lL",
     userId = "uId",
@@ -142,8 +146,8 @@ export function Wrapper(
 
     const [conversationName, setConversationName] = useState<string>();
 
-    const [connect, setConnect] = useState<boolean>(true);
-    const [join, setJoin] = useState<boolean>(true);
+    const [connect, setConnect] = useState<boolean>(false);
+    const [join, setJoin] = useState<boolean>(false);
 
     const [withAudio, setWithAudio] = useState<boolean | undefined>(undefined);
     const [withVideo, setWithVideo] = useState<boolean | undefined>(undefined);
@@ -183,7 +187,14 @@ export function Wrapper(
 
             switch (message.type) {
                 case InputMessageType.Configuration: {
-                    setAppConfig(message.data)
+                    setAppConfig((prev) => {
+                        const appConfig = merge(prev, message.data);
+                        if (globalThis.logLevel.isDebugEnabled) {
+                            console.debug(`${COMPONENT_NAME}|appConfig`, appConfig);
+                        }
+                        // force new object, to enable react state change detection
+                        return { ...appConfig }
+                    })
                     break;
                 }
                 case InputMessageType.Connect: {
@@ -202,11 +213,11 @@ export function Wrapper(
                     setGuestData(message.data)
                     break;
                 }
-                case InputMessageType.JoinConversation: {
+                case InputMessageType.Join: {
                     setJoin(true)
                     break;
                 }
-                case InputMessageType.LeaveConversation: {
+                case InputMessageType.Leave: {
                     setJoin(false)
                     break;
                 }
@@ -241,20 +252,35 @@ export function Wrapper(
     }, []);
 
     useEffect(() => {
-        setAppConfig({
-            installationId: searchParams.get(RequestParameters.installationId) ?? DEFAULT_APP_CONFIG.installationId,
+        const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
+        setLogLevel(logLevel)
+        setApiRtcReactLibLogLevel(logLevel)
+        setApiRtcMuiReactLibLogLevel(logLevel)
+        //apiRTC.setLogLevel(10)
+
+        const l_appConfig = merge(DEFAULT_APP_CONFIG, {
+            installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
             apiRtc: {
-                cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? DEFAULT_APP_CONFIG.apiRtc.cloudUrl,
-                apiKey: searchParams.get(RequestParameters.apiKey) ?? DEFAULT_APP_CONFIG.apiRtc.apiKey
+                cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,
+                apiKey: searchParams.get(RequestParameters.apiKey) ?? undefined
             },
-            assistedUrl: searchParams.get(RequestParameters.assistedUrl) ?? DEFAULT_APP_CONFIG.assistedUrl,
-            invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? DEFAULT_APP_CONFIG.invitationServiceUrl,
-        });
+            assistedUrl: searchParams.get(RequestParameters.assistedUrl) ?? undefined,
+            invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
+        })
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`${COMPONENT_NAME}|init appConfig`, l_appConfig);
+        }
+        // force new object, to enable react state change detection
+        setAppConfig({ ...l_appConfig });
 
         const userId: string | null = searchParams.get(RequestParameters.userId);
         if (userId) {
             setUserData({ userId })
         }
+
+        setConnect((/true/i).test(searchParams.get(RequestParameters.connect) ?? 'false'))
+
+        setJoin((/true/i).test(searchParams.get(RequestParameters.join) ?? 'false'))
 
         // guest data
         const guestName: string | null = searchParams.get(RequestParameters.guestName);
@@ -267,12 +293,6 @@ export function Wrapper(
         if (conversationName) {
             setConversationName(conversationName)
         }
-
-        const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
-        setLogLevel(logLevel)
-        setApiRtcReactLibLogLevel(logLevel)
-        setApiRtcMuiReactLibLogLevel(logLevel)
-        //apiRTC.setLogLevel(10)
 
         const locale: string | null = searchParams.get(RequestParameters.locale);
         if (locale) {

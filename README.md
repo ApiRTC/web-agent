@@ -6,11 +6,13 @@ This **web-agent web application** is intended to be integrated within any third
 
 The application is hosted [here](https://kmoyse-apizee.github.io/web-agent/). As is, it does not much. Some url parameters must be set to control it.
 
-A mandatory one, **Ak** : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
+A mandatory one, *Ak* : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
 
-Then **cN** specifies the **Conversation** **name**.
+Then *cN* specifies the **Conversation** **name**.
 
-So specifying [?aK=myDemoApiKey&cN=Test](https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&cN=Test) shall display more.
+Finally *c* and *j*, set to true allow to both **connect** ApiRtc platform and **join** the **Conversation**.
+
+So specifying [?aK=myDemoApiKey&c=true&j=true&cN=Test](https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&c=true&j=true&cN=Test) shall display more.
 
 **Note** : _myDemoApiKey_ shall be used for this demo only, and may not allow to use all features (such as short-messages invitation for example).
 
@@ -20,10 +22,9 @@ To integrate the application with html through iframe you should do something li
 
 ```html
 <iframe
-  src="https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&cN=Test"
+  src="https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&c=true&j=true&cN=Test"
   height="720px"
   width="100%"
-  frameborder="0"
   referrerpolicy="no-referrer"
   sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin allow-downloads"
   allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"
@@ -120,9 +121,11 @@ iframe.contentWindow.postMessage(
 | conversation       | name:string    | set **Conversation** name       |
 | disconnect         | N/A            | disconnect from apirtc platform |
 | guest_data         | data:UserData  | set guest data                  |
-| join_conversation  | N/A            | join **Conversation**           |
-| leave_conversation | N/A            | leave **Conversation**          |
+| join               | N/A            | join **Conversation**           |
+| leave              | N/A            | leave **Conversation**          |
 | user_data          | data:UserData  | set user data                   |
+
+TODO: provide links to a auto-generated doc for AppConfig, UserData types
 
 Note: host application must wait for having received the 'ready' message from web-agent before posting messages.
 
