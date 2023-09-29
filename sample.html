@@ -65,17 +65,31 @@
 
         function setConversationName() {
             let element = document.getElementById('cN');
-
             let iframe = document.getElementById('i-frame');
-
             iframe.contentWindow.postMessage(
                 {
                     type: "conversation",
                     name: element.value
-                },
-                IFRAME_HOST
+                }, IFRAME_HOST
             );
-
+            return false;
+        }
+        function connect() {
+            let iframe = document.getElementById('i-frame');
+            iframe.contentWindow.postMessage(
+                {
+                    type: "connect"
+                }, IFRAME_HOST
+            );
+            return false;
+        }
+        function join() {
+            let iframe = document.getElementById('i-frame');
+            iframe.contentWindow.postMessage(
+                {
+                    type: "join"
+                }, IFRAME_HOST
+            );
             return false;
         }
     </script>
@@ -98,6 +112,9 @@
                 <input type="text" id="cN" name="cN">
                 <input type="submit" value="Submit">
             </form>
+            <br>
+            <button onclick="connect()">Connect</button>
+            <button onclick="join()">Join</button>
         </div>
     </div>
 </body>
