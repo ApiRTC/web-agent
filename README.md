@@ -1,46 +1,129 @@
-# Getting Started with Create React App
+# Apizee web-agent web application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This **web-agent web application** is intended to be integrated within any third party web application through an i-frame.
 
-## Available Scripts
+## Getting started
 
-In the project directory, you can run:
+The application is hosted [here](https://kmoyse-apizee.github.io/web-agent/). As is, it does not much. Some url parameters must be set to control it.
 
-### `npm start`
+A mandatory one, **Ak** : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Then **cN** specifies the **Conversation** **name**.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+So specifying [?aK=myDemoApiKey&cN=Test](https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&cN=Test) shall display more.
 
-### `npm test`
+**Note** : _myDemoApiKey_ shall be used for this demo only, and may not allow to use all features (such as short-messages invitation for example).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Integrate as iframe
 
-### `npm run build`
+To integrate the application with html through iframe you should do something like :
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```html
+<iframe
+  src="https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&cN=Test"
+  height="720px"
+  width="100%"
+  frameborder="0"
+  referrerpolicy="no-referrer"
+  sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin allow-downloads"
+  allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"
+></iframe>
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Url parameters
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+| Parameter | stand for            | Description                                                                   |
+| --------- | -------------------- | ----------------------------------------------------------------------------- |
+| aK        | apiKey               | your [ApiRtc](https://apirtc.com) **apiKey**, mandatory                       |
+| aU        | assistedUrl          | url of the web-assisted web application                                       |
+| cN        | conversationName     | the **ApiRtc** **Conversation** **name**                                      |
+| cU        | cloudUrl             | the cloud url, defaults to https://cloud.apirtc.com                           |
+| iI        | installationId       | used a header for local-storage keys                                          |
+| gN        | guestName            | name to be pre-set in the invitation form                                     |
+| gP        | guestPhone           | phone number to be pre-set in the invitation form                             |
+| iU        | invitationServiceUrl | url of the invitation service                                                 |
+| l         | locale               | to force locale to fr or en                                                   |
+| lL        | logLevel             | can be debug, info, warn, error                                               |
+| uId       | userId               | id of the user-agent that the application will use to connect with **ApiRtc** |
 
-### `npm run eject`
+All parameters are optional, except **aK**.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Dynamic control
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Using url parameters to provide information to the i-framed web-agent application is good for static and/or default values. But the values can't be changed without reloading.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+For example, the hosting application may need to change the **Conversation** **name** without reloading the i-framed web-agent application.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Also, the web-agent application has real-time features that the hosting application may need to be notified of. For example, when a snapshot is taken, this is up to the hosting application to handle it (simple display it, or upload it to a database server, ...).
 
-## Learn More
+To enable such real-time interaction, the web-agent application implements a dual channel communication, using standard [Window: postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) mechanism.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### web-agent to host communication
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+In order for host application to receive messages from web-agent, it needs to register a **window** listener for _message_ events:
+
+```js
+const receiveMessage = (event) => {
+  if (event.origin !== IFRAME_HOST) return;
+
+  const message = event.data;
+
+  switch (message.type) {
+    case "ready": {
+      // web-agent app is ready to receive messages
+      break;
+    }
+    case "snapshot": {
+      const dataUrl = message.dataUrl;
+      // display or store the snapshot dataUrl.
+      break;
+    }
+    ...
+    default:
+      console.warn(`Unhandled message.type ${message.type}.`);
+  }
+};
+
+window.addEventListener("message", receiveMessage);
+```
+
+The actual **message** is an object in _event.data_. A **message** has a _type_ field, and other fields depending on the _type_ value.
+
+#### Complete list of messages
+
+| message type       | field(s)         | Description                                                                   |
+| ------------------ | ---------------- | ----------------------------------------------------------------------------- |
+| ready              | N/A              | notifies when web-agent is ready to receive messages                          |
+| snapshot           | contact, dataUrl | notifies when a snapshot taken on a **Stream** from a **Contact** is received |
+| subscribed_streams | length           | fired every time the number of subscribed streams changes                     |
+
+### Host to web-agent communication
+
+To post a message, get a handle on the iframe object and use postMessage like:
+
+```js
+iframe.contentWindow.postMessage(
+  {
+    type: "conversation",
+    data: {
+      name: "new_conversation_name",
+    },
+  },
+  IFRAME_HOST
+);
+```
+
+#### Complete list of messages
+
+| message type       | field(s)       | Description                     |
+| ------------------ | -------------- | ------------------------------- |
+| configuration      | data:AppConfig | configures application          |
+| connect            | N/A            | connection with apirtc platform |
+| conversation       | name:string    | set **Conversation** name       |
+| disconnect         | N/A            | disconnect from apirtc platform |
+| guest_data         | data:UserData  | set guest data                  |
+| join_conversation  | N/A            | join **Conversation**           |
+| leave_conversation | N/A            | leave **Conversation**          |
+| user_data          | data:UserData  | set user data                   |
+
+Note: host application must wait for having received the 'ready' message from web-agent before posting messages.
