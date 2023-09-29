@@ -39,6 +39,19 @@
 
         const IFRAME_HOST = "https://kmoyse-apizee.github.io";
 
+        function postAppConfig() {
+            let iframe = document.getElementById('i-frame');
+            iframe.contentWindow.postMessage(
+                {
+                    type: "configuration",
+                    data: {
+                        apiRtc: { apiKey: "myDemoApiKey" }
+                    }
+                }, IFRAME_HOST
+            );
+            return false;
+        }
+
         const receiveMessage = (event) => {
             if (event.origin !== IFRAME_HOST) return;
 
@@ -48,6 +61,8 @@
                 case "ready": {
                     // web-agent app is ready to receive messages
                     console.log("web-agent is ready !")
+                    // this is a good time to post app configuration
+                    postAppConfig()
                     break;
                 }
                 case "snapshot": {
