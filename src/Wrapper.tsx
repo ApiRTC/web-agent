@@ -12,7 +12,7 @@ import { App } from './App';
 import { AppContext } from './AppContext';
 import { frFR } from './locale/frFR';
 import { setLogLevel, LogLevelText } from './logLevel';
-import { DEFAULT_APP_CONFIG } from './constants';
+import { APP_CONFIG } from './public-constants';
 import { AppConfig, UserData } from './types';
 import { InputMessageType, OutputMessageType } from './MessageTypes';
 // import { useSearchParams } from 'react-router-dom';
@@ -139,7 +139,7 @@ export function Wrapper(
 
     const [locale, setLocale] = React.useState<string>(languageToLocale(navigator.language));
 
-    const [appConfig, setAppConfig] = useState<AppConfig>(DEFAULT_APP_CONFIG);
+    const [appConfig, setAppConfig] = useState<AppConfig>(APP_CONFIG);
 
     const [userData, setUserData] = useState<UserData>();
     const [guestData, setGuestData] = useState<UserData>();
@@ -258,7 +258,7 @@ export function Wrapper(
         setApiRtcMuiReactLibLogLevel(logLevel)
         //apiRTC.setLogLevel(10)
 
-        const l_appConfig = merge(DEFAULT_APP_CONFIG, {
+        const l_appConfig = merge(APP_CONFIG, {
             installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
             apiRtc: {
                 cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,

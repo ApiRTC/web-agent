@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { DEFAULT_APP_CONFIG } from './constants';
+import { APP_CONFIG } from './public-constants';
 import { AppConfig, UserData } from './types';
 
 export const AppContext = createContext<
@@ -13,7 +13,7 @@ export const AppContext = createContext<
         notify: (level: 'info' | 'error' | 'warn', message: string) => void
     }>(
         {
-            appConfig: DEFAULT_APP_CONFIG,
+            appConfig: APP_CONFIG,
             userData: undefined,
             guestData: undefined,
             connect: true,
