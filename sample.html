@@ -69,6 +69,9 @@
                     const dataUrl = message.dataUrl;
                     console.log("web-agent sent snapshot !")
                     // display or store the snapshot dataUrl.
+                    document
+                        .getElementById('snapshot')
+                        .src = message.dataUrl;
                     break;
                 }
                 default:
@@ -135,6 +138,10 @@
                 <label for="gP">Guest phone :&nbsp;</label><input type="text" id="gP" name="gP"><br>
                 <input type="submit" value="Submit">
             </form>
+            <div>
+                <h2>Snapshot image</h2>
+                <img id="snapshot" alt="Snapshot image">
+            </div>
         </div>
     </div>
 </body>
