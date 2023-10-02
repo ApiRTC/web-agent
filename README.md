@@ -6,13 +6,13 @@ This **web-agent web application** is intended to be integrated within any third
 
 The application is hosted [here](https://kmoyse-apizee.github.io/web-agent/). As is, it does not much. Some url parameters must be set to control it.
 
-A mandatory one, *Ak* : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
+A mandatory one, _Ak_ : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
 
-Then *cN* specifies the **Conversation** **name**.
+Then _cN_ specifies the **Conversation** **name**.
 
-Finally *c* and *j*, set to true allow to both **connect** ApiRtc platform and **join** the **Conversation**.
+Finally _c_ and _j_, set to _true_ allow to both **connect** ApiRtc platform and **join** the **Conversation**.
 
-So specifying [?aK=myDemoApiKey&c=true&j=true&cN=Test](https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&c=true&j=true&cN=Test) shall display more.
+So specifying [?aK=myDemoApiKey&cN=Test&c=true&j=true](https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&cN=Test&c=true&j=true) shall display more and allow you to get an invitation link to a **Conversation** named _Test_.
 
 **Note** : _myDemoApiKey_ shall be used for this demo only, and may not allow to use all features (such as short-messages invitation for example).
 
@@ -22,7 +22,7 @@ To integrate the application with html through iframe you should do something li
 
 ```html
 <iframe
-  src="https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&c=true&j=true&cN=Test"
+  src="https://kmoyse-apizee.github.io/web-agent?aK=myDemoApiKey&cN=Test&c=true&j=true"
   height="720px"
   width="100%"
   referrerpolicy="no-referrer"
@@ -33,21 +33,31 @@ To integrate the application with html through iframe you should do something li
 
 ## Url parameters
 
-| Parameter | stand for            | Description                                                                   |
-| --------- | -------------------- | ----------------------------------------------------------------------------- |
-| aK        | apiKey               | your [ApiRtc](https://apirtc.com) **apiKey**, mandatory                       |
-| aU        | assistedUrl          | url of the web-assisted web application                                       |
-| cN        | conversationName     | the **ApiRtc** **Conversation** **name**                                      |
-| cU        | cloudUrl             | the cloud url, defaults to https://cloud.apirtc.com                           |
-| iI        | installationId       | used a header for local-storage keys                                          |
-| gN        | guestName            | name to be pre-set in the invitation form                                     |
-| gP        | guestPhone           | phone number to be pre-set in the invitation form                             |
-| iU        | invitationServiceUrl | url of the invitation service                                                 |
-| l         | locale               | to force locale to fr or en                                                   |
-| lL        | logLevel             | can be debug, info, warn, error                                               |
-| uId       | userId               | id of the user-agent that the application will use to connect with **ApiRtc** |
+| Parameter | stands for           | Default             | Description                                                                   |
+| --------- | -------------------- | ------------------- | ----------------------------------------------------------------------------- |
+| aK        | apiKey               | none                | your [ApiRtc](https://apirtc.com) **apiKey**, mandatory                       |
+| aU        | assistedUrl          | ASSISTED_URL        | url of the web-assisted web application                                       |
+| c         | connect              | false               | Connect with **ApiRtc** platform                                              |
+| cN        | conversationName     | empty               | the **ApiRtc** **Conversation** **name**                                      |
+| cU        | cloudUrl             | CLOUD_URL           | the cloud url                                                                 |
+| iI        | installationId       | apirtc-web-agent    | used a header for local-storage keys                                          |
+| j         | join                 | false               | Join the **Conversation**                                                     |
+| gN        | guestName            | empty               | name to be pre-set in the invitation form                                     |
+| gP        | guestPhone           | empty               | phone number to be pre-set in the invitation form                             |
+| iU        | invitationServiceUrl | IS_URL              | url of the invitation service                                                 |
+| l         | locale               | en                  | to force locale to _fr_ or _en_                                               |
+| lL        | logLevel             | warn                | can be debug, info, warn, error                                               |
+| uId       | userId               | generated by apirtc | id of the user-agent that the application will use to connect with **ApiRtc** |
 
 All parameters are optional, except **aK**.
+
+With :
+
+ASSISTED_URL = https://apirtc.github.io/visio-assisted
+
+CLOUD_URL = https://cloud.apirtc.com
+
+IS_URL = https://is.dev.apizee.com/invitations
 
 ## Dynamic control
 
@@ -106,7 +116,7 @@ To post a message, get a handle on the iframe object and use postMessage like:
 iframe.contentWindow.postMessage(
   {
     type: "conversation",
-    name: "new_conversation_name"
+    name: "new_conversation_name",
   },
   IFRAME_HOST
 );
@@ -114,16 +124,16 @@ iframe.contentWindow.postMessage(
 
 #### Complete list of messages
 
-| message type       | field(s)       | Description                     |
-| ------------------ | -------------- | ------------------------------- |
-| configuration      | data:AppConfig | configures application          |
-| connect            | N/A            | connection with apirtc platform |
-| conversation       | name:string    | set **Conversation** name       |
-| disconnect         | N/A            | disconnect from apirtc platform |
-| guest_data         | data:UserData  | set guest data                  |
-| join               | N/A            | join **Conversation**           |
-| leave              | N/A            | leave **Conversation**          |
-| user_data          | data:UserData  | set user data                   |
+| message type  | field(s)       | Description                     |
+| ------------- | -------------- | ------------------------------- |
+| configuration | data:AppConfig | configures application          |
+| connect       | N/A            | connection with apirtc platform |
+| conversation  | name:string    | set **Conversation** name       |
+| disconnect    | N/A            | disconnect from apirtc platform |
+| guest_data    | data:UserData  | set guest data                  |
+| join          | N/A            | join **Conversation**           |
+| leave         | N/A            | leave **Conversation**          |
+| user_data     | data:UserData  | set user data                   |
 
 TODO: provide links to a auto-generated doc for AppConfig, UserData types
 
@@ -133,4 +143,4 @@ Note: host application must wait for having received the 'ready' message from we
 
 Visit [sample page](https://kmoyse-apizee.github.io/web-agent/sample.html) for a demonstration of dynamic control of the i-framed web-agent app !
 
-The code is available in *sample/sample.html* file.
+The code is available in _sample/sample.html_ file.

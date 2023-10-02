@@ -7,7 +7,7 @@ export const VIDEO_ROUNDED_CORNERS = { borderRadius: '4px', overflow: 'hidden' }
 
 export const CODECS = { supportedVideoCodecs: ["vp9"] };
 
-export const DEFAULT_INSTALLATION_ID = 'agent-room';
+export const DEFAULT_INSTALLATION_ID = 'apirtc-web-agent';
 export const DEFAULT_CLOUD_URL = 'https://cloud.apirtc.com';
 export const DEFAULT_ASSISTED_URL = 'https://apirtc.github.io/visio-assisted';
 export const DEFAULT_INVITATION_SERVICE_URL = 'https://is.dev.apizee.com/invitations';
