@@ -361,7 +361,7 @@ Thanks`
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="phone-input" placeholder={phonePlaceholder} value={phone} onChange={e => setPhone(e.target.value)} />
-                <Button sx={{ minWidth: 120 }} variant='outlined' disabled={sending} onClick={doSendSms}>{sendSmsText}</Button>
+                <Button sx={{ minWidth: 120 }} variant='outlined' disabled={!name || !phone || sending} onClick={doSendSms}>{sendSmsText}</Button>
             </Stack>
         </form>
     </Box>

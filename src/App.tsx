@@ -202,8 +202,8 @@ export function App(inProps: AppProps) {
                         <Stack direction="row" spacing={1}>
                             <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
                                 <IconButton data-testid='audio-btn'
-                                    size='large'
-                                    color='primary'
+                                    size='large' color='primary'
+                                    disabled={session ? undefined : true}
                                     onClick={toggleAudio}>{withAudio ? <Icon>mic</Icon> : <Icon>mic_off</Icon>}</IconButton>
                             </Tooltip>
                             {/* <FormControl fullWidth>
@@ -220,7 +220,9 @@ export function App(inProps: AppProps) {
                         </Stack>
                         <Stack direction="row" spacing={1}>
                             <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
-                                <IconButton data-testid='video-btn' color='primary' onClick={toggleVideo}>{withVideo ? <Icon>videocam</Icon> : <Icon>videocam_off</Icon>}</IconButton>
+                                <IconButton data-testid='video-btn' color='primary'
+                                    disabled={session ? undefined : true}
+                                    onClick={toggleVideo}>{withVideo ? <Icon>videocam</Icon> : <Icon>videocam_off</Icon>}</IconButton>
                             </Tooltip>
                             <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
                                 id='video-in'

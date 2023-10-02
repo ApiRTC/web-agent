@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.svg" />
+    <link rel="icon" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="Sample i-framed web-agent integration" />
@@ -69,6 +69,9 @@
                     const dataUrl = message.dataUrl;
                     console.log("web-agent sent snapshot !")
                     // display or store the snapshot dataUrl.
+                    document
+                        .getElementById('snapshot')
+                        .src = message.dataUrl;
                     break;
                 }
                 default:
@@ -89,20 +92,23 @@
             );
             return false;
         }
-        function connect() {
-            let iframe = document.getElementById('i-frame');
-            iframe.contentWindow.postMessage(
-                {
-                    type: "connect"
-                }, IFRAME_HOST
-            );
-            return false;
-        }
         function join() {
             let iframe = document.getElementById('i-frame');
             iframe.contentWindow.postMessage(
                 {
                     type: "join"
+                }, IFRAME_HOST
+            );
+            return false;
+        }
+        function setGuestUserData() {
+            let gN = document.getElementById('gN');
+            let gP = document.getElementById('gP');
+            let iframe = document.getElementById('i-frame');
+            iframe.contentWindow.postMessage(
+                {
+                    type: "guest_data",
+                    data: { name: gN.value, phone: gP.value }
                 }, IFRAME_HOST
             );
             return false;
@@ -115,21 +121,27 @@
     <div class="flex-container">
         <div class="flex-child">
             <h1>i-framed web-agent app</h1>
-            <iframe id="i-frame" src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&lL=debug" height="720px"
+            <iframe id="i-frame" src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&c=true&lL=debug" height="720px"
                 width="100%" frameborder="0" referrerpolicy="no-referrer"
-                sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts allow-same-origin allow-downloads"
                 allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"></iframe>
         </div>
         <div class="flex-child">
             <h1>real-time control</h1>
             <form onSubmit="return setConversationName()">
-                <label for="cN">Conversation name:</label><br>
-                <input type="text" id="cN" name="cN">
+                <label for="cN">Conversation name :&nbsp;</label><input type="text" id="cN" name="cN">
                 <input type="submit" value="Submit">
             </form>
             <br>
-            <button onclick="connect()">Connect</button>
-            <button onclick="join()">Join</button>
+            <button onclick="join()">Join</button><br><br>
+            <form onSubmit="return setGuestUserData()">
+                <label for="gN">Guest name :&nbsp;</label><input type="text" id="gN" name="gN"><br>
+                <label for="gP">Guest phone :&nbsp;</label><input type="text" id="gP" name="gP"><br>
+                <input type="submit" value="Submit">
+            </form>
+            <div>
+                <h2>Snapshot image</h2>
+                <img id="snapshot" alt="Snapshot image">
+            </div>
         </div>
     </div>
 </body>

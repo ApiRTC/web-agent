@@ -19,6 +19,10 @@ import { InputMessageType, OutputMessageType } from './MessageTypes';
 
 // declare var apiRTC:any;
 
+// By default, set this as early as possible, to prevent some error cases to fail
+// finding  globalThis.logLevel
+setLogLevel('warn')
+
 const languageToLocale = (language: string) => {
     switch (language) {
         case 'fr':

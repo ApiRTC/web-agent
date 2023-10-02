@@ -1,3 +1,5 @@
+<base target="_blank">
+
 # Apizee web-agent web application
 
 This **web-agent web application** is intended to be integrated within any third party web application through an i-frame.
@@ -59,7 +61,7 @@ Using url parameters to provide information to the i-framed web-agent applicatio
 
 For example, the hosting application may need to change the **Conversation** **name** without reloading the i-framed web-agent application.
 
-Also, the web-agent application has real-time features that the hosting application may need to be notified of. For example, when a snapshot is taken, this is up to the hosting application to handle it (simple display it, or upload it to a database server, ...).
+Also, the web-agent application has real-time features that the hosting application may need to be notified of. For example, when a snapshot is taken, this is up to the hosting application to handle it (just display it, or upload it to a database server, ...).
 
 To enable such real-time interaction, the web-agent application implements a dual channel communication, using standard [Window: postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) mechanism.
 
@@ -68,6 +70,7 @@ To enable such real-time interaction, the web-agent application implements a dua
 In order for host application to receive messages from web-agent, it needs to register a **window** listener for _message_ events:
 
 ```js
+const IFRAME_HOST = "https://apirtc.github.io";
 const receiveMessage = (event) => {
   if (event.origin !== IFRAME_HOST) return;
 
@@ -129,7 +132,7 @@ iframe.contentWindow.postMessage(
 | leave         | N/A            | leave **Conversation**          |
 | user_data     | data:UserData  | set user data                   |
 
-The types definition can be found [here](https://kmoyse-apizee.github.io/web-agent/doc/modules/types.html).
+The types definition can be found [here](https://apirtc.github.io/web-agent/doc/modules/types.html).
 
 Note: host application must wait for having received the _ready_ message from web-agent before posting messages.
 
