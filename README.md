@@ -1,12 +1,10 @@
-<base target="_blank">
-
 # Apizee web-agent web application
 
 This **web-agent web application** is intended to be integrated within any third party web application through an i-frame.
 
 ## Getting started
 
-The application is hosted [here](https://apirtc.github.io/web-agent/). As is, it does not much. Some url parameters must be set to control it.
+The application is hosted [here](https://apirtc.github.io/web-agent/){:target="_blank"}. As is, it does not much. Some url parameters must be set to control it.
 
 A mandatory one, _Ak_ : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
 
