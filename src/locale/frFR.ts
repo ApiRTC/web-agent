@@ -12,7 +12,7 @@ export const frFR: Localization = {
         App: {
             defaultProps: {
                 invitationLabel: "Invitation",
-                settingsLabel: "Mes paramètres",
+                settingsLabel: "Paramètres",
                 audioOffTooltip: "Sans audio", audioOnTooltip: "Avec audio", videoOffTooltip: "Sans vidéo", videoOnTooltip: "Avec vidéo",
                 // audioInLabel: "Entrée audio", audioOutLabel: "Sortie audio", videoInLabel: "Entrée vidéo",
                 // getConversationDurationComment: (h: number, m: number, s: number) => `La conversation a duré ${hmsToString(h, m, s)}.`,
@@ -22,6 +22,7 @@ export const frFR: Localization = {
         Invitation: {
             defaultProps: {
                 copyLinkText: `Copier le lien`,
+                invitationLinkText: 'Lien',
                 sendEmailText: "Envoyer e-mel",
                 sendSmsText: "Envoyer sms",
                 sentEmailText: "E-mel envoyé",

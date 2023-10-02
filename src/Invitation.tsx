@@ -65,6 +65,7 @@ export type InvitationProps = {
     conversationName: string,
     moderationEnabledText?: string,
     copyLinkText?: string,
+    invitationLinkText?: string,
     sendEmailText?: string,
     sentEmailText?: string,
     emailFailText?: string,
@@ -111,6 +112,7 @@ export function Invitation(inProps: InvitationProps) {
         smsFailText = "Failed to send sms",
         // commentFailText = "Failed add comment",
         copyLinkText = "Copy Link",
+        invitationLinkText = "Link",
         facingModeText = "Facing mode",
         userFacingModeText = "user", environmentFacingModeText = "environment",
         namePlaceholder = "Name",
@@ -349,8 +351,8 @@ Thanks`
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
                 {/* {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>} */}
-                {invitationShortLink && <Link href={invitationShortLink} target="_blank" rel="noopener">Link</Link>}
-                {(invitationLink || invitationShortLink) && <Button variant='outlined' data-testid="copy-link-btn" onClick={doCopyLink}>{copyLinkText}</Button>}
+                <Button variant='outlined' data-testid="copy-link-btn" disabled={!invitationLink && !invitationShortLink} onClick={doCopyLink}>{copyLinkText}</Button>
+                {invitationShortLink && <Link href={invitationShortLink} target="_blank" rel="noopener">{invitationLinkText}</Link>}
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}

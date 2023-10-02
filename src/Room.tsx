@@ -11,6 +11,7 @@ import {
 } from "@apirtc/mui-react-lib";
 import { useConversationStreams } from "@apirtc/react-lib";
 
+import CallEndIcon from '@mui/icons-material/CallEnd';
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
@@ -21,8 +22,11 @@ import { frFR } from './locale/frFR';
 import { OutputMessageType } from "./MessageTypes";
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
+import IconButton from "@mui/material/IconButton";
 import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
 import offNotification from "./assets/mixkit-electric-pop-2365.wav";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Tooltip from "@mui/material/Tooltip";
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
@@ -229,12 +233,8 @@ export function Room(inProps: RoomProps) {
                 }
             },
         }, frFR, ApiRtcMuiReactLib_frFR)}>
-        {/* <Box sx={{
-            ...props.sx,
-            position: 'relative',
-        }} ref={boxRef}> */}
-        <Grid sx={{ ...props.sx }} container spacing={1}>
-            <Grid xs={8}>
+        <Grid sx={{ ...props.sx }} container>
+            <Grid xs={8} md={9} lg={10}>
                 <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                     {subscribedStreams.map((stream, index) =>
                         <Stream id={'subscribed-stream-' + index} key={index}
@@ -284,7 +284,7 @@ export function Room(inProps: RoomProps) {
                 opacity: 0.9,
                 height: '50%', width: { xs: '50%', sm: '40%', md: '30%', lg: '20%' },
             }}> */}
-            <Grid xs={4}>
+            <Grid xs={4} md={3} lg={2}>
                 <Stack direction="column" spacing={1} >
                     <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                         {publishedStreams.map((stream, index) =>
@@ -308,12 +308,15 @@ export function Room(inProps: RoomProps) {
                     </ApiRtcGrid>
                     {
                         subscribedStreams.length > 0 &&
-                        <Stack direction='column' alignItems='center'>
-                            <Button sx={{ mt: 2 }} variant='outlined'
-                                onClick={shareScreen}>{shareScreenText}</Button>
-                            <Button sx={{ mt: 2 }} variant='outlined' color='error'
-                                onClick={hangUp}>{hangUpText}</Button>
+                        <Stack direction='column' alignItems='center' justifyContent='center'>
+                            <ButtonGroup variant="outlined" aria-label="call-bar">
+                                <Button
+                                    onClick={shareScreen}>{shareScreenText}</Button>
+                                <Button color='error'
+                                    onClick={hangUp}>{hangUpText}</Button>
+                            </ButtonGroup>
                         </Stack>
+
                     }
                 </Stack>
                 {/* </ApiRtcGrid> */}
