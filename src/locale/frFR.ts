@@ -21,10 +21,10 @@ export const frFR: Localization = {
         },
         Invitation: {
             defaultProps: {
-                copyLinkText: `Copier le lien`,
-                invitationLinkText: 'Lien',
-                sendEmailText: "Envoyer e-mel",
-                sendSmsText: "Envoyer sms",
+                copyLinkText: `Copier`,
+                openLinkText: 'Ouvrir',
+                sendEmailText: "Envoyer",
+                sendSmsText: "Envoyer",
                 sentEmailText: "E-mel envoyé",
                 sentSmsText: "Sms envoyé",
                 emailFailText: "E-mel non envoyé", smsFailText: "Sms non envoyé",

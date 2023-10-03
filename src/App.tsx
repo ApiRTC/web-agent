@@ -28,10 +28,6 @@ export type AppProps = {
     audioOnTooltip?: string,
     videoOffTooltip?: string,
     videoOnTooltip?: string,
-    // audioInLabel?: string,
-    // audioOutLabel?: string,
-    // videoInLabel?: string,
-    // getConversationDurationComment?: (h: number, m: number, s: number) => string,
     // getSnapshotComment?: (name: string) => string,
 };
 const COMPONENT_NAME = "App";
@@ -39,9 +35,7 @@ export function App(inProps: AppProps) {
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
     const { invitationLabel = "Invite", settingsLabel = "My settings",
-        audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
-        // audioInLabel = "Audio In", audioOutLabel = "Audio Out", videoInLabel = "Video In",
-        // getConversationDurationComment = (h: number, m: number, s: number) => `Conversation duration ${hmsToEnglishString(h, m, s)}.`,
+        audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On"
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
     } = props;
 
@@ -128,20 +122,7 @@ export function App(inProps: AppProps) {
         postResize();
     };
 
-    // useEffect(() => {
-    //     if (grabbing) {
-    //         setMenuValue('settings')
-    //     } else {
-    //         setMenuValue('invite')
-    //     }
-    // }, [grabbing])
-
     const postResize = () => {
-        // It takes a few moments before DOM is actually updated
-        // so we have to wait for streams full render before the resizeContainer
-        // works with the actual required size.
-        //resizeContainer(client, MAX_HEIGHT)
-
         // Notify iframe parent about resize
         window.parent.postMessage({
             type: OutputMessageType.Resize
@@ -151,21 +132,6 @@ export function App(inProps: AppProps) {
     useEffect(() => {
         postResize();
     }, [stream])
-
-    // const onStart = useCallback(() => {
-    //     window.parent.postMessage({
-    //         type: 'conversation_start',
-    //         conversationName: conversationName
-    //     }, '*')
-    // }, [conversationName]);
-
-    // const onEnd = useCallback((durationMilliseconds: number) => {
-    //     window.parent.postMessage({
-    //         type: 'conversation_end',
-    //         conversationName: conversationName,
-    //         durationMilliseconds
-    //     }, '*')
-    // }, [conversationName]);
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         return new Promise<void>((resolve, reject) => {
@@ -267,19 +233,17 @@ export function App(inProps: AppProps) {
             }
         </>}
 
-        {menuValue && <Divider sx={{ my: 2 }} />}
-        {
-            conversation && <Room sx={{
-                mt: 1, px: 1,
-                minHeight: '100%', width: '100%',
-            }}
-                conversation={conversation}
-                stream={stream}
-                onSnapshot={onSnapshot}
-                // onStart={onStart}
-                // onEnd={onEnd}
-                onDisplayChange={postResize}
-            />
+        {menuValue && <Divider sx={{ m: 2 }} />}
+
+        {conversation && <Room sx={{
+            mt: 1, px: 1,
+            minHeight: '100%', width: '100%',
+        }}
+            conversation={conversation}
+            stream={stream}
+            onSnapshot={onSnapshot}
+            onDisplayChange={postResize}
+        />
         }
     </>
 }

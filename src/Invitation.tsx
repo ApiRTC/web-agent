@@ -1,6 +1,9 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { SxProps, useThemeProps } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import LinkIcon from '@mui/icons-material/Link';
+import SendIcon from '@mui/icons-material/Send';
+import { ButtonGroup, SxProps, useThemeProps } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -8,7 +11,6 @@ import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import Input from '@mui/material/Input';
-import Link from '@mui/material/Link';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
@@ -65,7 +67,7 @@ export type InvitationProps = {
     conversationName: string,
     moderationEnabledText?: string,
     copyLinkText?: string,
-    invitationLinkText?: string,
+    openLinkText?: string,
     sendEmailText?: string,
     sentEmailText?: string,
     emailFailText?: string,
@@ -107,12 +109,12 @@ export function Invitation(inProps: InvitationProps) {
         // sendEmailText = "Send e-mail",
         // sentEmailText = "E-mail sent",
         // emailFailText = "Failed to send e-mail",
-        sendSmsText = "Send text",
+        sendSmsText = "Send",
         sentSmsText = "Sms sent",
         smsFailText = "Failed to send sms",
         // commentFailText = "Failed add comment",
-        copyLinkText = "Copy Link",
-        invitationLinkText = "Link",
+        copyLinkText = "Copy",
+        openLinkText = "Open",
         facingModeText = "Facing mode",
         userFacingModeText = "user", environmentFacingModeText = "environment",
         namePlaceholder = "Name",
@@ -354,8 +356,11 @@ Thanks`
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
                 {/* {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>} */}
-                <Button variant='outlined' data-testid="copy-link-btn" disabled={!invitationLink && !invitationShortLink} onClick={doCopyLink}>{copyLinkText}</Button>
-                {invitationShortLink && <Link href={invitationShortLink} target="_blank" rel="noopener">{invitationLinkText}</Link>}
+                <ButtonGroup variant="outlined">
+                    {/* TODO : add target="_blank" once https://github.com/mui/material-ui/issues/39287 is fixed */}
+                    <Button data-testid="open-link-btn" href={invitationShortLink} rel="noopener" disabled={!invitationShortLink} startIcon={<LinkIcon />}>{openLinkText}</Button>
+                    <Button data-testid="copy-link-btn" disabled={!invitationLink && !invitationShortLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
+                </ButtonGroup>
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
             {/* <Stack sx={{ mt: 1 }}
@@ -366,9 +371,9 @@ Thanks`
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="phone-input" placeholder={phonePlaceholder} value={phone} onChange={e => setPhone(e.target.value)} />
-                <Button sx={{ minWidth: 120 }} variant='outlined' disabled={!name || !phone || sending} onClick={doSendSms}>{sendSmsText}</Button>
+                <Button sx={{ minWidth: 120 }} variant='outlined' disabled={!name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
             </Stack>
         </form>
-    </Box>
+    </Box >
 }
 

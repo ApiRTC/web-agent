@@ -12,7 +12,7 @@ export default interface Localization {
             >;
         };
         Invitation?: {
-            defaultProps: Pick<InvitationProps, 'copyLinkText' | 'invitationLinkText' |
+            defaultProps: Pick<InvitationProps, 'copyLinkText' | 'openLinkText' |
                 'sendEmailText' | 'sendSmsText' | 'sentEmailText' | 'sentSmsText' |
                 'emailFailText' | 'smsFailText' |
                 'commentFailText' |
