@@ -116,7 +116,7 @@ export function App(inProps: AppProps) {
         // thus we need to add 'as any'
         { ...CODECS } as any);
 
-    const [menuValue, setMenuValue] = useState<'invite' | 'settings'>('invite');
+    const [menuValue, setMenuValue] = useState<'invite' | 'settings' | undefined>('invite');
     const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: 'invite' | 'settings') => {
         setMenuValue(newValue);
         postResize();
@@ -150,6 +150,23 @@ export function App(inProps: AppProps) {
             resolve();
         });
     }, []);
+
+    const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
+
+    const onSubscribedStreamsLengthChange = (length: number) => {
+        setHasSubscribedStreams(length > 0)
+        // Notify
+        window.parent.postMessage({
+            type: OutputMessageType.SubscribedStreams,
+            length,
+        }, '*')
+    }
+
+    useEffect(() => {
+        if (hasSubscribedStreams) {
+            setMenuValue(undefined)
+        }
+    }, [hasSubscribedStreams])
 
     return <>
         <Stack direction="row" sx={{ px: 1, py: 1 }}
@@ -243,6 +260,7 @@ export function App(inProps: AppProps) {
             stream={stream}
             onSnapshot={onSnapshot}
             onDisplayChange={postResize}
+            onSubscribedStreamsLengthChange={onSubscribedStreamsLengthChange}
         />
         }
     </>

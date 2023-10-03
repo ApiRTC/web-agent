@@ -208,8 +208,8 @@ Thanks`
     }, [appConfig, invitationData]);
 
     useEffect(() => {
-        if (globalThis.logLevel.isInfoEnabled) {
-            console.info(`${COMPONENT_NAME}|useEffect invitationData`, invitationData)
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`${COMPONENT_NAME}|useEffect invitationData`, invitationData)
         }
         if (invitationData) {
             fetch(appConfig.invitationServiceUrl, {
@@ -227,7 +227,9 @@ Thanks`
                 console.error(`${COMPONENT_NAME}|fetch response in error`, response)
                 notify('error', `Failed to create short link: received ${response.status}`)
             }).then((body) => {
-                console.log(`${COMPONENT_NAME}|received invitation`, body)
+                if (globalThis.logLevel.isDebugEnabled) {
+                    console.debug(`${COMPONENT_NAME}|received invitation`, body)
+                }
                 setInvitationShortLink(appConfig.assistedUrl + '?i=' + body.id)
             }).catch((error) => {
                 console.error(`${COMPONENT_NAME}|fetch error`, error)
@@ -282,7 +284,16 @@ Thanks`
                 }
                 console.error(`${COMPONENT_NAME}|sens sms failed`, response, smsFailText)
             }).then((body) => {
-                console.log(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
+                if (globalThis.logLevel.isInfoEnabled) {
+                    console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
+                }
+                // Notify
+                window.parent.postMessage({
+                    type: OutputMessageType.SmsSent,
+                    name: name,
+                    phone: phone,
+                    link: link
+                }, '*')
             }).catch((error) => {
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.warn(`${COMPONENT_NAME}|sms send failure`, error)

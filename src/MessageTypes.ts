@@ -13,6 +13,7 @@ export enum OutputMessageType {
     LinkCopied = 'link_copied',
     Ready = 'ready',
     Resize = 'resize',
+    SmsSent = 'sms_sent',
     Snapshot = 'snapshot',
     SubscribedStreams = 'subscribed_streams',
 }

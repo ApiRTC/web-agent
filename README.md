@@ -99,6 +99,7 @@ The actual **message** is an object in _event.data_. A **message** has a _type_ 
 | message type       | field(s)         | Description                                                                   |
 | ------------------ | ---------------- | ----------------------------------------------------------------------------- |
 | ready              | N/A              | notifies when web-agent is ready to receive messages                          |
+| sms_sent           | phone,name,link  | notifies an sms has been sent                                                 |
 | snapshot           | contact, dataUrl | notifies when a snapshot taken on a **Stream** from a **Contact** is received |
 | subscribed_streams | length           | fired every time the number of subscribed streams changes                     |
 

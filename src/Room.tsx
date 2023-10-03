@@ -40,7 +40,7 @@ export type RoomProps = {
     onSnapshot?: (contact: Contact, dataUrl: string) => Promise<void>,
     // onStart?: (timestamp: number) => void,
     // onEnd?: (durationMilliseconds: number) => void,
-    //onSubscribedStreamsSizeChange?: (durationMilliseconds: number) => void,
+    onSubscribedStreamsLengthChange?: (length: number) => void,
     onDisplayChange?: () => void,
     hangUpText?: string,
     shareScreenText?: string
@@ -51,7 +51,7 @@ export function Room(inProps: RoomProps) {
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
     const { conversation, stream,
         onDisplayChange,
-        // onSubscribedStreamsSizeChange,
+        onSubscribedStreamsLengthChange,
         // onStart, onEnd
         hangUpText = "HangUp", shareScreenText = "Share screen",
     } = props;
@@ -94,19 +94,15 @@ export function Room(inProps: RoomProps) {
     //     }
     // }, [conversation])
 
-    //
-    // Reduce subscribedStreams.length to a boolean (which can have ony 2 possible values)
     useEffect(() => {
+        // Reduce subscribedStreams.length to a boolean (which can have ony 2 possible values)
         setHasSubscribedStreams(subscribedStreams.length > 0)
-        // if (onSubscribedStreamsSizeChange) {
-        //     onSubscribedStreamsSizeChange(subscribedStreams.length)
-        // }
-        // Notify
-        window.parent.postMessage({
-            type: OutputMessageType.SubscribedStreams,
-            length: subscribedStreams.length,
-        }, '*')
-    }, [subscribedStreams])//onSubscribedStreamsSizeChange
+
+        // notify parent
+        if (onSubscribedStreamsLengthChange) {
+            onSubscribedStreamsLengthChange(subscribedStreams.length)
+        }
+    }, [subscribedStreams.length, onSubscribedStreamsLengthChange])
 
     useEffect(() => {
         if (hasSubscribedStreams) {
@@ -278,12 +274,6 @@ export function Room(inProps: RoomProps) {
                         </Stream>)}
                 </ApiRtcGrid>
             </Grid>
-            {/* <ApiRtcGrid sx={{
-                position: 'absolute',
-                bottom: '4px', left: '4px',
-                opacity: 0.9,
-                height: '50%', width: { xs: '50%', sm: '40%', md: '30%', lg: '20%' },
-            }}> */}
             <Grid xs={4} md={3} lg={2}>
                 <Stack direction="column" spacing={1} >
                     <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
@@ -319,9 +309,7 @@ export function Room(inProps: RoomProps) {
 
                     }
                 </Stack>
-                {/* </ApiRtcGrid> */}
             </Grid>
-            {/* </Box > */}
         </Grid>
     </MuiThemeProvider>
 }
