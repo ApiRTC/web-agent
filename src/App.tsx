@@ -164,7 +164,18 @@ export function App(inProps: AppProps) {
 
     useEffect(() => {
         if (hasSubscribedStreams) {
+            // when some subscribed streams appear, clear the menu selection
             setMenuValue(undefined)
+        } else {
+            // when there are no more subscribed streams
+            setMenuValue((prev) => {
+                // If a menu is selected, keep this one
+                if (prev) {
+                    return prev
+                }
+                // otherwise go to invite
+                return 'invite'
+            })
         }
     }, [hasSubscribedStreams])
 
