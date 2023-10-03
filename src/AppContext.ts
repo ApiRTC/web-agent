@@ -9,6 +9,7 @@ export const AppContext = createContext<
         guestData: UserData | undefined,
         connect: boolean,
         join: boolean,
+        allowAudio: boolean,
         conversationName: string | undefined,
         notify: (level: 'info' | 'error' | 'warn', message: string) => void
     }>(
@@ -18,6 +19,7 @@ export const AppContext = createContext<
             guestData: undefined,
             connect: true,
             join: true,
+            allowAudio: true,
             conversationName: undefined,
             notify: () => { }
         });

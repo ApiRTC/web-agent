@@ -13,15 +13,13 @@ import { useThemeProps } from '@mui/material/styles';
 import { AppContext } from './AppContext';
 import { Invitation } from "./Invitation";
 import { Room } from "./Room";
-import { CODECS, RESIZE_CONTAINER_DELAY, VIDEO_ROUNDED_CORNERS } from './constants';
+import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 
-import { Alert, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { Alert, Skeleton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import Icon from '@mui/material/Icon';
 import IconButton from '@mui/material/IconButton';
 import { OutputMessageType } from './MessageTypes';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
-
-import logo from './logo.svg';
 
 export type AppProps = {
     invitationLabel?: string,
@@ -48,12 +46,13 @@ export function App(inProps: AppProps) {
     } = props;
 
     const { appConfig, userData,
+        allowAudio,
         connect, join, conversationName,
         notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 
-    const { value: withAudio, toggle: toggleAudio } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')));
+    const { value: withAudio, toggle: toggleAudio } = useToggle(allowAudio ? (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')) : false);
     const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'false')));
     useEffect(() => {
         setLocalStorage(`${installationId}.withAudio`, `${withAudio}`)
@@ -105,7 +104,7 @@ export function App(inProps: AppProps) {
         }
     }, [withAudio, withVideo, selectedAudioIn, selectedVideoIn]);
 
-    const { stream } = useCameraStream((withAudio || withVideo) ? session : undefined,
+    const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
         {
             // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable), so the options object change
             // and re-triggers rendering. To prevent this, build a constraints object using deviceId directly.
@@ -123,11 +122,19 @@ export function App(inProps: AppProps) {
         // thus we need to add 'as any'
         { ...CODECS } as any);
 
-    const [menuValue, setMenuValue] = useState<string | null>();
-    const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: string | null) => {
+    const [menuValue, setMenuValue] = useState<'invite' | 'settings'>('invite');
+    const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: 'invite' | 'settings') => {
         setMenuValue(newValue);
         postResize();
     };
+
+    // useEffect(() => {
+    //     if (grabbing) {
+    //         setMenuValue('settings')
+    //     } else {
+    //         setMenuValue('invite')
+    //     }
+    // }, [grabbing])
 
     const postResize = () => {
         // It takes a few moments before DOM is actually updated
@@ -181,14 +188,14 @@ export function App(inProps: AppProps) {
     return <>
         <Stack direction="row" sx={{ px: 1, py: 1 }}
             justifyContent="center" alignItems="center">
-            <Icon>
+            {/* <Icon>
                 <img src={logo} alt="Apirtc" width="100%" height="auto" />
-            </Icon>
-            <ToggleButtonGroup sx={{ ml: 1 }} size="small" aria-label="Menu"
+            </Icon> */}
+            <ToggleButtonGroup size="small" aria-label="Menu"
                 value={menuValue}
                 exclusive
                 onChange={handleMenu}>
-                <ToggleButton value="invitation" aria-label={invitationLabel}>
+                <ToggleButton value="invite" aria-label={invitationLabel}>
                     <Tooltip title={invitationLabel}>
                         <PersonAddIcon />
                     </Tooltip>
@@ -205,31 +212,30 @@ export function App(inProps: AppProps) {
             <Stack direction={{ xs: 'column', sm: 'row' }}
                 alignItems='center' justifyContent='center'
                 spacing={2}>
+                {grabbing && <Skeleton variant="rectangular" width={237} height={178} />}
                 {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
                     stream={stream} muted={true}>
                     {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
                         data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
                 </Stream>}
                 <Stack spacing={2}>
-                    <Stack direction="row" spacing={1}>
-                        <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
-                            <IconButton data-testid='audio-btn'
-                                size='large' color='primary'
-                                disabled={session ? undefined : true}
-                                onClick={toggleAudio}>{withAudio ? <Icon>mic</Icon> : <Icon>mic_off</Icon>}</IconButton>
-                        </Tooltip>
-                        {/* <FormControl fullWidth>
-                                <InputLabel id='audio-in-label'>{audioInLabel}</InputLabel> */}
-                        <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                            id='audio-in'
-                            size='small'
-                            // label={audioInLabel}
-                            disabled={!withAudio}
-                            devices={userMediaDevices.audioinput}
-                            selectedDevice={selectedAudioIn}
-                            setSelectedDevice={setSelectedAudioIn} />
-                        {/* </FormControl> */}
-                    </Stack>
+                    {allowAudio &&
+                        <Stack direction="row" spacing={1}>
+                            <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
+                                <IconButton data-testid='audio-btn'
+                                    size='large' color='primary'
+                                    disabled={session ? undefined : true}
+                                    onClick={toggleAudio}>{withAudio ? <Icon>mic</Icon> : <Icon>mic_off</Icon>}</IconButton>
+                            </Tooltip>
+                            <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
+                                id='audio-in'
+                                size='small'
+                                // label={audioInLabel}
+                                disabled={!withAudio}
+                                devices={userMediaDevices.audioinput}
+                                selectedDevice={selectedAudioIn}
+                                setSelectedDevice={setSelectedAudioIn} />
+                        </Stack>}
                     <Stack direction="row" spacing={1}>
                         <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
                             <IconButton data-testid='video-btn' color='primary'
@@ -248,11 +254,15 @@ export function App(inProps: AppProps) {
                 </Stack>
             </Stack>}
 
-        {menuValue === 'invitation' && <>
-            {session && conversationName ?
+        {menuValue === 'invite' && <>
+            {connect && conversationName ?
                 <Stack direction="row"
                     justifyContent="center" alignItems="center">
-                    <Invitation sx={{ mt: 1 }} session={session} conversationName={conversationName}></Invitation></Stack> :
+                    {session ?
+                        <Invitation sx={{ mt: 1 }} session={session} conversationName={conversationName}></Invitation> :
+                        <Skeleton variant="rectangular" width={345} height={226} />
+                    }
+                </Stack> :
                 <Alert severity="warning">Invitation requires connection and conversation name</Alert>
             }
         </>}

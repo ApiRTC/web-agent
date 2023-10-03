@@ -1,5 +1,4 @@
 export const MAX_HEIGHT = 1280;
-export const RESIZE_CONTAINER_DELAY = 750;
 
 // radius used for images attached to a comment in Zendesk is 5px
 // but Apizee UX recommended a multiple of 4px, and most mui radius seem to be 4px by default

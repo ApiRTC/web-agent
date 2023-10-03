@@ -96,7 +96,7 @@ export type InvitationProps = {
 const COMPONENT_NAME = "Invitation";
 export function Invitation(inProps: InvitationProps) {
 
-    const { appConfig, guestData, notify } = useContext(AppContext);
+    const { appConfig, allowAudio, guestData, notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 
@@ -138,7 +138,7 @@ Thanks`
     const [guestName, setGuestName] = useState<string>(guestData?.name || EMPTY_STRING);
     // const [email, setEmail] = useState<string>(EMPTY_STRING);
     const [phone, setPhone] = useState<string>(guestData?.phone || EMPTY_STRING);
-    const [publishOptions, setPublishOptions] = useState<PublishOptions>(storageToPublishOptions(`${installationId}.guest.publishOptions`));
+    const [publishOptions, setPublishOptions] = useState<PublishOptions>(allowAudio ? storageToPublishOptions(`${installationId}.guest.publishOptions`) : { videoOnly: true });
     const { value: facingMode, index: facingModeIndex,
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
             FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.guest.facingMode`, FACING_MODES[0])));
@@ -331,7 +331,10 @@ Thanks`
                 />} label={moderationEnabledText} />
                 <Divider orientation="vertical" flexItem>
                 </Divider> */}
-                <PublishOptionsComponent value={publishOptions} onChange={setPublishOptions} />
+                <PublishOptionsComponent value={publishOptions}
+                    audioAndVideoOption={allowAudio}
+                    audioOnlyOption={allowAudio}
+                    onChange={setPublishOptions} />
                 <Divider orientation="vertical" flexItem>
                 </Divider>
                 <FormControl disabled={publishOptions.audioOnly === true}>

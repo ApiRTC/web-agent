@@ -1,4 +1,4 @@
-# Apizee web-agent web application
+# ApiRTC web-agent web application
 
 This **web-agent web application** is intended to be integrated within any third party web application through an i-frame.
 
@@ -10,9 +10,7 @@ A mandatory one, _Ak_ : is the **apiKey**, which you can get from [ApiRtc](https
 
 Then _cN_ specifies the **Conversation** **name**.
 
-Finally _c_ and _j_, set to _true_ allow to both **connect** ApiRtc platform and **join** the **Conversation**.
-
-So specifying [?aK=myDemoApiKey&cN=Test&c=true&j=true](https://apirtc.github.io/web-agent?aK=myDemoApiKey&cN=Test&c=true&j=true) shall display more and allow you to get an invitation link to a **Conversation** named _Test_.
+So specifying [?aK=myDemoApiKey&cN=Test](https://apirtc.github.io/web-agent?aK=myDemoApiKey&cN=Test) shall display more and allow you to get an invitation link to a **Conversation** named _Test_.
 
 **Note** : _myDemoApiKey_ shall be used for this demo only, and may not allow to use all features (such as short-messages invitation for example).
 
@@ -22,7 +20,7 @@ To integrate the application with html through iframe you should do something li
 
 ```html
 <iframe
-  src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&cN=Test&c=true&j=true"
+  src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&cN=Test"
   height="720px"
   width="100%"
   referrerpolicy="no-referrer"
@@ -35,13 +33,14 @@ To integrate the application with html through iframe you should do something li
 
 | Parameter | stands for           | Default                | Description                                                                   |
 | --------- | -------------------- | ---------------------- | ----------------------------------------------------------------------------- |
+| aA        | allowAudio           | true                   | set to false to disable audio usage                                           |
 | aK        | apiKey               | none                   | your [ApiRtc](https://apirtc.com) **apiKey**, mandatory                       |
 | aU        | assistedUrl          | ASSISTED_URL           | url of the web-assisted web application                                       |
-| c         | connect              | false                  | Connect with **ApiRtc** platform                                              |
+| c         | connect              | true                   | Connect with **ApiRtc** platform                                              |
 | cN        | conversationName     | empty                  | the **ApiRtc** **Conversation** **name**                                      |
 | cU        | cloudUrl             | CLOUD_URL              | the cloud url                                                                 |
 | iI        | installationId       | INSTALLATION_ID        | used a header for local-storage keys                                          |
-| j         | join                 | false                  | Join the **Conversation**                                                     |
+| j         | join                 | true                   | Join the **Conversation**                                                     |
 | gN        | guestName            | empty                  | name to be pre-set in the invitation form                                     |
 | gP        | guestPhone           | empty                  | phone number to be pre-set in the invitation form                             |
 | iU        | invitationServiceUrl | INVITATION_SERVICE_URL | url of the invitation service                                                 |

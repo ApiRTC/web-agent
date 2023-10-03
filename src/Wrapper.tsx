@@ -11,10 +11,10 @@ import merge from 'lodash.merge';
 import { App } from './App';
 import { AppContext } from './AppContext';
 import { frFR } from './locale/frFR';
-import { setLogLevel, LogLevelText } from './logLevel';
+import { LogLevelText, setLogLevel } from './logLevel';
+import { InputMessageType, OutputMessageType } from './MessageTypes';
 import { APP_CONFIG } from './public-constants';
 import { AppConfig, UserData } from './types';
-import { InputMessageType, OutputMessageType } from './MessageTypes';
 // import { useSearchParams } from 'react-router-dom';
 
 // declare var apiRTC:any;
@@ -41,6 +41,7 @@ const APZ_ORANGE = "#F76B40";
 // }
 
 enum RequestParameters {
+    allowAudio = "aA",
     apiKey = "aK",
     assistedUrl = "aU",
     connect = "c",
@@ -53,7 +54,7 @@ enum RequestParameters {
     join = "j",
     locale = "l",
     logLevel = "lL",
-    userId = "uId",
+    userId = "uId"
 }
 
 export type WrapperProps = {
@@ -141,6 +142,20 @@ export function Wrapper(
     // const [searchParams] = useSearchParams();
     const searchParams = useMemo(() => new URLSearchParams(document.location.search), []);
 
+    const { allowAudio } = useMemo(() => {
+        const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
+        setLogLevel(logLevel)
+        setApiRtcReactLibLogLevel(logLevel)
+        setApiRtcMuiReactLibLogLevel(logLevel)
+        //apiRTC.setLogLevel(10)
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`${COMPONENT_NAME}|useMemo searchParams`, searchParams);
+        }
+        return {
+            allowAudio: (/true/i).test(searchParams.get(RequestParameters.allowAudio) ?? 'true')
+        }
+    }, [searchParams]);
+
     const [locale, setLocale] = React.useState<string>(languageToLocale(navigator.language));
 
     const [appConfig, setAppConfig] = useState<AppConfig>(APP_CONFIG);
@@ -150,11 +165,10 @@ export function Wrapper(
 
     const [conversationName, setConversationName] = useState<string>();
 
+    // Theses are set by default to false even if the actual default set by searchParams useEffect is true.
+    // This is to prevent multiple rendering if developer-user decides to set them to false in search parameters.
     const [connect, setConnect] = useState<boolean>(false);
     const [join, setJoin] = useState<boolean>(false);
-
-    const [withAudio, setWithAudio] = useState<boolean | undefined>(undefined);
-    const [withVideo, setWithVideo] = useState<boolean | undefined>(undefined);
 
     const theme = useMemo(() => {
         switch (locale) {
@@ -169,6 +183,54 @@ export function Wrapper(
 
     // ------------------------------------------------------------------------
     // Effects
+
+    useEffect(() => {
+
+        const l_appConfig = merge(APP_CONFIG, {
+            installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
+            apiRtc: {
+                cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,
+                apiKey: searchParams.get(RequestParameters.apiKey) ?? undefined
+            },
+            assistedUrl: searchParams.get(RequestParameters.assistedUrl) ?? undefined,
+            invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
+        })
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`${COMPONENT_NAME}|init appConfig`, l_appConfig);
+        }
+        // force new object, to enable react state change detection
+        setAppConfig({ ...l_appConfig });
+
+        const userId: string | null = searchParams.get(RequestParameters.userId);
+        if (userId) {
+            setUserData({ userId })
+        }
+
+        // connect by default
+        setConnect((/true/i).test(searchParams.get(RequestParameters.connect) ?? 'true'))
+
+        // join by default
+        setJoin((/true/i).test(searchParams.get(RequestParameters.join) ?? 'true'))
+
+        // guest data
+        const guestName: string | null = searchParams.get(RequestParameters.guestName);
+        const guestPhone: string | null = searchParams.get(RequestParameters.guestPhone);
+        if (guestName || guestPhone) {
+            setGuestData({ ...(guestName ? { name: guestName } : {}), ...(guestPhone ? { phone: guestPhone } : {}) })
+        }
+
+        const conversationName: string | null = searchParams.get(RequestParameters.conversationName);
+        if (conversationName) {
+            setConversationName(conversationName)
+        }
+
+        const locale: string | null = searchParams.get(RequestParameters.locale);
+        if (locale) {
+            setLocale(locale)
+        }
+
+    }, [searchParams])
+
 
     const receiveMessage = useCallback((event: any) => {
         if (globalThis.logLevel.isDebugEnabled) {
@@ -256,56 +318,6 @@ export function Wrapper(
     }, []);
 
     useEffect(() => {
-        const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
-        setLogLevel(logLevel)
-        setApiRtcReactLibLogLevel(logLevel)
-        setApiRtcMuiReactLibLogLevel(logLevel)
-        //apiRTC.setLogLevel(10)
-
-        const l_appConfig = merge(APP_CONFIG, {
-            installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
-            apiRtc: {
-                cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,
-                apiKey: searchParams.get(RequestParameters.apiKey) ?? undefined
-            },
-            assistedUrl: searchParams.get(RequestParameters.assistedUrl) ?? undefined,
-            invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
-        })
-        if (globalThis.logLevel.isDebugEnabled) {
-            console.debug(`${COMPONENT_NAME}|init appConfig`, l_appConfig);
-        }
-        // force new object, to enable react state change detection
-        setAppConfig({ ...l_appConfig });
-
-        const userId: string | null = searchParams.get(RequestParameters.userId);
-        if (userId) {
-            setUserData({ userId })
-        }
-
-        setConnect((/true/i).test(searchParams.get(RequestParameters.connect) ?? 'false'))
-
-        setJoin((/true/i).test(searchParams.get(RequestParameters.join) ?? 'false'))
-
-        // guest data
-        const guestName: string | null = searchParams.get(RequestParameters.guestName);
-        const guestPhone: string | null = searchParams.get(RequestParameters.guestPhone);
-        if (guestName || guestPhone) {
-            setGuestData({ ...(guestName ? { name: guestName } : {}), ...(guestPhone ? { phone: guestPhone } : {}) })
-        }
-
-        const conversationName: string | null = searchParams.get(RequestParameters.conversationName);
-        if (conversationName) {
-            setConversationName(conversationName)
-        }
-
-        const locale: string | null = searchParams.get(RequestParameters.locale);
-        if (locale) {
-            setLocale(locale)
-        }
-
-    }, [searchParams])
-
-    useEffect(() => {
         // To update <html lang='en'> attribute with correct language
         document.documentElement.setAttribute('lang', locale.slice(0, 2))
     }, [locale]);
@@ -316,6 +328,7 @@ export function Wrapper(
             userData,
             guestData,
             join, connect,
+            allowAudio,
             conversationName, notify: () => { }
         }}>
             <App />
