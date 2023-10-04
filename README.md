@@ -63,7 +63,7 @@ To enable such **real-time interaction**, the **web-agent** application implemen
 
 ### web-agent to host communication
 
-In order for host application to receive messages from **web-agent**, it needs to register a **window** listener for _message_ events:
+In order for host application to receive messages from **web-agent**, it has to register a **window** listener for _message_ events:
 
 ```js
 const IFRAME_HOST = "https://apirtc.github.io";
@@ -97,14 +97,16 @@ The actual **message** is an object in _event.data_. A **message** has a _type_ 
 
 | message type       | field(s)         | Description                                                                   |
 | ------------------ | ---------------- | ----------------------------------------------------------------------------- |
-| ready              | N/A              | notifies when **web-agent** is ready to receive messages                          |
+| joined             | N/A              | **Conversation** was joined                                                   |
+| left               | N/A              | **Conversation** was left                                                     |
+| ready              | N/A              | notifies when **web-agent** is ready to receive messages                      |
 | sms_sent           | phone,name,link  | notifies an sms has been sent                                                 |
 | snapshot           | contact, dataUrl | notifies when a snapshot taken on a **Stream** from a **Contact** is received |
 | subscribed_streams | length           | fired every time the number of subscribed streams changes                     |
 
 ### Host to web-agent communication
 
-To post a message, get a handle on the iframe object and use postMessage like:
+Hosting application can post a message to **web-agent** by getting a handle on the iframe object and use _postMessage_:
 
 ```js
 iframe.contentWindow.postMessage(
@@ -129,7 +131,7 @@ iframe.contentWindow.postMessage(
 | leave         | N/A            | leave **Conversation**          |
 | user_data     | data:UserData  | set user data                   |
 
-The types definition can be found [here](https://apirtc.github.io/web-agent/doc/modules/types.html).
+The fields complex types definitions can be found [here](https://apirtc.github.io/web-agent/doc/modules/types.html).
 
 Note: host application must wait for having received the _ready_ message from **web-agent** before posting messages.
 

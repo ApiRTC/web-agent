@@ -10,6 +10,8 @@ export enum InputMessageType {
 }
 
 export enum OutputMessageType {
+    Joined = 'joined',
+    Left = 'left',
     LinkCopied = 'link_copied',
     Ready = 'ready',
     Resize = 'resize',

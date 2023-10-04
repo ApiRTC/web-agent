@@ -107,7 +107,7 @@ export function App(inProps: AppProps) {
             constraints: constraints
         });
 
-    const { conversation } = useConversation(session, conversationName,
+    const { conversation, joined } = useConversation(session, conversationName,
         {
             meshModeEnabled: true
         },
@@ -116,18 +116,32 @@ export function App(inProps: AppProps) {
         // thus we need to add 'as any'
         { ...CODECS } as any);
 
+    const postResize = () => {
+        // Notify parent about resize
+        window.parent.postMessage({
+            type: OutputMessageType.Resize
+        }, '*')
+    };
+
     const [menuValue, setMenuValue] = useState<'invite' | 'settings' | undefined>('invite');
     const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: 'invite' | 'settings') => {
         setMenuValue(newValue);
         postResize();
     };
 
-    const postResize = () => {
-        // Notify iframe parent about resize
-        window.parent.postMessage({
-            type: OutputMessageType.Resize
-        }, '*')
-    };
+    useEffect(() => {
+        // Notify about Conversation join status
+        if (joined) {
+            window.parent.postMessage({
+                type: OutputMessageType.Joined
+            }, '*')
+            return () => {
+                window.parent.postMessage({
+                    type: OutputMessageType.Left
+                }, '*')
+            }
+        }
+    }, [joined])
 
     useEffect(() => {
         postResize();
