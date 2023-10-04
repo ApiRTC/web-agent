@@ -139,4 +139,4 @@ Note: host application must wait for having received the _ready_ message from **
 
 Visit [sample page](https://apirtc.github.io/web-agent/sample.html) for a demonstration of dynamic control of the i-framed **web-agent** app !
 
-The code is available in _sample/sample.html_ file.
+Also available on [CodePen](https://codepen.io/kmoyse/pen/wvRYdLG)
