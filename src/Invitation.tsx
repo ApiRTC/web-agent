@@ -255,7 +255,7 @@ Thanks`
         }
     }, [guestName, invitationLink, invitationShortLink]);
 
-    // Using ApiRTC cloud authentication, and zendesk client request
+    // Using ApiRTC cloud authenticated api
     const doSendSms = useCallback(() => {
 
         const link = invitationShortLink ?? invitationLink;
@@ -369,8 +369,8 @@ Thanks`
                 {/* {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>} */}
                 <ButtonGroup variant="outlined">
                     {/* See issue https://github.com/mui/material-ui/issues/39287 : I had to make sure href is not undefined to make the statement accepted by typescript compiler */}
-                    <Button data-testid="open-link-btn" href={invitationShortLink ?? "#"} target="_blank" rel="noopener" disabled={!invitationShortLink} startIcon={<LinkIcon />}>{openLinkText}</Button>
-                    <Button data-testid="copy-link-btn" disabled={!invitationLink && !invitationShortLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
+                    <Button data-testid="open-link-btn" disabled={!invitationShortLink} href={invitationShortLink ?? "#"} target="_blank" rel="noopener" startIcon={<LinkIcon />}>{openLinkText}</Button>
+                    <Button data-testid="copy-link-btn" disabled={!invitationShortLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
                 </ButtonGroup>
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
@@ -381,7 +381,9 @@ Thanks`
             </Stack>*/}
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
-                <Input data-testid="phone-input" placeholder={phonePlaceholder} value={phone} onChange={e => setPhone(e.target.value)} />
+                <Input data-testid="phone-input" placeholder={phonePlaceholder}
+                    type='tel'
+                    value={phone} onChange={e => setPhone(e.target.value)} />
                 <Button sx={{ minWidth: 120 }} variant='outlined' disabled={!name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
             </Stack>
         </form>
