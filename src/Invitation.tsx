@@ -368,8 +368,8 @@ Thanks`
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
                 {/* {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>} */}
                 <ButtonGroup variant="outlined">
-                    {/* TODO : add target="_blank" once https://github.com/mui/material-ui/issues/39287 is fixed */}
-                    <Button data-testid="open-link-btn" href={invitationShortLink} rel="noopener" disabled={!invitationShortLink} startIcon={<LinkIcon />}>{openLinkText}</Button>
+                    {/* See issue https://github.com/mui/material-ui/issues/39287 : I had to make sure href is not undefined to make the statement accepted by typescript compiler */}
+                    <Button data-testid="open-link-btn" href={invitationShortLink ?? "#"} target="_blank" rel="noopener" disabled={!invitationShortLink} startIcon={<LinkIcon />}>{openLinkText}</Button>
                     <Button data-testid="copy-link-btn" disabled={!invitationLink && !invitationShortLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
                 </ButtonGroup>
             </Stack>
