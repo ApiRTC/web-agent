@@ -65,6 +65,20 @@
                     postAppConfig()
                     break;
                 }
+                case "joined": {
+                    document
+                        .getElementById('join-btn').disabled = true;
+                    document
+                        .getElementById('leave-btn').disabled = false;
+                    break;
+                }
+                case "left": {
+                    document
+                        .getElementById('join-btn').disabled = false;
+                    document
+                        .getElementById('leave-btn').disabled = true;
+                    break;
+                }
                 case "snapshot": {
                     const dataUrl = message.dataUrl;
                     console.log("web-agent sent snapshot !")
@@ -141,7 +155,8 @@
                 <input type="submit" value="Submit">
             </form>
             <br>
-            <button onclick="join()">Join</button><button onclick="leave()">Leave</button><br><br>
+            <button id="join-btn" onclick="join()">Join</button><button id="leave-btn"
+                onclick="leave()">Leave</button><br><br>
             <form onSubmit="return setGuestUserData()">
                 <label for="gN">Guest name :&nbsp;</label><input type="text" id="gN" name="gN"><br>
                 <label for="gP">Guest phone :&nbsp;</label><input type="text" id="gP" name="gP"><br>
