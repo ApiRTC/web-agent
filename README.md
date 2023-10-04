@@ -53,17 +53,17 @@ Constants values can be found in generated doc [here](https://apirtc.github.io/w
 
 ## Dynamic control
 
-Using url parameters to provide information to the i-framed web-agent application is good for static and/or default values. But the values can't be changed without reloading.
+Using url parameters to provide information to the i-framed **web-agent** application is good for static and/or default values. But the values can't be changed without reloading.
 
-For example, the hosting application may need to change the **Conversation** **name** without reloading the i-framed web-agent application.
+However, the hosting application may need to change the **Conversation** **name**, or update guest phone number without reloading the i-framed **web-agent** application.
 
-Also, the web-agent application has real-time features that the hosting application may need to be notified of. For example, when a snapshot is taken, this is up to the hosting application to handle it (just display it, or upload it to a database server, ...).
+Also, the **web-agent** application has real-time features that the hosting application may need to be notified of. For example, when a snapshot is taken, this is up to the hosting application to handle it (just display it, or upload it to a database server).
 
-To enable such real-time interaction, the web-agent application implements a dual channel communication, using standard [Window: postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) mechanism.
+To enable such **real-time interaction**, the **web-agent** application implements a **dual channel communication**, using standard [Window: postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) mechanism.
 
 ### web-agent to host communication
 
-In order for host application to receive messages from web-agent, it needs to register a **window** listener for _message_ events:
+In order for host application to receive messages from **web-agent**, it needs to register a **window** listener for _message_ events:
 
 ```js
 const IFRAME_HOST = "https://apirtc.github.io";
@@ -97,7 +97,7 @@ The actual **message** is an object in _event.data_. A **message** has a _type_ 
 
 | message type       | field(s)         | Description                                                                   |
 | ------------------ | ---------------- | ----------------------------------------------------------------------------- |
-| ready              | N/A              | notifies when web-agent is ready to receive messages                          |
+| ready              | N/A              | notifies when **web-agent** is ready to receive messages                          |
 | sms_sent           | phone,name,link  | notifies an sms has been sent                                                 |
 | snapshot           | contact, dataUrl | notifies when a snapshot taken on a **Stream** from a **Contact** is received |
 | subscribed_streams | length           | fired every time the number of subscribed streams changes                     |
@@ -131,10 +131,10 @@ iframe.contentWindow.postMessage(
 
 The types definition can be found [here](https://apirtc.github.io/web-agent/doc/modules/types.html).
 
-Note: host application must wait for having received the _ready_ message from web-agent before posting messages.
+Note: host application must wait for having received the _ready_ message from **web-agent** before posting messages.
 
 ## Sample
 
-Visit [sample page](https://apirtc.github.io/web-agent/sample.html) for a demonstration of dynamic control of the i-framed web-agent app !
+Visit [sample page](https://apirtc.github.io/web-agent/sample.html) for a demonstration of dynamic control of the i-framed **web-agent** app !
 
 The code is available in _sample/sample.html_ file.
