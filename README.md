@@ -6,7 +6,7 @@ This **web-agent web application** is intended to be integrated within any third
 
 The application is hosted [here](https://apirtc.github.io/web-agent/). As is, it does not much. Some url parameters must be set to control it.
 
-A mandatory one, _Ak_ : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
+A mandatory one, _aK_ : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
 
 Then _cN_ specifies the **Conversation** **name**.
 
