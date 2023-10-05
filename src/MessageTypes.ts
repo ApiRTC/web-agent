@@ -16,6 +16,7 @@ export enum OutputMessageType {
     Ready = 'ready',
     Resize = 'resize',
     SmsSent = 'sms_sent',
+    SmsFail = 'sms_fail',
     Snapshot = 'snapshot',
     SubscribedStreams = 'subscribed_streams',
 }

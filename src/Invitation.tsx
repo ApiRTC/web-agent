@@ -279,10 +279,10 @@ Thanks`
                     body: getSmsText(name, link)
                 }),
             }).then(response => {
-                if (response.status === 200 || response.status === 201) {
+                if (response.ok) {
                     return response.json()
                 }
-                console.error(`${COMPONENT_NAME}|sens sms failed`, response, smsFailText)
+                throw new Error('response is not ok');
             }).then((body) => {
                 if (globalThis.logLevel.isInfoEnabled) {
                     console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
@@ -296,8 +296,15 @@ Thanks`
                 }, '*')
             }).catch((error) => {
                 if (globalThis.logLevel.isWarnEnabled) {
-                    console.warn(`${COMPONENT_NAME}|sms send failure`, error)
+                    console.error(`${COMPONENT_NAME}|send sms failed`, smsFailText, error)
                 }
+                // Notify
+                window.parent.postMessage({
+                    type: OutputMessageType.SmsFail,
+                    name: name,
+                    phone: phone,
+                    link: link
+                }, '*')
             }).finally(() => {
                 setSending(false)
             })
