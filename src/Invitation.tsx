@@ -145,7 +145,7 @@ Thanks`
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
             FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.guest.facingMode`, FACING_MODES[0])));
 
-    const [invitationShortLink, setInvitationShortLink] = useState<string>();
+    const [invitationLink, setInvitationLink] = useState<string>();
 
     const [sending, setSending] = useState<boolean>(false);
 
@@ -203,10 +203,6 @@ Thanks`
         } : undefined;
     }, [appConfig, props.conversationName, guestName, facingMode, publishOptions]);
 
-    const invitationLink = useMemo(() => {
-        return invitationData ? encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))) : undefined
-    }, [appConfig, invitationData]);
-
     useEffect(() => {
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|useEffect invitationData`, invitationData)
@@ -221,44 +217,46 @@ Thanks`
                 },
                 body: JSON.stringify({ data: invitationData }),
             }).then(response => {
-                if (response.status === 200 || response.status === 201) {
+                if (response.ok) {
                     return response.json()
                 }
-                console.error(`${COMPONENT_NAME}|fetch response in error`, response)
-                notify('error', `Failed to create short link: received ${response.status}`)
+                throw new Error(response.statusText);
             }).then((body) => {
                 if (globalThis.logLevel.isDebugEnabled) {
                     console.debug(`${COMPONENT_NAME}|received invitation`, body)
                 }
-                setInvitationShortLink(appConfig.assistedUrl + '?i=' + body.id)
+                setInvitationLink(appConfig.assistedUrl + '?i=' + body.id)
             }).catch((error) => {
-                console.error(`${COMPONENT_NAME}|fetch error`, error)
+                notify('error', `Failed to create short link: received ${error}`)
+                if (globalThis.logLevel.isWarnEnabled) {
+                    console.warn(`${COMPONENT_NAME}|failed to get short link, using long instead`, error)
+                }
+                setInvitationLink(encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))))
             })
             return () => {
-                setInvitationShortLink(undefined)
+                setInvitationLink(undefined)
             }
         }
     }, [appConfig, invitationData]) //session
 
     const doCopyLink = useCallback(() => {
-        const link = invitationShortLink ?? invitationLink
-        if (link) {
+        if (invitationLink) {
             // Copy to clipboard
-            navigator.clipboard.writeText(link);
+            navigator.clipboard.writeText(invitationLink);
 
             // Notify
             window.parent.postMessage({
                 type: OutputMessageType.LinkCopied,
                 name: guestName,
-                link: link
+                link: invitationLink
             }, '*')
         }
-    }, [guestName, invitationLink, invitationShortLink]);
+    }, [guestName, invitationLink]);
 
     // Using ApiRTC cloud authenticated api
     const doSendSms = useCallback(() => {
 
-        const link = invitationShortLink ?? invitationLink;
+        const link = invitationLink;
 
         if (phone !== "" && link) {
             const url = `${appConfig.apiRtc.cloudUrl ?? 'https://cloud.apirtc.com'}/api/text-message`;
@@ -282,7 +280,7 @@ Thanks`
                 if (response.ok) {
                     return response.json()
                 }
-                throw new Error('response is not ok');
+                throw new Error(response.statusText);
             }).then((body) => {
                 if (globalThis.logLevel.isInfoEnabled) {
                     console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
@@ -310,7 +308,7 @@ Thanks`
             })
 
         }
-    }, [appConfig, phone, name, invitationLink, invitationShortLink, sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
+    }, [appConfig, phone, name, invitationLink, sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -373,11 +371,10 @@ Thanks`
                 direction="row" spacing={1}
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
-                {/* {invitationLink && <Link href={invitationLink} target="_blank" rel="noopener">Link</Link>} */}
                 <ButtonGroup variant="outlined">
                     {/* See issue https://github.com/mui/material-ui/issues/39287 : I had to make sure href is not undefined to make the statement accepted by typescript compiler */}
-                    <Button data-testid="open-link-btn" disabled={!invitationShortLink} href={invitationShortLink ?? "#"} target="_blank" rel="noopener" startIcon={<LinkIcon />}>{openLinkText}</Button>
-                    <Button data-testid="copy-link-btn" disabled={!invitationShortLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
+                    <Button data-testid="open-link-btn" disabled={!invitationLink} href={invitationLink ?? "#"} target="_blank" rel="noopener" startIcon={<LinkIcon />}>{openLinkText}</Button>
+                    <Button data-testid="copy-link-btn" disabled={!invitationLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
                 </ButtonGroup>
             </Stack>
             {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
