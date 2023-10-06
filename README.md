@@ -1,12 +1,12 @@
 # ApiRTC web-agent web application
 
-This **web-agent web application** is intended to be integrated within any third party web application through an i-frame.
+This **web-agent web application** is intended to be integrated within any third party web application through an iframe.
 
 ## Getting started
 
 The application is hosted [here](https://apirtc.github.io/web-agent/). Without parameters, it does not much. Url parameters must be set to control it.
 
-The first one, _aK_ : is the **apiKey**, which you can get from [ApiRtc](https://apirtc.com).
+The first one, _aK_ : is the **apiKey**, which can be obtained from [ApiRtc.com](https://apirtc.com).
 
 Then, _cN_ specifies the **Conversation** **name**.
 
@@ -33,7 +33,7 @@ To integrate the application within html, use an iframe as below :
 | Parameter | stands for           | Default                | Description                                                                   |
 | --------- | -------------------- | ---------------------- | ----------------------------------------------------------------------------- |
 | aA        | allowAudio           | true                   | set to false to disable audio usage                                           |
-| aK        | apiKey               | none                   | your [ApiRtc](https://apirtc.com) **apiKey**, mandatory                       |
+| aK        | apiKey               | none                   | [ApiRtc](https://apirtc.com) **apiKey**, mandatory                       |
 | aU        | assistedUrl          | ASSISTED_URL           | url of the web-assisted web application                                       |
 | c         | connect              | true                   | Connect with **ApiRtc** platform                                              |
 | cN        | conversationName     | empty                  | the **ApiRtc** **Conversation** **name**                                      |
@@ -51,9 +51,9 @@ Constants values can be found in generated doc [here](https://apirtc.github.io/w
 
 ## Dynamic control
 
-Using url parameters to provide information to the i-framed **web-agent** application is good for static and/or default values. But the values can't be changed without reloading.
+Using url parameters to provide information to the iframe-d **web-agent** application is good for static and/or initial values. But the values can't be changed without reloading.
 
-However, the hosting application may need to change the **Conversation** **name**, or update guest phone number without reloading the i-framed **web-agent** application.
+However, the hosting application may need to change the **Conversation** **name**, or update guest phone number with no reload.
 
 Also, the **web-agent** application has real-time features that the hosting application may need to be notified of. For example, when a snapshot is taken, this is up to the hosting application to handle it (just display it, or upload it to a database server).
 
@@ -136,6 +136,6 @@ Note: host application must wait for having received the _ready_ message from **
 
 ## Sample
 
-Visit [sample page](https://apirtc.github.io/web-agent/sample.html) for a demonstration of dynamic control of the i-framed **web-agent** app !
+Visit [sample page](https://apirtc.github.io/web-agent/sample.html) for a demonstration of dynamic control of the iframe-d **web-agent** app !
 
 Also available on [CodePen](https://codepen.io/kmoyse/pen/wvRYdLG)
