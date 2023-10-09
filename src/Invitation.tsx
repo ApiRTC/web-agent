@@ -28,7 +28,7 @@ import { OutputMessageType } from './MessageTypes';
 
 declare var apiRTC: any;
 
-// WARN : to be kept in sync with visio-assisted / z-visio code
+// WARN : to be kept in sync with web-assisted / z-visio code
 //
 type InvitationData = {
     cloudUrl?: string
