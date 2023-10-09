@@ -11,7 +11,6 @@ import {
 } from "@apirtc/mui-react-lib";
 import { useConversationStreams } from "@apirtc/react-lib";
 
-import CallEndIcon from '@mui/icons-material/CallEnd';
 import Button from '@mui/material/Button';
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
@@ -19,14 +18,11 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 import { ROOM_THEME_OPTIONS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { frFR } from './locale/frFR';
-import { OutputMessageType } from "./MessageTypes";
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
-import IconButton from "@mui/material/IconButton";
+import ButtonGroup from "@mui/material/ButtonGroup";
 import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
 import offNotification from "./assets/mixkit-electric-pop-2365.wav";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import Tooltip from "@mui/material/Tooltip";
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
