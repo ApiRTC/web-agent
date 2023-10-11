@@ -237,7 +237,7 @@ Thanks`
                 setInvitationLink(undefined)
             }
         }
-    }, [appConfig, invitationData]) //session
+    }, [appConfig, invitationData, notify]) //session
 
     const doCopyLink = useCallback(() => {
         if (invitationLink) {
@@ -322,6 +322,7 @@ Thanks`
     // Without debounce the link creation is called for every key stroke.
     // Use memoized debounce with useCallback.
     // Without useCallback the debounce function would not sync with the next key stroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSetGuestName = useCallback(debounce(setGuestName, 500), []);
     // Clean it up when component unmounts
     useEffect(() => {

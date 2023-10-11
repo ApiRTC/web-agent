@@ -179,7 +179,10 @@ export function Wrapper(
             default:
                 return createTheme(options);
         }
-    }, [JSON.stringify(options), locale]);
+    }, [options, locale]); // JSON.stringify(options) not required if we make sure to keep 'options' immutable, which we should always do in React
+    // eslint complains about JSON.stringify(options) :
+    // React Hook useMemo has a complex expression in the dependency array.
+    // Extract it to a separate variable so it can be statically checked.eslintreact-hooks/exhaustive-deps
 
     // ------------------------------------------------------------------------
     // Effects
