@@ -6,10 +6,10 @@ import { Credentials, useCameraStream, useConversation, useSession, useUserMedia
 
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
-import VideocamIcon from '@mui/icons-material/Videocam';
-import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import { useThemeProps } from '@mui/material/styles';
@@ -20,7 +20,6 @@ import { Room } from "./Room";
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 
 import { Alert, Skeleton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
-import Icon from '@mui/material/Icon';
 import IconButton from '@mui/material/IconButton';
 import { OutputMessageType } from './MessageTypes';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
