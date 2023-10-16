@@ -275,7 +275,7 @@ export function App(inProps: AppProps) {
             }
         </>}
 
-        {menuValue && <Divider sx={{ m: 2 }} />}
+        {menuValue && hasSubscribedStreams && <Divider sx={{ m: 2 }} />}
 
         {conversation && <Room sx={{
             mt: 1, px: 1,
@@ -286,7 +286,6 @@ export function App(inProps: AppProps) {
             onSnapshot={onSnapshot}
             onDisplayChange={postResize}
             onSubscribedStreamsLengthChange={onSubscribedStreamsLengthChange}
-        />
-        }
+        />}
     </>
 }
