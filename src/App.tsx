@@ -4,6 +4,10 @@ import { Contact, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
 import { Credentials, useCameraStream, useConversation, useSession, useUserMediaDevices } from '@apirtc/react-lib';
 
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
 import Divider from '@mui/material/Divider';
@@ -220,7 +224,7 @@ export function App(inProps: AppProps) {
             <Stack direction={{ xs: 'column', sm: 'row' }}
                 alignItems='center' justifyContent='center'
                 spacing={2}>
-                {grabbing && <Skeleton variant="rectangular" width={237} height={178} />}
+                {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
                 {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
                     stream={stream} muted={true}>
                     {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
@@ -231,9 +235,9 @@ export function App(inProps: AppProps) {
                         <Stack direction="row" spacing={1}>
                             <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
                                 <IconButton data-testid='audio-btn'
-                                    size='large' color='primary'
+                                    color='primary' size='small'
                                     disabled={session ? undefined : true}
-                                    onClick={toggleAudio}>{withAudio ? <Icon>mic</Icon> : <Icon>mic_off</Icon>}</IconButton>
+                                    onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
                             </Tooltip>
                             <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
                                 id='audio-in'
@@ -246,9 +250,10 @@ export function App(inProps: AppProps) {
                         </Stack>}
                     <Stack direction="row" spacing={1}>
                         <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
-                            <IconButton data-testid='video-btn' color='primary'
+                            <IconButton data-testid='video-btn'
+                                color='primary' size='small'
                                 disabled={session ? undefined : true}
-                                onClick={toggleVideo}>{withVideo ? <Icon>videocam</Icon> : <Icon>videocam_off</Icon>}</IconButton>
+                                onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
                         </Tooltip>
                         <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
                             id='video-in'

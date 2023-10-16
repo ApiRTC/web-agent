@@ -372,7 +372,7 @@ Thanks`
                 direction="row" spacing={1}
                 alignItems="flex-end">
                 <Input data-testid="name-input" placeholder={namePlaceholder} value={name} onChange={handleNameChange} />
-                <ButtonGroup variant="outlined">
+                <ButtonGroup variant="outlined" size="small">
                     {/* See issue https://github.com/mui/material-ui/issues/39287 : I had to make sure href is not undefined to make the statement accepted by typescript compiler */}
                     <Button data-testid="open-link-btn" disabled={!invitationLink} href={invitationLink ?? "#"} target="_blank" rel="noopener" startIcon={<LinkIcon />}>{openLinkText}</Button>
                     <Button data-testid="copy-link-btn" disabled={!invitationLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
@@ -386,10 +386,10 @@ Thanks`
             </Stack>*/}
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
-                <Input data-testid="phone-input" placeholder={phonePlaceholder}
+                <Input data-testid="phone-input" size="small" placeholder={phonePlaceholder}
                     type='tel'
                     value={phone} onChange={e => setPhone(e.target.value)} />
-                <Button sx={{ minWidth: 120 }} variant='outlined' disabled={!name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
+                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
             </Stack>
         </form>
     </Box >

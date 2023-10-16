@@ -11,16 +11,19 @@ import {
 } from "@apirtc/mui-react-lib";
 import { useConversationStreams } from "@apirtc/react-lib";
 
+import CallEndIcon from '@mui/icons-material/CallEnd';
+import ScreenShareIcon from '@mui/icons-material/ScreenShare';
 import Button from '@mui/material/Button';
+import ButtonGroup from "@mui/material/ButtonGroup";
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
+import Tooltip from "@mui/material/Tooltip";
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { ROOM_THEME_OPTIONS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { frFR } from './locale/frFR';
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
-import ButtonGroup from "@mui/material/ButtonGroup";
 import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
 import offNotification from "./assets/mixkit-electric-pop-2365.wav";
 
@@ -28,6 +31,17 @@ const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
 const AUDIO_IN = new Audio(inNotification);
 const AUDIO_OFF = new Audio(offNotification);
+
+const ROOM_THEME = createTheme(
+    {
+        ...ROOM_THEME_OPTIONS,
+        typography: {
+            button: {
+                textTransform: 'none',
+                letterSpacing: 0.25,
+            }
+        },
+    }, frFR, ApiRtcMuiReactLib_frFR);
 
 export type RoomProps = {
     sx?: SxProps,
@@ -215,18 +229,9 @@ export function Room(inProps: RoomProps) {
     //     conversation.sendPointerLocation({ streamId: stream.getId() }, 0, 0, { top, left })
     // }, [conversation]);
 
-    return <MuiThemeProvider theme={createTheme(
-        {
-            ...ROOM_THEME_OPTIONS,
-            typography: {
-                button: {
-                    textTransform: 'none',
-                    letterSpacing: 0.25,
-                }
-            },
-        }, frFR, ApiRtcMuiReactLib_frFR)}>
-        <Grid sx={{ ...props.sx }} container>
-            <Grid xs={8} md={9} lg={10}>
+    return <Grid sx={{ ...props.sx }} container>
+        <Grid xs={8} md={9} lg={10}>
+            <MuiThemeProvider theme={ROOM_THEME}>
                 <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                     {subscribedStreams.map((stream, index) =>
                         <Stream id={'subscribed-stream-' + index} key={index}
@@ -269,9 +274,11 @@ export function Room(inProps: RoomProps) {
                                 }} /> : <AudioComponent />}
                         </Stream>)}
                 </ApiRtcGrid>
-            </Grid>
-            <Grid xs={4} md={3} lg={2}>
-                <Stack direction="column" spacing={1} >
+            </MuiThemeProvider>
+        </Grid>
+        <Grid xs={4} md={3} lg={2}>
+            <Stack direction="column" spacing={1} >
+                <MuiThemeProvider theme={ROOM_THEME}>
                     <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                         {publishedStreams.map((stream, index) =>
                             <Stream id={'published-stream-' + index} key={index}
@@ -292,20 +299,25 @@ export function Room(inProps: RoomProps) {
                             </Stream>
                         )}
                     </ApiRtcGrid>
-                    {
-                        subscribedStreams.length > 0 &&
-                        <Stack direction='column' alignItems='center' justifyContent='center'>
-                            <ButtonGroup variant="outlined" aria-label="call-bar">
+                </MuiThemeProvider>
+                {
+                    subscribedStreams.length > 0 &&
+                    <Stack direction='column' alignItems='center' justifyContent='center'>
+                        <ButtonGroup variant="outlined" size="small" aria-label="call-bar">
+                            <Tooltip title={shareScreenText}>
                                 <Button
-                                    onClick={shareScreen}>{shareScreenText}</Button>
+                                    onClick={shareScreen} startIcon={<ScreenShareIcon />}></Button>
+                            </Tooltip>
+                            <Tooltip title={hangUpText}>
                                 <Button color='error'
-                                    onClick={hangUp}>{hangUpText}</Button>
-                            </ButtonGroup>
-                        </Stack>
-
-                    }
-                </Stack>
-            </Grid>
+                                    onClick={hangUp} endIcon={<CallEndIcon />} />
+                            </Tooltip>
+                            {/* <IconButton onClick={hangUp}><CallEndIcon /></IconButton> */}
+                        </ButtonGroup>
+                    </Stack>
+                }
+            </Stack>
         </Grid>
-    </MuiThemeProvider>
+    </Grid>
+
 }
