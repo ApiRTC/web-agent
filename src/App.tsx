@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { Contact, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
-import { Credentials, useCameraStream, useConversation, useSession, useUserMediaDevices } from '@apirtc/react-lib';
+import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useUserMediaDevices } from '@apirtc/react-lib';
 
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
@@ -10,8 +10,16 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
+import Alert, { AlertColor } from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Tooltip from '@mui/material/Tooltip';
 import { useThemeProps } from '@mui/material/styles';
 
 import { AppContext } from './AppContext';
@@ -19,13 +27,21 @@ import { Invitation } from "./Invitation";
 import { Room } from "./Room";
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 
-import { Alert, Skeleton, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import { OutputMessageType } from './MessageTypes';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 
+// TODO: publish timeline events with postMessage for iframe host to know about them !
+// Needs more standardization probably !
+export type TimelineEvent = {
+    severity: AlertColor,
+    contact: Contact,
+    message: string,
+    dateTime: Date
+};
+
 export type AppProps = {
     invitationLabel?: string,
+    timelineLabel?: string,
     settingsLabel?: string,
     audioOffTooltip?: string,
     audioOnTooltip?: string,
@@ -37,7 +53,7 @@ const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
-    const { invitationLabel = "Invite", settingsLabel = "My settings",
+    const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On"
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
     } = props;
@@ -119,6 +135,18 @@ export function App(inProps: AppProps) {
         // thus we need to add 'as any'
         { ...CODECS } as any);
 
+    const [timelines, setTimelines] = useState<Array<TimelineEvent>>([]);
+
+    const onContactJoined = useCallback((contact: Contact) => {
+        setTimelines((l_timelines) => [{ severity: 'info', contact, message: `enters app`, dateTime: new Date() }, ...l_timelines])
+    }, [setTimelines]);
+
+    const onContactLeft = useCallback((contact: Contact) => {
+        setTimelines((l_timelines) => [{ severity: 'warning', contact, message: `left`, dateTime: new Date() }, ...l_timelines])
+    }, [setTimelines]);
+
+    const { contacts } = useConversationContacts(conversation, onContactJoined, onContactLeft);
+
     const postResize = () => {
         // Notify parent about resize
         window.parent.postMessage({
@@ -126,11 +154,46 @@ export function App(inProps: AppProps) {
         }, '*')
     };
 
-    const [menuValue, setMenuValue] = useState<'invite' | 'settings' | undefined>('invite');
+    const [menuValue, setMenuValue] = useState<'invite' | 'timeline' | 'settings' | undefined>('invite');
     const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: 'invite' | 'settings') => {
         setMenuValue(newValue);
         postResize();
     };
+
+    useEffect(() => {
+        if (conversation) {
+            // To receive data from contacts in the Conversation
+            const onData = (dataInfo: any) => {
+                if (globalThis.logLevel.isDebugEnabled) {
+                    console.debug(`${COMPONENT_NAME}|Conversation onData`, dataInfo);
+                }
+
+                const sender: Contact = dataInfo.sender;
+                const content: any = dataInfo.content;
+
+                switch (content.type) {
+                    case 'timeline-event':
+                        setTimelines((l_timelines) => [
+                            {
+                                severity: 'info',
+                                contact: sender,
+                                message: `${content.event}`,
+                                dateTime: new Date()
+                            }, ...l_timelines])
+                        break;
+                    default:
+                        if (globalThis.logLevel.isWarnEnabled) {
+                            console.warn(`${COMPONENT_NAME}|Conversation onData unhandled type`, dataInfo);
+                        }
+                        break;
+                }
+            };
+            conversation.on('data', onData);
+            return () => {
+                conversation.removeListener('data', onData);
+            };
+        }
+    }, [conversation]);
 
     useEffect(() => {
         // Notify about Conversation join status
@@ -211,6 +274,11 @@ export function App(inProps: AppProps) {
                         <PersonAddIcon />
                     </Tooltip>
                 </ToggleButton>
+                <ToggleButton value="timeline" aria-label={timelineLabel}>
+                    <Tooltip title={timelineLabel}>
+                        <ViewTimelineIcon />
+                    </Tooltip>
+                </ToggleButton>
                 <ToggleButton value="settings" aria-label={settingsLabel}>
                     <Tooltip title={settingsLabel}>
                         <VideoSettingsIcon />
@@ -278,6 +346,16 @@ export function App(inProps: AppProps) {
                 <Alert severity="warning">Invitation requires connection and conversation name</Alert>
             }
         </>}
+
+        {menuValue === 'timeline' && <Box alignItems='center' justifyContent='center'>
+            <Stack direction="column"
+                justifyContent="center" alignItems="center"
+                spacing={1}>
+                {timelines.map((event: TimelineEvent, index: number) =>
+                    <Alert key={index} variant='outlined' severity={event.severity}>{`${event.contact.getUserData().get('firstName')} ${event.message} at ${event.dateTime.toLocaleString()}`}</Alert>
+                )}
+            </Stack>
+        </Box>}
 
         {menuValue && hasSubscribedStreams && <Divider sx={{ m: 2 }} />}
 
