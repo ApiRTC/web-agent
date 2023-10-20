@@ -4,22 +4,22 @@ import { AppConfig, UserData } from './types';
 
 export const AppContext = createContext<
     {
+        audio: boolean,
         appConfig: AppConfig,
         userData: UserData | undefined,
         guestData: UserData | undefined,
         connect: boolean,
         join: boolean,
-        allowAudio: boolean,
         conversationName: string | undefined,
         notify: (level: 'info' | 'error' | 'warn', message: string) => void
     }>(
         {
+            audio: true,
             appConfig: APP_CONFIG,
             userData: undefined,
             guestData: undefined,
             connect: true,
             join: true,
-            allowAudio: true,
             conversationName: undefined,
             notify: () => { }
         });

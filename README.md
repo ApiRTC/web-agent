@@ -32,14 +32,14 @@ To integrate the application within html, use an iframe as below :
 
 | Parameter | stands for           | Default                 | Description                                                                   |
 | --------- | -------------------- | ----------------------- | ----------------------------------------------------------------------------- |
-| aA        | allowAudio           | true                    | set to false to disable audio usage                                           |
+| a         | audio                | true                    | set to false to disable audio usage                                           |
 | aK        | apiKey               | none                    | [ApiRTC](https://apirtc.com) **apiKey**, mandatory                            |
-| gU        | guestUrl             | GUEST_URL               | url of the web-guest web application                                          |
 | c         | connect              | true                    | Connect with **ApiRTC** platform                                              |
 | cN        | conversationName     | empty                   | the **ApiRTC** **Conversation** **name**                                      |
 | cU        | cloudUrl             | CLOUD_URL               | the cloud url                                                                 |
 | gN        | guestName            | empty                   | name to be pre-set in the invitation form                                     |
 | gP        | guestPhone           | empty                   | phone number to be pre-set in the invitation form                             |
+| gU        | guestUrl             | GUEST_URL               | url of the web-guest web application                                          |
 | iI        | installationId       | INSTALLATION_ID         | used a header for local-storage keys                                          |
 | iU        | invitationServiceUrl | INVITATION_SERVICE_URL  | url of the invitation service                                                 |
 | j         | join                 | true                    | Join the **Conversation**                                                     |

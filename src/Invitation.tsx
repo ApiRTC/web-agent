@@ -98,7 +98,7 @@ export type InvitationProps = {
 const COMPONENT_NAME = "Invitation";
 export function Invitation(inProps: InvitationProps) {
 
-    const { appConfig, allowAudio, guestData, notify } = useContext(AppContext);
+    const { appConfig, audio: allowAudio, guestData, notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 

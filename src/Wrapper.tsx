@@ -41,7 +41,7 @@ const APZ_ORANGE = "#F76B40";
 // }
 
 enum RequestParameters {
-    allowAudio = "aA",
+    audio = "a",
     apiKey = "aK",
     guestUrl = "gU",
     connect = "c",
@@ -142,7 +142,7 @@ export function Wrapper(
     // const [searchParams] = useSearchParams();
     const searchParams = useMemo(() => new URLSearchParams(document.location.search), []);
 
-    const { allowAudio } = useMemo(() => {
+    const { audio } = useMemo(() => {
         const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
         setLogLevel(logLevel)
         setApiRtcReactLibLogLevel(logLevel)
@@ -152,7 +152,7 @@ export function Wrapper(
             console.debug(`${COMPONENT_NAME}|useMemo searchParams`, searchParams);
         }
         return {
-            allowAudio: (/true/i).test(searchParams.get(RequestParameters.allowAudio) ?? 'true')
+            audio: (/true/i).test(searchParams.get(RequestParameters.audio) ?? 'true')
         }
     }, [searchParams]);
 
@@ -327,11 +327,11 @@ export function Wrapper(
 
     return <MuiThemeProvider theme={theme}>
         <AppContext.Provider value={{
+            audio,
             appConfig,
             userData,
             guestData,
             join, connect,
-            allowAudio,
             conversationName, notify: () => { }
         }}>
             <App />

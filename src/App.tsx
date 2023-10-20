@@ -59,13 +59,13 @@ export function App(inProps: AppProps) {
     } = props;
 
     const { appConfig, userData,
-        allowAudio,
+        audio,
         connect, join, conversationName,
         notify } = useContext(AppContext);
 
     const installationId = appConfig.installationId;
 
-    const { value: withAudio, toggle: toggleAudio } = useToggle(allowAudio ? (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')) : false);
+    const { value: withAudio, toggle: toggleAudio } = useToggle(audio ? (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')) : false);
     const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'false')));
     useEffect(() => {
         setLocalStorage(`${installationId}.withAudio`, `${withAudio}`)
@@ -298,7 +298,7 @@ export function App(inProps: AppProps) {
                         data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
                 </Stream>}
                 <Stack spacing={2}>
-                    {allowAudio &&
+                    {audio &&
                         <Stack direction="row" spacing={1}>
                             <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
                                 <IconButton data-testid='audio-btn'
