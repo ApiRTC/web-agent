@@ -34,7 +34,7 @@ To integrate the application within html, use an iframe as below :
 | --------- | -------------------- | ----------------------- | ----------------------------------------------------------------------------- |
 | aA        | allowAudio           | true                    | set to false to disable audio usage                                           |
 | aK        | apiKey               | none                    | [ApiRTC](https://apirtc.com) **apiKey**, mandatory                            |
-| aU        | assistedUrl          | ASSISTED_URL            | url of the web-assisted web application                                       |
+| gU        | guestUrl             | GUEST_URL               | url of the web-guest web application                                          |
 | c         | connect              | true                    | Connect with **ApiRTC** platform                                              |
 | cN        | conversationName     | empty                   | the **ApiRTC** **Conversation** **name**                                      |
 | cU        | cloudUrl             | CLOUD_URL               | the cloud url                                                                 |

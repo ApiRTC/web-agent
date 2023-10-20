@@ -28,7 +28,7 @@ import { OutputMessageType } from './MessageTypes';
 
 declare var apiRTC: any;
 
-// WARN : to be kept in sync with web-assisted / z-visio code
+// WARN : to be kept in sync with web-guest / z-visio code
 //
 type InvitationData = {
     cloudUrl?: string
@@ -225,13 +225,13 @@ Thanks`
                 if (globalThis.logLevel.isDebugEnabled) {
                     console.debug(`${COMPONENT_NAME}|received invitation`, body)
                 }
-                setInvitationLink(appConfig.assistedUrl + '?i=' + body.id)
+                setInvitationLink(appConfig.guestUrl + '?i=' + body.id)
             }).catch((error) => {
                 notify('error', `Failed to create short link: received ${error}`)
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.warn(`${COMPONENT_NAME}|failed to get short link, using long instead`, error)
                 }
-                setInvitationLink(encodeURI(appConfig.assistedUrl + '?i=' + base64_encode(JSON.stringify(invitationData))))
+                setInvitationLink(encodeURI(appConfig.guestUrl + '?i=' + base64_encode(JSON.stringify(invitationData))))
             })
             return () => {
                 setInvitationLink(undefined)

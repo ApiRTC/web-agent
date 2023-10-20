@@ -43,7 +43,7 @@ const APZ_ORANGE = "#F76B40";
 enum RequestParameters {
     allowAudio = "aA",
     apiKey = "aK",
-    assistedUrl = "aU",
+    guestUrl = "gU",
     connect = "c",
     conversationName = "cN",
     cloudUrl = "cU",
@@ -195,7 +195,7 @@ export function Wrapper(
                 cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,
                 apiKey: searchParams.get(RequestParameters.apiKey) ?? undefined
             },
-            assistedUrl: searchParams.get(RequestParameters.assistedUrl) ?? undefined,
+            guestUrl: searchParams.get(RequestParameters.guestUrl) ?? undefined,
             invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
         })
         if (globalThis.logLevel.isDebugEnabled) {

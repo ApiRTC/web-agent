@@ -1,13 +1,13 @@
 
 export const INSTALLATION_ID = 'apirtc-web-agent';
 export const CLOUD_URL = 'https://cloud.apirtc.com';
-export const ASSISTED_URL = 'https://apirtc.github.io/web-assisted';
-//export const ASSISTED_URL = 'https://localhost:3400/web-assisted';
+export const GUEST_URL = 'https://apirtc.github.io/web-guest';
+//export const GUEST_URL = 'https://localhost:3400/web-guest';
 export const INVITATION_SERVICE_URL = 'https://is.dev.apizee.com/invitations';
 
 export const APP_CONFIG = {
     installationId: INSTALLATION_ID,
     apiRtc: { cloudUrl: CLOUD_URL, apiKey: undefined },
-    assistedUrl: ASSISTED_URL,
+    guestUrl: GUEST_URL,
     invitationServiceUrl: INVITATION_SERVICE_URL
 };

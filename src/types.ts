@@ -7,7 +7,7 @@ export type ApiRtcSettings = {
 export type AppConfig = {
     installationId: string,
     apiRtc: ApiRtcSettings,
-    assistedUrl: string,
+    guestUrl: string,
     invitationServiceUrl: string,
 };
 
