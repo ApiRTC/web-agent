@@ -22,33 +22,33 @@ import { GetOrCreateConversationOptions, JoinOptions, PublishOptions, Session } 
 import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
 
 import { AppContext } from './AppContext';
+import { OutputMessageType } from './MessageTypes';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
-import { OutputMessageType } from './MessageTypes';
 
 declare var apiRTC: any;
 
 // WARN : to be kept in sync with web-guest / z-visio code
 //
 type InvitationData = {
-    cloudUrl?: string
-    apiKey?: string
+    cloudUrl?: string;
+    apiKey?: string;
     // TBD: this might become an ApiRTC platform configuration instead (per apiKey or even per userAgent id).
-    callStatsMonitoringInterval?: number,
+    callStatsMonitoringInterval?: number;
     conversation: {
-        name: string, friendlyName?: string,
-        //moderationEnabled?: boolean
-        getOrCreateOptions?: GetOrCreateConversationOptions,
-        joinOptions?: JoinOptions
-    }
+        name: string; friendlyName?: string;
+        //moderationEnabled?: boolean;;
+        getOrCreateOptions?: GetOrCreateConversationOptions;
+        joinOptions?: JoinOptions;
+    };
     user: {
-        firstName: string, lastName: string
+        firstName: string; lastName: string;
     }
     streams: Array<{
         type: 'user-media' | 'display-media',
         constraints?: MediaStreamConstraints,
         publishOptions?: PublishOptions
-    }>
+    }>;
 };
 
 const EMPTY_STRING = '';

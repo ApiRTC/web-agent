@@ -141,15 +141,22 @@ export function Wrapper(
         }
     });
 
-    // const [searchParams] = useSearchParams();
     const searchParams = useMemo(() => new URLSearchParams(document.location.search), []);
 
-    const { audio } = useMemo(() => {
-        const logLevel: LogLevelText = searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
+    const logLevel = useMemo(() => {
+        return searchParams.get(RequestParameters.logLevel) as LogLevelText ?? 'warn';
+    }, [searchParams]);
+
+    useEffect(() => {
         setLogLevel(logLevel)
         setApiRtcReactLibLogLevel(logLevel)
         setApiRtcMuiReactLibLogLevel(logLevel)
+        // ApiRTC log level can be set at ApiRTC platform level, per apiKey.
+        // Shall we set it here too ?
         //apiRTC.setLogLevel(10)
+    }, [logLevel])
+
+    const { audio } = useMemo(() => {
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|useMemo searchParams`, searchParams);
         }
@@ -200,6 +207,7 @@ export function Wrapper(
             },
             guestUrl: searchParams.get(RequestParameters.guestUrl) ?? undefined,
             invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
+            logLevel
         })
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|init appConfig`, l_appConfig);
@@ -235,8 +243,7 @@ export function Wrapper(
             setLocale(locale)
         }
 
-    }, [searchParams])
-
+    }, [searchParams, logLevel])
 
     const receiveMessage = useCallback((event: any) => {
         if (globalThis.logLevel.isDebugEnabled) {

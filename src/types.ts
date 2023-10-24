@@ -9,7 +9,7 @@ export type AppConfig = {
     installationId: string,
     apiRtc: ApiRtcSettings,
     guestUrl: string,
-    invitationServiceUrl: string,
+    invitationServiceUrl: string
 };
 
 export type UserData = {

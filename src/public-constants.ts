@@ -1,4 +1,3 @@
-
 export const INSTALLATION_ID = 'apirtc-web-agent';
 export const CLOUD_URL = 'https://cloud.apirtc.com';
 export const GUEST_URL = 'https://apirtc.github.io/web-guest';
