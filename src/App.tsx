@@ -161,6 +161,13 @@ export function App(inProps: AppProps) {
     };
 
     useEffect(() => {
+        if (session) {
+            // enable callStatsMonitoring for support
+            session.getUserAgent().enableCallStatsMonitoring(appConfig.apiRtc.callStatsMonitoringInterval !== undefined, { interval: appConfig.apiRtc.callStatsMonitoringInterval })
+        }
+    }, [session, appConfig])
+
+    useEffect(() => {
         if (conversation) {
             // To receive data from contacts in the Conversation
             const onData = (dataInfo: any) => {

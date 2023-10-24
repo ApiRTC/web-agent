@@ -7,7 +7,7 @@ export const INVITATION_SERVICE_URL = 'https://is.dev.apizee.com/invitations';
 
 export const APP_CONFIG = {
     installationId: INSTALLATION_ID,
-    apiRtc: { cloudUrl: CLOUD_URL, apiKey: undefined },
+    apiRtc: { cloudUrl: CLOUD_URL, apiKey: undefined, callStatsMonitoringInterval: undefined },
     guestUrl: GUEST_URL,
     invitationServiceUrl: INVITATION_SERVICE_URL
 };

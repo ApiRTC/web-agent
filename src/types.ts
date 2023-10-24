@@ -1,6 +1,7 @@
 export type ApiRtcSettings = {
-    apiKey: string | undefined,
+    apiKey?: string,
     cloudUrl: string,
+    callStatsMonitoringInterval?: number
     // [key: string]: string;
 };
 

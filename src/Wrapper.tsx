@@ -44,6 +44,8 @@ enum RequestParameters {
     audio = "a",
     apiKey = "aK",
     guestUrl = "gU",
+    // TBD: this might become an ApiRTC platform configuration instead (per apiKey or even per userAgent id).
+    callStatsMonitoringInterval = "cSMI", // undocumented
     connect = "c",
     conversationName = "cN",
     cloudUrl = "cU",
@@ -193,7 +195,8 @@ export function Wrapper(
             installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
             apiRtc: {
                 cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,
-                apiKey: searchParams.get(RequestParameters.apiKey) ?? undefined
+                apiKey: searchParams.get(RequestParameters.apiKey) ?? undefined,
+                callStatsMonitoringInterval: searchParams.get(RequestParameters.callStatsMonitoringInterval) ?? undefined,
             },
             guestUrl: searchParams.get(RequestParameters.guestUrl) ?? undefined,
             invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,

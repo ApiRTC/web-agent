@@ -33,6 +33,8 @@ declare var apiRTC: any;
 type InvitationData = {
     cloudUrl?: string
     apiKey?: string
+    // TBD: this might become an ApiRTC platform configuration instead (per apiKey or even per userAgent id).
+    callStatsMonitoringInterval?: number,
     conversation: {
         name: string, friendlyName?: string,
         //moderationEnabled?: boolean
@@ -168,6 +170,7 @@ Thanks`
         return guestName && guestName !== EMPTY_STRING ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
+            callStatsMonitoringInterval: appConfig.apiRtc.callStatsMonitoringInterval,
             conversation: {
                 name: props.conversationName,
                 friendlyName: props.conversationName,
