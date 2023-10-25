@@ -23,8 +23,7 @@ To integrate the application within html, use an iframe as below :
   src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&cN=Test"
   height="720px"
   width="100%"
-  referrerpolicy="no-referrer"
-  allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"
+  allow="autoplay;microphone;camera;display-capture;encrypted-media;clipboard-write;"
 ></iframe>
 ```
 
