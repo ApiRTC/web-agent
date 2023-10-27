@@ -29,6 +29,7 @@ import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 
 import { OutputMessageType } from './MessageTypes';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
+import LogRocket from 'logrocket';
 
 // TODO: publish timeline events with postMessage for iframe host to know about them !
 // Needs more standardization probably !
@@ -159,6 +160,15 @@ export function App(inProps: AppProps) {
         setMenuValue(newValue);
         postResize();
     };
+
+    useEffect(() => {
+        if (session) {
+            if (globalThis.logLevel.isDebugEnabled) {
+                console.debug(`${COMPONENT_NAME}|logRocket identify`, session.getId());
+            }
+            LogRocket.identify(session.getId());
+        }
+    }, [session])
 
     useEffect(() => {
         if (session) {

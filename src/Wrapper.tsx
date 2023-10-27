@@ -6,6 +6,8 @@ import { createTheme, ThemeProvider as MuiThemeProvider, ThemeOptions } from '@m
 import { frFR as ApiRtcMuiReactLib_frFR, setLogLevel as setApiRtcMuiReactLibLogLevel } from '@apirtc/mui-react-lib';
 import { setLogLevel as setApiRtcReactLibLogLevel } from '@apirtc/react-lib';
 
+import LogRocket from 'logrocket';
+
 import merge from 'lodash.merge';
 
 import { App } from './App';
@@ -13,15 +15,14 @@ import { AppContext } from './AppContext';
 import { frFR } from './locale/frFR';
 import { LogLevelText, setLogLevel } from './logLevel';
 import { InputMessageType, OutputMessageType } from './MessageTypes';
-import { APP_CONFIG } from './public-constants';
+import { APP_CONFIG, DEFAULT_LOG_LEVEL } from './public-constants';
 import { AppConfig, UserData } from './types';
-// import { useSearchParams } from 'react-router-dom';
 
 // declare var apiRTC:any;
 
 // By default, set this as early as possible, to prevent some error cases to fail
 // finding  globalThis.logLevel
-setLogLevel('warn')
+setLogLevel(DEFAULT_LOG_LEVEL)
 
 const languageToLocale = (language: string) => {
     switch (language) {
@@ -56,6 +57,7 @@ enum RequestParameters {
     join = "j",
     locale = "l",
     logLevel = "lL",
+    logRocketAppID = 'lRAppID',
     userId = "uId"
 }
 
@@ -156,6 +158,20 @@ export function Wrapper(
         //apiRTC.setLogLevel(10)
     }, [logLevel])
 
+    const logRocketAppID = useMemo(() => {
+        return searchParams.get(RequestParameters.logRocketAppID);
+    }, [searchParams]);
+
+    useEffect(() => {
+        // setup logRocket
+        if (logRocketAppID) {
+            if (globalThis.logLevel.isDebugEnabled) {
+                console.debug(`${COMPONENT_NAME}|logRocket init`, logRocketAppID);
+            }
+            LogRocket.init(logRocketAppID);
+        }
+    }, [logRocketAppID])
+
     const { audio } = useMemo(() => {
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|useMemo searchParams`, searchParams);
@@ -198,7 +214,7 @@ export function Wrapper(
 
     useEffect(() => {
 
-        const l_appConfig = merge(APP_CONFIG, {
+        const l_appConfig: AppConfig = merge(APP_CONFIG, {
             installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
             apiRtc: {
                 cloudUrl: searchParams.get(RequestParameters.cloudUrl) ?? undefined,
@@ -207,7 +223,8 @@ export function Wrapper(
             },
             guestUrl: searchParams.get(RequestParameters.guestUrl) ?? undefined,
             invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
-            logLevel
+            logLevel,
+            logRocketAppID
         })
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|init appConfig`, l_appConfig);
@@ -243,7 +260,7 @@ export function Wrapper(
             setLocale(locale)
         }
 
-    }, [searchParams, logLevel])
+    }, [searchParams, logLevel, logRocketAppID])
 
     const receiveMessage = useCallback((event: any) => {
         if (globalThis.logLevel.isDebugEnabled) {

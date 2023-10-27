@@ -9,7 +9,9 @@ export type AppConfig = {
     installationId: string,
     apiRtc: ApiRtcSettings,
     guestUrl: string,
-    invitationServiceUrl: string
+    invitationServiceUrl: string,
+    logLevel: string,
+    logRocketAppID: string | undefined
 };
 
 export type UserData = {

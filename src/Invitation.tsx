@@ -25,6 +25,7 @@ import { AppContext } from './AppContext';
 import { OutputMessageType } from './MessageTypes';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
+import { DEFAULT_LOG_LEVEL } from './public-constants';
 
 declare var apiRTC: any;
 
@@ -210,6 +211,8 @@ Thanks`
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|useEffect invitationData`, invitationData)
         }
+        const logLevel = appConfig.logLevel && appConfig.logLevel !== DEFAULT_LOG_LEVEL ? `&lL=${appConfig.logLevel}` : '';
+        const logRocket = appConfig.logRocketAppID ? encodeURI(`&lRAppID=${appConfig.logRocketAppID}`) : '';
         if (invitationData) {
             fetch(appConfig.invitationServiceUrl, {
                 method: 'POST',
@@ -228,13 +231,13 @@ Thanks`
                 if (globalThis.logLevel.isDebugEnabled) {
                     console.debug(`${COMPONENT_NAME}|received invitation`, body)
                 }
-                setInvitationLink(appConfig.guestUrl + '?i=' + body.id)
+                setInvitationLink(encodeURI(`${appConfig.guestUrl}?i=${body.id}${logLevel}${logRocket}`))
             }).catch((error) => {
                 notify('error', `Failed to create short link: received ${error}`)
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.warn(`${COMPONENT_NAME}|failed to get short link, using long instead`, error)
                 }
-                setInvitationLink(encodeURI(appConfig.guestUrl + '?i=' + base64_encode(JSON.stringify(invitationData))))
+                setInvitationLink(encodeURI(`${appConfig.guestUrl}?i=${base64_encode(JSON.stringify(invitationData))}${logLevel}${logRocket}`))
             })
             return () => {
                 setInvitationLink(undefined)
