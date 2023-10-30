@@ -22,14 +22,14 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 import { useThemeProps } from '@mui/material/styles';
 
+import LogRocket from 'logrocket';
+
 import { AppContext } from './AppContext';
 import { Invitation } from "./Invitation";
+import { OutputMessageType } from './MessageTypes';
 import { Room } from "./Room";
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
-
-import { OutputMessageType } from './MessageTypes';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
-import LogRocket from 'logrocket';
 
 // TODO: publish timeline events with postMessage for iframe host to know about them !
 // Needs more standardization probably !
@@ -162,13 +162,13 @@ export function App(inProps: AppProps) {
     };
 
     useEffect(() => {
-        if (session) {
+        if (conversationName && session) {
             if (globalThis.logLevel.isDebugEnabled) {
-                console.debug(`${COMPONENT_NAME}|logRocket identify`, session.getId());
+                console.debug(`${COMPONENT_NAME}|logRocket identify`, conversationName, session.getId());
             }
-            LogRocket.identify(session.getId());
+            LogRocket.identify(`${conversationName}-${session.getId()}`);
         }
-    }, [session])
+    }, [conversationName, session])
 
     useEffect(() => {
         if (session) {
@@ -257,7 +257,7 @@ export function App(inProps: AppProps) {
             type: OutputMessageType.SubscribedStreams,
             length,
         }, '*')
-    }
+    };
 
     useEffect(() => {
         if (hasSubscribedStreams) {
