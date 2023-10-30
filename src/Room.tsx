@@ -13,8 +13,8 @@ import { useConversationStreams } from "@apirtc/react-lib";
 
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
-import Button from '@mui/material/Button';
 import ButtonGroup from "@mui/material/ButtonGroup";
+import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
 import Tooltip from "@mui/material/Tooltip";
@@ -305,14 +305,15 @@ export function Room(inProps: RoomProps) {
                     <Stack direction='column' alignItems='center' justifyContent='center'>
                         <ButtonGroup variant="outlined" size="small" aria-label="call-bar">
                             <Tooltip title={shareScreenText}>
-                                <Button
-                                    onClick={shareScreen} startIcon={<ScreenShareIcon />}></Button>
+                                <IconButton color='info'
+                                    onClick={shareScreen}><ScreenShareIcon /></IconButton>
                             </Tooltip>
                             <Tooltip title={hangUpText}>
-                                <Button color='error'
-                                    onClick={hangUp} endIcon={<CallEndIcon />} />
+                                {/* <Button color='error'
+                                onClick={hangUp} endIcon={<CallEndIcon />} /> */}
+                                <IconButton color='error'
+                                    onClick={hangUp}><CallEndIcon /></IconButton>
                             </Tooltip>
-                            {/* <IconButton onClick={hangUp}><CallEndIcon /></IconButton> */}
                         </ButtonGroup>
                     </Stack>
                 }

@@ -61,13 +61,8 @@ enum RequestParameters {
     userId = 'uId'
 }
 
-export type WrapperProps = {
-    //  client: any,
-};
 const COMPONENT_NAME = "Wrapper";
-export function Wrapper(
-    // props: WrapperProps
-) {
+export function Wrapper() {
 
     const [options] = useState<ThemeOptions>({
         palette: {
@@ -88,58 +83,6 @@ export function Wrapper(
                 textTransform: 'none',
                 letterSpacing: 0.25,
             }
-        },
-        components: {
-            MuiAccordion: {
-                variants: [
-                    {
-                        props: {},
-                        style: {
-                            boxShadow: 'none'
-                        },
-                    },
-                ],
-            },
-            MuiAccordionSummary: {
-                variants: [
-                    {
-                        props: {},
-                        style: {
-                            backgroundColor: '#F8F9F9'
-                        },
-                    },
-                ],
-            },
-            MuiIconButton: {
-                variants: [
-                    {
-                        props: {},
-                        style: {
-                            padding: 4,
-                            margin: 2,
-                            // color: '#111313',
-                            // backgroundColor: '#F76B40',
-                            // borderRadius: '4px',
-                            color: '#2E455C',
-                            backgroundColor: '#F7F7F8',
-                            borderRadius: '4px',
-                            border: '2px solid #2E455C',
-                            // opacity: '75%',
-                            ':hover': {
-                                //backgroundColor: '#F88562',
-                                color: '#1D2C3A',
-                                backgroundColor: 'D3DEE9',
-                                // opacity: '100%',
-                            },
-                            ':disabled': {
-                                color: '#7A8085',
-                                backgroundColor: '#CACCCE',
-                                // opacity: '75%',
-                            }
-                        },
-                    },
-                ],
-            },
         }
     });
 

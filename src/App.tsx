@@ -20,7 +20,7 @@ import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
-import { useThemeProps } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@mui/material/styles';
 
 import LogRocket from 'logrocket';
 
@@ -39,6 +39,41 @@ export type TimelineEvent = {
     message: string,
     dateTime: Date
 };
+
+const SETTINGS_THEME = createTheme({
+    components: {
+        MuiIconButton: {
+            variants: [
+                {
+                    props: {},
+                    style: {
+                        padding: 4,
+                        margin: 2,
+                        // color: '#111313',
+                        // backgroundColor: '#F76B40',
+                        // borderRadius: '4px',
+                        color: '#2E455C',
+                        backgroundColor: '#F7F7F8',
+                        borderRadius: '4px',
+                        border: '2px solid #2E455C',
+                        // opacity: '75%',
+                        ':hover': {
+                            //backgroundColor: '#F88562',
+                            color: '#1D2C3A',
+                            backgroundColor: 'D3DEE9',
+                            // opacity: '100%',
+                        },
+                        ':disabled': {
+                            color: '#7A8085',
+                            backgroundColor: '#CACCCE',
+                            // opacity: '75%',
+                        }
+                    },
+                },
+            ],
+        },
+    }
+});
 
 export type AppProps = {
     invitationLabel?: string,
@@ -305,51 +340,53 @@ export function App(inProps: AppProps) {
         </Stack>
 
         {menuValue === 'settings' &&
-            <Stack direction={{ xs: 'column', sm: 'row' }}
-                alignItems='center' justifyContent='center'
-                spacing={2}>
-                {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
-                {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
-                    stream={stream} muted={true}>
-                    {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
-                        data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
-                </Stream>}
-                <Stack spacing={2}>
-                    {audio &&
+            <MuiThemeProvider theme={SETTINGS_THEME}>
+                <Stack direction={{ xs: 'column', sm: 'row' }}
+                    alignItems='center' justifyContent='center'
+                    spacing={2}>
+                    {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
+                    {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
+                        stream={stream} muted={true}>
+                        {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
+                            data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
+                    </Stream>}
+                    <Stack spacing={2}>
+                        {audio &&
+                            <Stack direction="row" spacing={1}>
+                                <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
+                                    <IconButton data-testid='audio-btn'
+                                        color='primary' size='small'
+                                        disabled={session ? undefined : true}
+                                        onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
+                                </Tooltip>
+                                <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
+                                    id='audio-in'
+                                    size='small'
+                                    // label={audioInLabel}
+                                    disabled={!withAudio}
+                                    devices={userMediaDevices.audioinput}
+                                    selectedDevice={selectedAudioIn}
+                                    setSelectedDevice={setSelectedAudioIn} />
+                            </Stack>}
                         <Stack direction="row" spacing={1}>
-                            <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
-                                <IconButton data-testid='audio-btn'
+                            <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
+                                <IconButton data-testid='video-btn'
                                     color='primary' size='small'
                                     disabled={session ? undefined : true}
-                                    onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
+                                    onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
                             </Tooltip>
                             <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                                id='audio-in'
+                                id='video-in'
                                 size='small'
-                                // label={audioInLabel}
-                                disabled={!withAudio}
-                                devices={userMediaDevices.audioinput}
-                                selectedDevice={selectedAudioIn}
-                                setSelectedDevice={setSelectedAudioIn} />
-                        </Stack>}
-                    <Stack direction="row" spacing={1}>
-                        <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
-                            <IconButton data-testid='video-btn'
-                                color='primary' size='small'
-                                disabled={session ? undefined : true}
-                                onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
-                        </Tooltip>
-                        <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                            id='video-in'
-                            size='small'
-                            // label={videoInLabel}
-                            disabled={!withVideo}
-                            devices={userMediaDevices.videoinput}
-                            selectedDevice={selectedVideoIn}
-                            setSelectedDevice={setSelectedVideoIn} />
+                                // label={videoInLabel}
+                                disabled={!withVideo}
+                                devices={userMediaDevices.videoinput}
+                                selectedDevice={selectedVideoIn}
+                                setSelectedDevice={setSelectedVideoIn} />
+                        </Stack>
                     </Stack>
                 </Stack>
-            </Stack>}
+            </MuiThemeProvider>}
 
         {menuValue === 'invite' && <>
             {connect && conversationName ?
