@@ -42,23 +42,23 @@ const APZ_ORANGE = "#F76B40";
 // }
 
 enum RequestParameters {
-    audio = "a",
-    apiKey = "aK",
-    guestUrl = "gU",
+    audio = 'a',
+    apiKey = 'aK',
+    guestUrl = 'gU',
     // TBD: this might become an ApiRTC platform configuration instead (per apiKey or even per userAgent id).
-    callStatsMonitoringInterval = "cSMI", // undocumented
-    connect = "c",
-    conversationName = "cN",
-    cloudUrl = "cU",
-    guestName = "gN",
-    guestPhone = "gP",
-    invitationServiceUrl = "iU",
-    installationId = "iI",
-    join = "j",
-    locale = "l",
-    logLevel = "lL",
+    callStatsMonitoringInterval = 'cSMI', // undocumented
+    connect = 'c',
+    conversationName = 'cN',
+    cloudUrl = 'cU',
+    guestName = 'gN',
+    guestPhone = 'gP',
+    invitationServiceUrl = 'iU',
+    installationId = 'iI',
+    join = 'j',
+    locale = 'l',
+    logLevel = 'lL',
     logRocketAppID = 'lRAppID',
-    userId = "uId"
+    userId = 'uId'
 }
 
 export type WrapperProps = {
@@ -164,7 +164,7 @@ export function Wrapper(
 
     useEffect(() => {
         // setup logRocket
-        if (logRocketAppID) {
+        if (logRocketAppID && logRocketAppID !== '') {
             if (globalThis.logLevel.isDebugEnabled) {
                 console.debug(`${COMPONENT_NAME}|logRocket init`, logRocketAppID);
             }
