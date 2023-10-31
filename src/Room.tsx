@@ -63,7 +63,7 @@ export function Room(inProps: RoomProps) {
         onDisplayChange,
         onSubscribedStreamsLengthChange,
         // onStart, onEnd
-        hangUpText = "HangUp", shareScreenText = "Share screen",
+        hangUpText = "HangUp", shareScreenText = "Share screen"
     } = props;
 
     // const boxRef = useRef<HTMLElement>(null);
@@ -72,7 +72,7 @@ export function Room(inProps: RoomProps) {
 
     const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
-    const { publishedStreams, subscribedStreams } = useConversationStreams(
+    const { publishedStreams, subscribedStreams, unsubscribeAll } = useConversationStreams(
         conversation, hasSubscribedStreams ? [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])] : []);
 
     if (globalThis.logLevel.isDebugEnabled) {
@@ -193,6 +193,11 @@ export function Room(inProps: RoomProps) {
 
     const hangUp = useCallback((event: React.SyntheticEvent) => {
         event.preventDefault()
+
+        if (globalThis.logLevel.isInfoEnabled) {
+            console.info(`${COMPONENT_NAME}|hangUp`)
+        }
+
         const msg = { hangUp: true };
         conversation.sendData(msg).then(() => {
             if (globalThis.logLevel.isDebugEnabled) {
@@ -202,8 +207,14 @@ export function Room(inProps: RoomProps) {
             if (globalThis.logLevel.isWarnEnabled) {
                 console.warn(`${COMPONENT_NAME}|hangUp send failure`, error)
             }
+        }).finally(() => {
+            // unsubscribe to all streams is logical as we want to hang up.
+            // But if also prevents from a problem when guest app and apirtc do not clean properly
+            // the published streams : it results in this agent app to wait for calls termination from Janus/CCS sig.
+            //
+            unsubscribeAll()
         })
-    }, [conversation]);
+    }, [conversation, unsubscribeAll]);
 
     // const onStreamMouseDown = useCallback((stream: ApiRTCStream, event: React.MouseEvent) => {
     //     if (globalThis.logLevel.isDebugEnabled) {
@@ -309,8 +320,6 @@ export function Room(inProps: RoomProps) {
                                     onClick={shareScreen}><ScreenShareIcon /></IconButton>
                             </Tooltip>
                             <Tooltip title={hangUpText}>
-                                {/* <Button color='error'
-                                onClick={hangUp} endIcon={<CallEndIcon />} /> */}
                                 <IconButton color='error'
                                     onClick={hangUp}><CallEndIcon /></IconButton>
                             </Tooltip>

@@ -183,6 +183,8 @@ export function App(inProps: AppProps) {
 
     const { contacts } = useConversationContacts(conversation, onContactJoined, onContactLeft);
 
+    const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
+
     const postResize = () => {
         // Notify parent about resize
         window.parent.postMessage({
@@ -282,8 +284,6 @@ export function App(inProps: AppProps) {
             resolve();
         });
     }, []);
-
-    const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
     const onSubscribedStreamsLengthChange = (length: number) => {
         setHasSubscribedStreams(length > 0)
