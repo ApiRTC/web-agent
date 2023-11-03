@@ -32,16 +32,15 @@ const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 const AUDIO_IN = new Audio(inNotification);
 const AUDIO_OFF = new Audio(offNotification);
 
-const ROOM_THEME = createTheme(
-    {
-        ...ROOM_THEME_OPTIONS,
-        typography: {
-            button: {
-                textTransform: 'none',
-                letterSpacing: 0.25,
-            }
-        },
-    }, frFR, ApiRtcMuiReactLib_frFR);
+const ROOM_THEME = createTheme({
+    ...ROOM_THEME_OPTIONS,
+    typography: {
+        button: {
+            textTransform: 'none',
+            letterSpacing: 0.25,
+        }
+    },
+}, frFR, ApiRtcMuiReactLib_frFR);
 
 export type RoomProps = {
     sx?: SxProps,
@@ -208,9 +207,9 @@ export function Room(inProps: RoomProps) {
                 console.warn(`${COMPONENT_NAME}|hangUp send failure`, error)
             }
         }).finally(() => {
-            // unsubscribe to all streams is logical as we want to hang up.
-            // But if also prevents from a problem when guest app and apirtc do not clean properly
-            // the published streams : it results in this agent app to wait for calls termination from Janus/CCS sig.
+            // Unsubscribe to all streams is logical as we want to hang up.
+            // But it also prevents from a problem when guest app and apirtc do not clean properly
+            // the published streams : it results in agent app to wait for calls termination from Janus/CCS sig.
             //
             unsubscribeAll()
         })
@@ -329,5 +328,4 @@ export function Room(inProps: RoomProps) {
             </Stack>
         </Grid>
     </Grid>
-
 }

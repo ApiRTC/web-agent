@@ -75,6 +75,19 @@ const SETTINGS_THEME = createTheme({
     }
 });
 
+enum MenuValues {
+    Invite = 'invite',
+    Settings = 'settings',
+    Timeline = 'timeline'
+}
+
+const postResize = () => {
+    // Notify parent about resize
+    window.parent.postMessage({
+        type: OutputMessageType.Resize
+    }, '*')
+};
+
 export type AppProps = {
     invitationLabel?: string,
     timelineLabel?: string,
@@ -171,29 +184,27 @@ export function App(inProps: AppProps) {
         // thus we need to add 'as any'
         { ...CODECS } as any);
 
-    const [timelines, setTimelines] = useState<Array<TimelineEvent>>([]);
+    // R&D: local timeline events
+    //
+    const [timelineEvents, setTimelineEvents] = useState<Array<TimelineEvent>>([]);
 
+    // use useCallbacks here to avoid useConversationContacts re-renders
     const onContactJoined = useCallback((contact: Contact) => {
-        setTimelines((l_timelines) => [{ severity: 'info', contact, message: `enters app`, dateTime: new Date() }, ...l_timelines])
-    }, [setTimelines]);
-
+        setTimelineEvents((l_timelines) => [{ severity: 'info', contact, message: `enters app`, dateTime: new Date() }, ...l_timelines])
+    }, [setTimelineEvents]);
     const onContactLeft = useCallback((contact: Contact) => {
-        setTimelines((l_timelines) => [{ severity: 'warning', contact, message: `left`, dateTime: new Date() }, ...l_timelines])
-    }, [setTimelines]);
+        setTimelineEvents((l_timelines) => [{ severity: 'warning', contact, message: `left`, dateTime: new Date() }, ...l_timelines])
+    }, [setTimelineEvents]);
 
-    const { contacts } = useConversationContacts(conversation, onContactJoined, onContactLeft);
+    //const { contacts } =
+    useConversationContacts(conversation, onContactJoined, onContactLeft);
 
+    // number of subscribed streams boolean projection
     const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
-    const postResize = () => {
-        // Notify parent about resize
-        window.parent.postMessage({
-            type: OutputMessageType.Resize
-        }, '*')
-    };
-
-    const [menuValue, setMenuValue] = useState<'invite' | 'timeline' | 'settings' | undefined>('invite');
-    const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: 'invite' | 'settings') => {
+    // manage menu
+    const [menuValue, setMenuValue] = useState<MenuValues | undefined>(MenuValues.Invite);
+    const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: MenuValues) => {
         setMenuValue(newValue);
         postResize();
     };
@@ -214,6 +225,10 @@ export function App(inProps: AppProps) {
         }
     }, [session, appConfig])
 
+    // Conversation.onData handling
+    //
+    // - receive timeline events sent from guest app
+    //
     useEffect(() => {
         if (conversation) {
             // To receive data from contacts in the Conversation
@@ -227,13 +242,13 @@ export function App(inProps: AppProps) {
 
                 switch (content.type) {
                     case 'timeline-event':
-                        setTimelines((l_timelines) => [
+                        setTimelineEvents((l_events) => [
                             {
                                 severity: 'info',
                                 contact: sender,
                                 message: `${content.event}`,
                                 dateTime: new Date()
-                            }, ...l_timelines])
+                            }, ...l_events])
                         break;
                     default:
                         if (globalThis.logLevel.isWarnEnabled) {
@@ -306,10 +321,89 @@ export function App(inProps: AppProps) {
                     return prev
                 }
                 // otherwise go to invite
-                return 'invite'
+                return MenuValues.Invite
             })
         }
     }, [hasSubscribedStreams])
+
+    const renderMenuContent = () => {
+        switch (menuValue) {
+            case MenuValues.Settings:
+                return <MuiThemeProvider theme={SETTINGS_THEME}>
+                    <Stack direction={{ xs: 'column', sm: 'row' }}
+                        alignItems='center' justifyContent='center'
+                        spacing={2}>
+                        {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
+                        {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
+                            stream={stream} muted={true}>
+                            {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
+                                data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
+                        </Stream>}
+                        <Stack spacing={2}>
+                            {audio &&
+                                <Stack direction="row" spacing={1}>
+                                    <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
+                                        <IconButton data-testid='audio-btn'
+                                            color='primary' size='small'
+                                            disabled={session ? undefined : true}
+                                            onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
+                                    </Tooltip>
+                                    <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
+                                        id='audio-in'
+                                        size='small'
+                                        disabled={!withAudio}
+                                        devices={userMediaDevices.audioinput}
+                                        selectedDevice={selectedAudioIn}
+                                        setSelectedDevice={setSelectedAudioIn} />
+                                </Stack>}
+                            <Stack direction="row" spacing={1}>
+                                <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
+                                    <IconButton data-testid='video-btn'
+                                        color='primary' size='small'
+                                        disabled={session ? undefined : true}
+                                        onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
+                                </Tooltip>
+                                <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
+                                    id='video-in'
+                                    size='small'
+                                    disabled={!withVideo}
+                                    devices={userMediaDevices.videoinput}
+                                    selectedDevice={selectedVideoIn}
+                                    setSelectedDevice={setSelectedVideoIn} />
+                            </Stack>
+                        </Stack>
+                    </Stack>
+                </MuiThemeProvider>;
+            case MenuValues.Invite:
+                return <>
+                    {connect && conversationName ?
+                        <Stack direction="row"
+                            justifyContent="center" alignItems="center">
+                            {session ?
+                                <Invitation sx={{ mt: 1 }} session={session} conversationName={conversationName}></Invitation> :
+                                <Skeleton variant="rectangular" width={345} height={226} />
+                            }
+                        </Stack> :
+                        <Alert severity="warning">Invitation requires connection and conversation name</Alert>
+                    }
+                </>
+            case MenuValues.Timeline:
+                return <Box alignItems='center' justifyContent='center'>
+                    <Stack direction="column"
+                        justifyContent="center" alignItems="center"
+                        spacing={1}>
+                        {timelineEvents.length === 0 ?
+                            <Alert key={0} variant='outlined' severity='info'>no events yet</Alert> :
+                            timelineEvents.map((event: TimelineEvent, index: number) =>
+                                <Alert key={index} variant='outlined' severity={event.severity}>{`${event.contact.getUserData().get('firstName')} ${event.message} at ${event.dateTime.toLocaleString()}`}</Alert>
+                            )}
+                    </Stack>
+                </Box>
+            default:
+                // do not display anything
+                return;
+        }
+    }
 
     return <>
         <Stack direction="row" sx={{ px: 1, py: 1 }}
@@ -321,17 +415,17 @@ export function App(inProps: AppProps) {
                 value={menuValue}
                 exclusive
                 onChange={handleMenu}>
-                <ToggleButton value="invite" aria-label={invitationLabel}>
+                <ToggleButton value={MenuValues.Invite} aria-label={invitationLabel}>
                     <Tooltip title={invitationLabel}>
                         <PersonAddIcon />
                     </Tooltip>
                 </ToggleButton>
-                <ToggleButton value="timeline" aria-label={timelineLabel}>
+                <ToggleButton value={MenuValues.Timeline} aria-label={timelineLabel}>
                     <Tooltip title={timelineLabel}>
                         <ViewTimelineIcon />
                     </Tooltip>
                 </ToggleButton>
-                <ToggleButton value="settings" aria-label={settingsLabel}>
+                <ToggleButton value={MenuValues.Settings} aria-label={settingsLabel}>
                     <Tooltip title={settingsLabel}>
                         <VideoSettingsIcon />
                     </Tooltip>
@@ -339,77 +433,7 @@ export function App(inProps: AppProps) {
             </ToggleButtonGroup>
         </Stack>
 
-        {menuValue === 'settings' &&
-            <MuiThemeProvider theme={SETTINGS_THEME}>
-                <Stack direction={{ xs: 'column', sm: 'row' }}
-                    alignItems='center' justifyContent='center'
-                    spacing={2}>
-                    {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
-                    {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
-                        stream={stream} muted={true}>
-                        {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
-                            data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
-                    </Stream>}
-                    <Stack spacing={2}>
-                        {audio &&
-                            <Stack direction="row" spacing={1}>
-                                <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
-                                    <IconButton data-testid='audio-btn'
-                                        color='primary' size='small'
-                                        disabled={session ? undefined : true}
-                                        onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
-                                </Tooltip>
-                                <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                                    id='audio-in'
-                                    size='small'
-                                    // label={audioInLabel}
-                                    disabled={!withAudio}
-                                    devices={userMediaDevices.audioinput}
-                                    selectedDevice={selectedAudioIn}
-                                    setSelectedDevice={setSelectedAudioIn} />
-                            </Stack>}
-                        <Stack direction="row" spacing={1}>
-                            <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
-                                <IconButton data-testid='video-btn'
-                                    color='primary' size='small'
-                                    disabled={session ? undefined : true}
-                                    onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
-                            </Tooltip>
-                            <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                                id='video-in'
-                                size='small'
-                                // label={videoInLabel}
-                                disabled={!withVideo}
-                                devices={userMediaDevices.videoinput}
-                                selectedDevice={selectedVideoIn}
-                                setSelectedDevice={setSelectedVideoIn} />
-                        </Stack>
-                    </Stack>
-                </Stack>
-            </MuiThemeProvider>}
-
-        {menuValue === 'invite' && <>
-            {connect && conversationName ?
-                <Stack direction="row"
-                    justifyContent="center" alignItems="center">
-                    {session ?
-                        <Invitation sx={{ mt: 1 }} session={session} conversationName={conversationName}></Invitation> :
-                        <Skeleton variant="rectangular" width={345} height={226} />
-                    }
-                </Stack> :
-                <Alert severity="warning">Invitation requires connection and conversation name</Alert>
-            }
-        </>}
-
-        {menuValue === 'timeline' && <Box alignItems='center' justifyContent='center'>
-            <Stack direction="column"
-                justifyContent="center" alignItems="center"
-                spacing={1}>
-                {timelines.map((event: TimelineEvent, index: number) =>
-                    <Alert key={index} variant='outlined' severity={event.severity}>{`${event.contact.getUserData().get('firstName')} ${event.message} at ${event.dateTime.toLocaleString()}`}</Alert>
-                )}
-            </Stack>
-        </Box>}
+        {renderMenuContent()}
 
         {menuValue && hasSubscribedStreams && <Divider sx={{ m: 2 }} />}
 
