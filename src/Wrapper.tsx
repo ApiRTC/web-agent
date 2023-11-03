@@ -42,18 +42,18 @@ const APZ_ORANGE = "#F76B40";
 // }
 
 enum RequestParameters {
-    audio = 'a',
     apiKey = 'aK',
-    guestUrl = 'gU',
+    audio = 'a',
     // TBD: this might become an ApiRTC platform configuration instead (per apiKey or even per userAgent id).
     callStatsMonitoringInterval = 'cSMI', // undocumented
+    cloudUrl = 'cU',
     connect = 'c',
     conversationName = 'cN',
-    cloudUrl = 'cU',
     guestName = 'gN',
     guestPhone = 'gP',
-    invitationServiceUrl = 'iU',
+    guestUrl = 'gU',
     installationId = 'iI',
+    invitationServiceUrl = 'iU',
     join = 'j',
     locale = 'l',
     logLevel = 'lL',
