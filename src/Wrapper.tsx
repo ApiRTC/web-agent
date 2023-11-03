@@ -105,16 +105,6 @@ export function Wrapper() {
         return searchParams.get(RequestParameters.logRocketAppID);
     }, [searchParams]);
 
-    useEffect(() => {
-        // setup logRocket
-        if (logRocketAppID && logRocketAppID !== '') {
-            if (globalThis.logLevel.isDebugEnabled) {
-                console.debug(`${COMPONENT_NAME}|logRocket init`, logRocketAppID);
-            }
-            LogRocket.init(logRocketAppID);
-        }
-    }, [logRocketAppID])
-
     const { audio } = useMemo(() => {
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|useMemo searchParams`, searchParams);
@@ -156,6 +146,94 @@ export function Wrapper() {
     // Effects
 
     useEffect(() => {
+        // setup logRocket
+        if (logRocketAppID && logRocketAppID !== '') {
+            if (globalThis.logLevel.isDebugEnabled) {
+                console.debug(`${COMPONENT_NAME}|logRocket init`, logRocketAppID);
+            }
+            LogRocket.init(logRocketAppID);
+        }
+    }, [logRocketAppID])
+
+    // Inbound messages handling
+    //
+    useEffect(() => {
+        const receiveMessage = (event: any) => {
+            if (globalThis.logLevel.isDebugEnabled) {
+                console.debug(`${COMPONENT_NAME}|receives event`, event);
+            }
+
+            if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
+                return
+            }
+
+            // if (event.origin !== "http://example.org:8080") return;
+            // …
+
+            try {
+                const message = event.data;
+                switch (message.type) {
+                    case InputMessageType.Configuration: {
+                        setAppConfig((prev) => {
+                            const appConfig = merge(prev, message.data);
+                            if (globalThis.logLevel.isDebugEnabled) {
+                                console.debug(`${COMPONENT_NAME}|appConfig`, appConfig);
+                            }
+                            // force new object, to enable react state change detection
+                            return { ...appConfig }
+                        })
+                        break;
+                    }
+                    case InputMessageType.Connect: {
+                        setConnect(true)
+                        break;
+                    }
+                    case InputMessageType.Conversation: {
+                        setConversationName(message.name)
+                        break;
+                    }
+                    case InputMessageType.Disconnect: {
+                        setConnect(false)
+                        break;
+                    }
+                    case InputMessageType.GuestData: {
+                        setGuestData(message.data)
+                        break;
+                    }
+                    case InputMessageType.Join: {
+                        setJoin(true)
+                        break;
+                    }
+                    case InputMessageType.Leave: {
+                        setJoin(false)
+                        break;
+                    }
+                    case InputMessageType.UserData: {
+                        setUserData(message.data)
+                        break;
+                    }
+                    default:
+                        if (globalThis.logLevel.isWarnEnabled) {
+                            console.warn(`${COMPONENT_NAME}|receiveMessage, unknown message.type ${message.type}.`);
+                        }
+                }
+            } catch (error) {
+                console.error(`${COMPONENT_NAME}|receiveMessage error`, error)
+            }
+        };
+        window.addEventListener('message', receiveMessage, false);
+
+        // Notify the application is ready to receive messages
+        window.parent.postMessage({
+            type: OutputMessageType.Ready
+        }, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
+
+        return () => {
+            window.removeEventListener('message', receiveMessage);
+        }
+    }, []);
+
+    useEffect(() => {
 
         const l_appConfig: AppConfig = merge(APP_CONFIG, {
             installationId: searchParams.get(RequestParameters.installationId) ?? undefined,
@@ -168,10 +246,12 @@ export function Wrapper() {
             invitationServiceUrl: searchParams.get(RequestParameters.invitationServiceUrl) ?? undefined,
             logLevel,
             logRocketAppID
-        })
+        });
+
         if (globalThis.logLevel.isDebugEnabled) {
             console.debug(`${COMPONENT_NAME}|init appConfig`, l_appConfig);
         }
+
         // force new object, to enable react state change detection
         setAppConfig({ ...l_appConfig });
 
@@ -204,91 +284,6 @@ export function Wrapper() {
         }
 
     }, [searchParams, logLevel, logRocketAppID])
-
-    const receiveMessage = useCallback((event: any) => {
-        if (globalThis.logLevel.isDebugEnabled) {
-            console.debug(`${COMPONENT_NAME}|receives event`, event);
-        }
-
-        if (event.data instanceof Object && event.data.type === 'webPackWarnings') {
-            return
-        }
-
-        // if (event.origin !== "http://example.org:8080") return;
-        // …
-
-        try {
-            const message = event.data;
-
-            if (globalThis.logLevel.isInfoEnabled) {
-                console.info(`${COMPONENT_NAME}|receives message|${conversationName}`, message);
-            }
-
-            switch (message.type) {
-                case InputMessageType.Configuration: {
-                    setAppConfig((prev) => {
-                        const appConfig = merge(prev, message.data);
-                        if (globalThis.logLevel.isDebugEnabled) {
-                            console.debug(`${COMPONENT_NAME}|appConfig`, appConfig);
-                        }
-                        // force new object, to enable react state change detection
-                        return { ...appConfig }
-                    })
-                    break;
-                }
-                case InputMessageType.Connect: {
-                    setConnect(true)
-                    break;
-                }
-                case InputMessageType.Conversation: {
-                    setConversationName(message.name)
-                    break;
-                }
-                case InputMessageType.Disconnect: {
-                    setConnect(false)
-                    break;
-                }
-                case InputMessageType.GuestData: {
-                    setGuestData(message.data)
-                    break;
-                }
-                case InputMessageType.Join: {
-                    setJoin(true)
-                    break;
-                }
-                case InputMessageType.Leave: {
-                    setJoin(false)
-                    break;
-                }
-                case InputMessageType.UserData: {
-                    setUserData(message.data)
-                    break;
-                }
-                default:
-                    if (globalThis.logLevel.isWarnEnabled) {
-                        console.warn(`${COMPONENT_NAME}|receiveMessage, unknown message.type ${message.type}.`);
-                    }
-            }
-        } catch (error) {
-            console.error(`${COMPONENT_NAME}|receiveMessage error`, error)
-        }
-    }, [conversationName]);
-
-    useEffect(() => {
-        window.addEventListener('message', receiveMessage, false);
-        return () => {
-            window.removeEventListener('message', receiveMessage);
-        }
-    }, [receiveMessage]);
-
-    useEffect(() => {
-        // Notify the application is ready to receive messages
-        setTimeout(() => {
-            window.parent.postMessage({
-                type: OutputMessageType.Ready
-            }, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
-        }, 100)
-    }, []);
 
     useEffect(() => {
         // To update <html lang='en'> attribute with correct language
