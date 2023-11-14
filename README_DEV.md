@@ -2,6 +2,20 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Cloning a Project with Submodules
+
+After normal clone, You must run two commands:
+
+`git submodule init`
+ 
+to initialize your local configuration file, and:
+
+`git submodule update`
+
+to fetch all the data from that project and check out the appropriate commit listed in the project.
+
+Or you might clone with `--recurse-submodules` option.
+
 ## Available Scripts
 
 In the project directory, you can run:
