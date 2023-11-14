@@ -46,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "@apirtc/shared-types": "file:./shared-types",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -59,6 +60,9 @@
     "gh-pages": "^5.0.0",
     "react-scripts": "^5.0.1",
     "typedoc": "^0.25.1",
+    "typescript": "^5.2.2"
+  },
+  "overrides": {
     "typescript": "^5.2.2"
   }
 }

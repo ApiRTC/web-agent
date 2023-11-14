@@ -18,8 +18,10 @@ import Stack from '@mui/material/Stack';
 import { encode as base64_encode } from 'base-64';
 import debounce from 'lodash.debounce';
 
-import { GetOrCreateConversationOptions, JoinOptions, PublishOptions, Session } from '@apirtc/apirtc';
+import { PublishOptions, Session } from '@apirtc/apirtc';
 import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
+
+import { InvitationData } from '@apirtc/shared-types';
 
 import { AppContext } from './AppContext';
 import { OutputMessageType } from './MessageTypes';
@@ -28,29 +30,6 @@ import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { DEFAULT_LOG_LEVEL } from './public-constants';
 
 declare var apiRTC: any;
-
-// WARN : to be kept in sync with web-guest / z-visio code
-//
-type InvitationData = {
-    cloudUrl?: string;
-    apiKey?: string;
-    // TBD: this might become an ApiRTC platform configuration instead (per apiKey or even per userAgent id).
-    callStatsMonitoringInterval?: number;
-    conversation: {
-        name: string; friendlyName?: string;
-        //moderationEnabled?: boolean;;
-        getOrCreateOptions?: GetOrCreateConversationOptions;
-        joinOptions?: JoinOptions;
-    };
-    user: {
-        firstName: string; lastName: string;
-    }
-    streams: Array<{
-        type: 'user-media' | 'display-media',
-        constraints?: MediaStreamConstraints,
-        publishOptions?: PublishOptions
-    }>;
-};
 
 const EMPTY_STRING = '';
 const FACING_MODES = ['user', 'environment'];
