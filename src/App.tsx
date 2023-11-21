@@ -24,6 +24,7 @@ import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@
 
 import LogRocket from 'logrocket';
 
+import Link from '@mui/material/Link';
 import { AppContext } from './AppContext';
 import { Invitation } from "./Invitation";
 import { OutputMessageType } from './MessageTypes';
@@ -37,6 +38,7 @@ export type TimelineEvent = {
     severity: AlertColor,
     contact: Contact,
     message: string,
+    dataUrl?: string,
     dateTime: Date
 };
 
@@ -283,6 +285,7 @@ export function App(inProps: AppProps) {
     }, [stream])
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
+        setTimelineEvents((l_timelines) => [{ severity: 'info', contact, message: `snapshot`, dataUrl, dateTime: new Date() }, ...l_timelines])
         return new Promise<void>((resolve, reject) => {
             const message = {
                 type: OutputMessageType.Snapshot,
@@ -298,7 +301,7 @@ export function App(inProps: AppProps) {
             }
             resolve();
         });
-    }, []);
+    }, [setTimelineEvents]);
 
     const onSubscribedStreamsLengthChange = (length: number) => {
         setHasSubscribedStreams(length > 0)
@@ -325,6 +328,20 @@ export function App(inProps: AppProps) {
             })
         }
     }, [hasSubscribedStreams])
+
+    const renderTimelineEventMessage = (event: TimelineEvent) => {
+        const dateTimeString = event.dateTime.toLocaleString();
+        const name = event.contact.getUserData().get('firstName');
+        if (event.dataUrl) {
+            const filename = `${event.dateTime.getUTCFullYear()}${event.dateTime.getUTCMonth()}${event.dateTime.getDate()}_${event.dateTime.toLocaleTimeString()}_${name}_${event.message}.png`.replaceAll(':', '-');
+            // console.log(filename)
+            return <>{dateTimeString}&nbsp;:&nbsp;
+                <Link href={event.dataUrl} underline='none' download={filename}>
+                    {event.message}</Link>&nbsp;from&nbsp;{name}</>
+        } else {
+            return `${dateTimeString} : ${name} ${event.message}`
+        }
+    };
 
     const renderMenuContent = () => {
         switch (menuValue) {
@@ -395,8 +412,8 @@ export function App(inProps: AppProps) {
                         {timelineEvents.length === 0 ?
                             <Alert key={0} variant='outlined' severity='info'>no events yet</Alert> :
                             timelineEvents.map((event: TimelineEvent, index: number) =>
-                                <Alert key={index} variant='outlined' severity={event.severity}>{`${event.contact.getUserData().get('firstName')} ${event.message} at ${event.dateTime.toLocaleString()}`}</Alert>
-                            )}
+                                <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEventMessage(event)}</Alert>)
+                        }
                     </Stack>
                 </Box>
             default:
