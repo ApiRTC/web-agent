@@ -83,13 +83,6 @@ enum MenuValues {
     Timeline = 'timeline'
 }
 
-const postResize = () => {
-    // Notify parent about resize
-    window.parent.postMessage({
-        type: OutputMessageType.Resize
-    }, '*')
-};
-
 export type AppProps = {
     invitationLabel?: string,
     timelineLabel?: string,
@@ -147,8 +140,10 @@ export function App(inProps: AppProps) {
         registerInformation,
         (error) => {
             console.error(`${COMPONENT_NAME}|useSession error`, error)
-            //client.invoke('notify', `ApiRtc session failed`, 'error')
-            notify('error', `ApiRtc session failed`)
+            notify({
+                type: OutputMessageType.Error,
+                reason: `ApiRTC session failed`
+            })
         });
 
     const { userMediaDevices,
@@ -208,7 +203,10 @@ export function App(inProps: AppProps) {
     const [menuValue, setMenuValue] = useState<MenuValues | undefined>(MenuValues.Invite);
     const handleMenu = (event: React.MouseEvent<HTMLElement>, newValue: MenuValues) => {
         setMenuValue(newValue);
-        postResize();
+        // Notify parent resize might be relevant
+        notify({
+            type: OutputMessageType.Resize
+        })
     };
 
     useEffect(() => {
@@ -269,20 +267,23 @@ export function App(inProps: AppProps) {
     useEffect(() => {
         // Notify about Conversation join status
         if (joined) {
-            window.parent.postMessage({
+            notify({
                 type: OutputMessageType.Joined
-            }, '*')
+            })
             return () => {
-                window.parent.postMessage({
+                notify({
                     type: OutputMessageType.Left
-                }, '*')
+                })
             }
         }
-    }, [joined])
+    }, [notify, joined])
 
     useEffect(() => {
-        postResize();
-    }, [stream])
+        // Notify parent resize might be necessary
+        notify({
+            type: OutputMessageType.Resize
+        })
+    }, [notify, stream])
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         // Record timeline event for snapshot
@@ -297,21 +298,21 @@ export function App(inProps: AppProps) {
                 },
                 dataUrl
             };
-            window.parent.postMessage(message, '*')
+            notify(message)
             if (globalThis.logLevel.isDebugEnabled) {
                 console.debug(`${COMPONENT_NAME}|onSnapshot postMessage done`, message)
             }
             resolve();
         });
-    }, [setTimelineEvents]);
+    }, [notify, setTimelineEvents]);
 
     const onSubscribedStreamsLengthChange = (length: number) => {
         setHasSubscribedStreams(length > 0)
         // Notify
-        window.parent.postMessage({
+        notify({
             type: OutputMessageType.SubscribedStreams,
             length,
-        }, '*')
+        })
     };
 
     useEffect(() => {
@@ -463,7 +464,11 @@ export function App(inProps: AppProps) {
             conversation={conversation}
             stream={stream}
             onSnapshot={onSnapshot}
-            onDisplayChange={postResize}
+            onDisplayChange={() => {
+                notify({
+                    type: OutputMessageType.Resize
+                })
+            }}
             onSubscribedStreamsLengthChange={onSubscribedStreamsLengthChange}
         />}
     </>

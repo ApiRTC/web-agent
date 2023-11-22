@@ -212,7 +212,11 @@ Thanks`
                 }
                 setInvitationLink(encodeURI(`${appConfig.guestUrl}?i=${body.id}${logLevel}${logRocket}`))
             }).catch((error) => {
-                notify('error', `Failed to create short link: received ${error}`)
+                notify({
+                    type: OutputMessageType.Warning,
+                    reason: `Failed to create short link: received ${error}`
+                })
+
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.warn(`${COMPONENT_NAME}|failed to get short link, using long instead`, error)
                 }
@@ -222,21 +226,20 @@ Thanks`
                 setInvitationLink(undefined)
             }
         }
-    }, [appConfig, invitationData, notify]) //session
+    }, [notify, appConfig, invitationData]) //session
 
     const doCopyLink = useCallback(() => {
         if (invitationLink) {
             // Copy to clipboard
             navigator.clipboard.writeText(invitationLink);
 
-            // Notify
-            window.parent.postMessage({
+            notify({
                 type: OutputMessageType.LinkCopied,
                 name: guestName,
                 link: invitationLink
-            }, '*')
+            })
         }
-    }, [guestName, invitationLink]);
+    }, [notify, guestName, invitationLink]);
 
     // Using ApiRTC cloud authenticated api
     const doSendSms = useCallback(() => {
@@ -270,30 +273,30 @@ Thanks`
                 if (globalThis.logLevel.isInfoEnabled) {
                     console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
                 }
-                // Notify
-                window.parent.postMessage({
+
+                notify({
                     type: OutputMessageType.SmsSent,
                     name: name,
                     phone: phone,
                     link: link
-                }, '*')
+                })
             }).catch((error) => {
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.error(`${COMPONENT_NAME}|send sms failed`, smsFailText, error)
                 }
-                // Notify
-                window.parent.postMessage({
+
+                notify({
                     type: OutputMessageType.SmsFail,
                     name: name,
                     phone: phone,
                     link: link
-                }, '*')
+                })
             }).finally(() => {
                 setSending(false)
             })
 
         }
-    }, [appConfig, phone, name, invitationLink, sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
+    }, [notify, appConfig, phone, name, invitationLink, sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)

@@ -11,7 +11,7 @@ export const AppContext = createContext<
         connect: boolean,
         join: boolean,
         conversationName: string | undefined,
-        notify: (level: 'info' | 'error' | 'warn', message: string) => void
+        notify: (message: any) => void
     }>(
         {
             audio: true,

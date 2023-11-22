@@ -61,6 +61,10 @@ enum RequestParameters {
     userId = 'uId'
 }
 
+const notify = (message: any) => {
+    window.parent.postMessage(message, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
+};
+
 const COMPONENT_NAME = "Wrapper";
 export function Wrapper() {
 
@@ -224,9 +228,9 @@ export function Wrapper() {
         window.addEventListener('message', receiveMessage, false);
 
         // Notify the application is ready to receive messages
-        window.parent.postMessage({
+        notify({
             type: OutputMessageType.Ready
-        }, '*')// '*') | window.parent.origin -> DOMException: Permission denied to access property "origin" 
+        })
 
         return () => {
             window.removeEventListener('message', receiveMessage);
@@ -297,7 +301,7 @@ export function Wrapper() {
             userData,
             guestData,
             join, connect,
-            conversationName, notify: () => { }
+            conversationName, notify
         }}>
             <App />
         </AppContext.Provider>

@@ -10,6 +10,7 @@ export enum InputMessageType {
 }
 
 export enum OutputMessageType {
+    Error = 'error',
     Joined = 'joined',
     Left = 'left',
     LinkCopied = 'link_copied',
@@ -19,4 +20,5 @@ export enum OutputMessageType {
     SmsFail = 'sms_fail',
     Snapshot = 'snapshot',
     SubscribedStreams = 'subscribed_streams',
+    Warning = 'warning'
 }
