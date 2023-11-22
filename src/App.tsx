@@ -178,15 +178,15 @@ export function App(inProps: AppProps) {
     const [timelineEvents, setTimelineEvents] = useState<Array<TimelineEvent>>([]);
     const addTimelineEvent = useCallback((event: TimelineEvent) => {
         setTimelineEvents((l_timelines) => [event, ...l_timelines])
-    }, [setTimelineEvents]);
+    }, []);
 
     // use useCallbacks here to avoid useConversationContacts re-renders
     const onContactJoined = useCallback((contact: Contact) => {
-        setTimelineEvents((l_timelines) => [{ severity: 'info', name: contact.getUserData().get('firstName'), message: `enters app`, dateTime: new Date() }, ...l_timelines])
-    }, [setTimelineEvents]);
+        addTimelineEvent({ severity: 'info', name: contact.getUserData().get('firstName'), message: `enters app`, dateTime: new Date() })
+    }, [addTimelineEvent]);
     const onContactLeft = useCallback((contact: Contact) => {
-        setTimelineEvents((l_timelines) => [{ severity: 'warning', name: contact.getUserData().get('firstName'), message: `left`, dateTime: new Date() }, ...l_timelines])
-    }, [setTimelineEvents]);
+        addTimelineEvent({ severity: 'warning', name: contact.getUserData().get('firstName'), message: `left`, dateTime: new Date() })
+    }, [addTimelineEvent]);
 
     //const { contacts } =
     useConversationContacts(conversation, onContactJoined, onContactLeft);
@@ -237,13 +237,12 @@ export function App(inProps: AppProps) {
 
                 switch (content.type) {
                     case 'timeline-event':
-                        setTimelineEvents((l_events) => [
-                            {
-                                severity: 'info',
-                                name: sender.getUserData().get('firstName'),
-                                message: `${content.event}`,
-                                dateTime: new Date()
-                            }, ...l_events])
+                        addTimelineEvent({
+                            severity: 'info',
+                            name: sender.getUserData().get('firstName'),
+                            message: `${content.event}`,
+                            dateTime: new Date()
+                        })
                         break;
                     default:
                         if (globalThis.logLevel.isWarnEnabled) {
@@ -257,7 +256,7 @@ export function App(inProps: AppProps) {
                 conversation.removeListener('data', onData);
             };
         }
-    }, [conversation]);
+    }, [conversation, addTimelineEvent]);
 
     useEffect(() => {
         // Notify about Conversation join status
@@ -282,7 +281,7 @@ export function App(inProps: AppProps) {
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         // Record timeline event for snapshot
-        setTimelineEvents((l_timelines) => [{ severity: 'info', name: contact.getUserData().get('firstName'), message: `snapshot`, dataUrl, dateTime: new Date() }, ...l_timelines])
+        addTimelineEvent({ severity: 'info', name: contact.getUserData().get('firstName'), message: `snapshot`, dataUrl, dateTime: new Date() })
         // notify parent
         return new Promise<void>((resolve) => {
             const message = {
@@ -299,7 +298,7 @@ export function App(inProps: AppProps) {
             }
             resolve();
         });
-    }, [notify, setTimelineEvents]);
+    }, [notify, addTimelineEvent]);
 
     const onSubscribedStreamsLengthChange = (length: number) => {
         setHasSubscribedStreams(length > 0)
