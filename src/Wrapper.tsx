@@ -299,7 +299,7 @@ export function Wrapper() {
             audio,
             appConfig,
             userData,
-            guestData,
+            guestData, setGuestData,
             join, connect,
             conversationName, notify
         }}>

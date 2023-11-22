@@ -81,7 +81,7 @@ export type InvitationProps = {
 const COMPONENT_NAME = "Invitation";
 export function Invitation(inProps: InvitationProps) {
 
-    const { appConfig, audio: allowAudio, guestData, notify } = useContext(AppContext);
+    const { appConfig, audio: allowAudio, guestData, setGuestData, notify } = useContext(AppContext);
     const { addTimelineEvent } = useContext(TimelineContext);
 
     const installationId = appConfig.installationId;
@@ -120,10 +120,7 @@ Thanks`
 
     // name to handle typing
     const [name, setName] = useState<string>(guestData?.name || EMPTY_STRING);
-    // guestName is the debounced name
-    const [guestName, setGuestName] = useState<string>(guestData?.name || EMPTY_STRING);
-    // const [email, setEmail] = useState<string>(EMPTY_STRING);
-    const [phone, setPhone] = useState<string>(guestData?.phone || EMPTY_STRING);
+
     const [publishOptions, setPublishOptions] = useState<PublishOptions>(allowAudio ? storageToPublishOptions(`${installationId}.guest.publishOptions`) : { videoOnly: true });
     const { value: facingMode, index: facingModeIndex,
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
@@ -136,10 +133,6 @@ Thanks`
     useEffect(() => {
         if (guestData?.name) {
             setName(guestData.name)
-            setGuestName(guestData.name)
-        }
-        if (guestData?.phone) {
-            setPhone(guestData.phone)
         }
     }, [guestData])
 
@@ -149,7 +142,7 @@ Thanks`
     }, [installationId, publishOptions, facingMode])
 
     const invitationData: InvitationData | undefined = useMemo(() => {
-        return guestName && guestName !== EMPTY_STRING ? {
+        return guestData?.name && guestData.name !== EMPTY_STRING ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
             callStatsMonitoringInterval: appConfig.apiRtc.callStatsMonitoringInterval,
@@ -163,7 +156,7 @@ Thanks`
                 joinOptions: { ...CODECS } as any // 'as any' because supportedVideoCodecs is not in apirtc typings
             },
             user: {
-                firstName: guestName,
+                firstName: guestData.name,
                 lastName: "",
             },
             streams: [
@@ -186,7 +179,7 @@ Thanks`
                 // }
             ]
         } : undefined;
-    }, [appConfig, props.conversationName, guestName, facingMode, publishOptions]);
+    }, [appConfig, props.conversationName, guestData?.name, facingMode, publishOptions]);
 
     useEffect(() => {
         if (globalThis.logLevel.isDebugEnabled) {
@@ -245,15 +238,16 @@ Thanks`
 
             notify({
                 type: OutputMessageType.LinkCopied,
-                name: guestName,
+                name: guestData?.name,
                 link: invitationLink
             })
         }
-    }, [notify, guestName, invitationLink]);
+    }, [notify, guestData, invitationLink]);
 
     // Using ApiRTC cloud authenticated api
     const doSendSms = useCallback(() => {
-        if (phone !== "" && invitationLink) {
+        const phone = guestData?.phone || EMPTY_STRING;
+        if (guestData?.name && phone !== EMPTY_STRING && invitationLink) {
             const url = `${appConfig.apiRtc.cloudUrl ?? 'https://cloud.apirtc.com'}/api/text-message`;
             setSending(true)
             // client.request(options).then((data: any) => {
@@ -269,7 +263,7 @@ Thanks`
                 },
                 body: JSON.stringify({
                     to: [phone],
-                    body: getSmsText(name, invitationLink)
+                    body: getSmsText(guestData?.name, invitationLink)
                 }),
             }).then(response => {
                 if (response.ok) {
@@ -280,10 +274,10 @@ Thanks`
                 if (globalThis.logLevel.isInfoEnabled) {
                     console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
                 }
-                addTimelineEvent({ severity: 'info', name, message: `sms sent`, dateTime: new Date() })
+                addTimelineEvent({ severity: 'info', name: guestData.name, message: `sms sent`, dateTime: new Date() })
                 notify({
                     type: OutputMessageType.SmsSent,
-                    name: name,
+                    name: guestData?.name,
                     phone: phone,
                     link: invitationLink
                 })
@@ -291,10 +285,10 @@ Thanks`
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.error(`${COMPONENT_NAME}|send sms failed`, smsFailText, error)
                 }
-                addTimelineEvent({ severity: 'error', name, message: `sms send failure`, dateTime: new Date() })
+                addTimelineEvent({ severity: 'error', name: guestData?.name, message: `sms send failure`, dateTime: new Date() })
                 notify({
                     type: OutputMessageType.SmsFail,
-                    name: name,
+                    name: guestData?.name,
                     phone: phone,
                     link: invitationLink
                 })
@@ -303,7 +297,7 @@ Thanks`
             })
         }
     }, [notify,
-        appConfig, phone, name, invitationLink,
+        appConfig, guestData, invitationLink,
         addTimelineEvent,
         sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
 
@@ -320,7 +314,9 @@ Thanks`
     // Use memoized debounce with useCallback.
     // Without useCallback the debounce function would not sync with the next key stroke.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const debouncedSetGuestName = useCallback(debounce(setGuestName, 500), []);
+    //const debouncedSetGuestName = useCallback(debounce(setGuestName, 500), []);
+    const debouncedSetGuestName = useCallback(debounce((value) => { setGuestData((prev) => { return { ...prev, name: value } }) }, 500), []);
+    // guestData.name
     // Clean it up when component unmounts
     useEffect(() => {
         return () => {
@@ -332,8 +328,8 @@ Thanks`
         event.preventDefault()
         // set name so that what is typed is rendered immediately
         setName(event.target.value)
-        // if something is typed the current link must be invalidated
-        setGuestName(EMPTY_STRING)
+        // if something is typed the current link must be invalidated, by setting name to EMPTY_STRING
+        setGuestData((prev) => { return { ...prev, name: EMPTY_STRING } })
         // Finally manage guestName setting through debounce.
         debouncedSetGuestName(event.target.value)
     };
@@ -385,8 +381,11 @@ Thanks`
                 direction="row" spacing={1}>
                 <Input data-testid="phone-input" size="small" placeholder={phonePlaceholder}
                     type='tel'
-                    value={phone} onChange={e => setPhone(e.target.value)} />
-                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!invitationLink || !name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
+                    value={guestData?.phone} onChange={e =>
+                        // set phone in guestData
+                        setGuestData((prev) => { return { ...prev, phone: e.target.value } })
+                    } />
+                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!invitationLink || !guestData?.name || !guestData?.phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
             </Stack>
         </form>
     </Box >

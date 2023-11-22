@@ -19,8 +19,7 @@ export type AppConfig = {
 // Needs more standardization probably !
 export type TimelineEvent = {
     severity: 'success' | 'info' | 'warning' | 'error',
-    //contact: Contact,
-    name: string,
+    name: string | undefined,
     message: string,
     dataUrl?: string,
     dateTime: Date

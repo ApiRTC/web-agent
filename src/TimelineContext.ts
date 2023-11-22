@@ -1,10 +1,8 @@
-// import React from "react";
 import { createContext } from "react";
+
 import { TimelineEvent } from "./types";
 
 export const TimelineContext = createContext<{
-    // timelineEvents: Array<TimelineEvent>;
-    // setTimelineEvents: React.Dispatch<React.SetStateAction<Array<TimelineEvent>>>;
     addTimelineEvent: (event: TimelineEvent) => void;
 }>({ addTimelineEvent: () => { } });
 
