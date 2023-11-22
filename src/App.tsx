@@ -285,8 +285,10 @@ export function App(inProps: AppProps) {
     }, [stream])
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
+        // Record timeline event for snapshot
         setTimelineEvents((l_timelines) => [{ severity: 'info', contact, message: `snapshot`, dataUrl, dateTime: new Date() }, ...l_timelines])
-        return new Promise<void>((resolve, reject) => {
+        // notify parent
+        return new Promise<void>((resolve) => {
             const message = {
                 type: OutputMessageType.Snapshot,
                 contact: {
@@ -329,7 +331,7 @@ export function App(inProps: AppProps) {
         }
     }, [hasSubscribedStreams])
 
-    const renderTimelineEventMessage = (event: TimelineEvent) => {
+    const renderTimelineEvent = (event: TimelineEvent) => {
         const dateTimeString = event.dateTime.toLocaleString();
         const name = event.contact.getUserData().get('firstName');
         if (event.dataUrl) {
@@ -412,7 +414,7 @@ export function App(inProps: AppProps) {
                         {timelineEvents.length === 0 ?
                             <Alert key={0} variant='outlined' severity='info'>no events yet</Alert> :
                             timelineEvents.map((event: TimelineEvent, index: number) =>
-                                <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEventMessage(event)}</Alert>)
+                                <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEvent(event)}</Alert>)
                         }
                     </Stack>
                 </Box>
