@@ -11,10 +11,11 @@ import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
-import Alert, { AlertColor } from '@mui/material/Alert';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -24,23 +25,14 @@ import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@
 
 import LogRocket from 'logrocket';
 
-import Link from '@mui/material/Link';
 import { AppContext } from './AppContext';
 import { Invitation } from "./Invitation";
 import { OutputMessageType } from './MessageTypes';
 import { Room } from "./Room";
+import { TimelineContext } from './TimelineContext';
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
-
-// TODO: publish timeline events with postMessage for iframe host to know about them !
-// Needs more standardization probably !
-export type TimelineEvent = {
-    severity: AlertColor,
-    contact: Contact,
-    message: string,
-    dataUrl?: string,
-    dateTime: Date
-};
+import { TimelineEvent } from './types';
 
 const SETTINGS_THEME = createTheme({
     components: {
@@ -184,13 +176,16 @@ export function App(inProps: AppProps) {
     // R&D: local timeline events
     //
     const [timelineEvents, setTimelineEvents] = useState<Array<TimelineEvent>>([]);
+    const addTimelineEvent = useCallback((event: TimelineEvent) => {
+        setTimelineEvents((l_timelines) => [event, ...l_timelines])
+    }, [setTimelineEvents]);
 
     // use useCallbacks here to avoid useConversationContacts re-renders
     const onContactJoined = useCallback((contact: Contact) => {
-        setTimelineEvents((l_timelines) => [{ severity: 'info', contact, message: `enters app`, dateTime: new Date() }, ...l_timelines])
+        setTimelineEvents((l_timelines) => [{ severity: 'info', name: contact.getUserData().get('firstName'), message: `enters app`, dateTime: new Date() }, ...l_timelines])
     }, [setTimelineEvents]);
     const onContactLeft = useCallback((contact: Contact) => {
-        setTimelineEvents((l_timelines) => [{ severity: 'warning', contact, message: `left`, dateTime: new Date() }, ...l_timelines])
+        setTimelineEvents((l_timelines) => [{ severity: 'warning', name: contact.getUserData().get('firstName'), message: `left`, dateTime: new Date() }, ...l_timelines])
     }, [setTimelineEvents]);
 
     //const { contacts } =
@@ -245,7 +240,7 @@ export function App(inProps: AppProps) {
                         setTimelineEvents((l_events) => [
                             {
                                 severity: 'info',
-                                contact: sender,
+                                name: sender.getUserData().get('firstName'),
                                 message: `${content.event}`,
                                 dateTime: new Date()
                             }, ...l_events])
@@ -287,7 +282,7 @@ export function App(inProps: AppProps) {
 
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         // Record timeline event for snapshot
-        setTimelineEvents((l_timelines) => [{ severity: 'info', contact, message: `snapshot`, dataUrl, dateTime: new Date() }, ...l_timelines])
+        setTimelineEvents((l_timelines) => [{ severity: 'info', name: contact.getUserData().get('firstName'), message: `snapshot`, dataUrl, dateTime: new Date() }, ...l_timelines])
         // notify parent
         return new Promise<void>((resolve) => {
             const message = {
@@ -334,7 +329,8 @@ export function App(inProps: AppProps) {
 
     const renderTimelineEvent = (event: TimelineEvent) => {
         const dateTimeString = event.dateTime.toLocaleString();
-        const name = event.contact.getUserData().get('firstName');
+        //const name = event.contact.getUserData().get('firstName');
+        const name = event.name;
         if (event.dataUrl) {
             const filename = `${event.dateTime.getUTCFullYear()}${event.dateTime.getUTCMonth()}${event.dateTime.getDate()}_${event.dateTime.toLocaleTimeString()}_${name}_${event.message}.png`.replaceAll(':', '-');
             // console.log(filename)
@@ -425,7 +421,7 @@ export function App(inProps: AppProps) {
         }
     }
 
-    return <>
+    return <TimelineContext.Provider value={{ addTimelineEvent }}>
         <Stack direction="row" sx={{ px: 1, py: 1 }}
             justifyContent="center" alignItems="center">
             {/* <Icon>
@@ -471,5 +467,5 @@ export function App(inProps: AppProps) {
             }}
             onSubscribedStreamsLengthChange={onSubscribedStreamsLengthChange}
         />}
-    </>
+    </TimelineContext.Provider>
 }

@@ -1,3 +1,4 @@
+
 export type ApiRtcSettings = {
     apiKey?: string,
     cloudUrl: string,
@@ -12,6 +13,17 @@ export type AppConfig = {
     invitationServiceUrl: string,
     logLevel: string,
     logRocketAppID: string | undefined
+};
+
+// TODO: publish timeline events with postMessage for iframe host to know about them !
+// Needs more standardization probably !
+export type TimelineEvent = {
+    severity: 'success' | 'info' | 'warning' | 'error',
+    //contact: Contact,
+    name: string,
+    message: string,
+    dataUrl?: string,
+    dateTime: Date
 };
 
 export type UserData = {

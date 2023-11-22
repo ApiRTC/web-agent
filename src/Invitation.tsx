@@ -25,6 +25,7 @@ import { InvitationData } from '@apirtc/shared-types';
 
 import { AppContext } from './AppContext';
 import { OutputMessageType } from './MessageTypes';
+import { TimelineContext } from './TimelineContext';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { DEFAULT_LOG_LEVEL } from './public-constants';
@@ -81,6 +82,7 @@ const COMPONENT_NAME = "Invitation";
 export function Invitation(inProps: InvitationProps) {
 
     const { appConfig, audio: allowAudio, guestData, notify } = useContext(AppContext);
+    const { addTimelineEvent } = useContext(TimelineContext);
 
     const installationId = appConfig.installationId;
 
@@ -243,10 +245,7 @@ Thanks`
 
     // Using ApiRTC cloud authenticated api
     const doSendSms = useCallback(() => {
-
-        const link = invitationLink;
-
-        if (phone !== "" && link) {
+        if (phone !== "" && invitationLink) {
             const url = `${appConfig.apiRtc.cloudUrl ?? 'https://cloud.apirtc.com'}/api/text-message`;
             setSending(true)
             // client.request(options).then((data: any) => {
@@ -262,7 +261,7 @@ Thanks`
                 },
                 body: JSON.stringify({
                     to: [phone],
-                    body: getSmsText(name, link)
+                    body: getSmsText(name, invitationLink)
                 }),
             }).then(response => {
                 if (response.ok) {
@@ -273,30 +272,32 @@ Thanks`
                 if (globalThis.logLevel.isInfoEnabled) {
                     console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
                 }
-
+                addTimelineEvent({ severity: 'info', name, message: `sms sent`, dateTime: new Date() })
                 notify({
                     type: OutputMessageType.SmsSent,
                     name: name,
                     phone: phone,
-                    link: link
+                    link: invitationLink
                 })
             }).catch((error) => {
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.error(`${COMPONENT_NAME}|send sms failed`, smsFailText, error)
                 }
-
+                addTimelineEvent({ severity: 'error', name, message: `sms send failure`, dateTime: new Date() })
                 notify({
                     type: OutputMessageType.SmsFail,
                     name: name,
                     phone: phone,
-                    link: link
+                    link: invitationLink
                 })
             }).finally(() => {
                 setSending(false)
             })
-
         }
-    }, [notify, appConfig, phone, name, invitationLink, sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
+    }, [notify,
+        appConfig, phone, name, invitationLink,
+        addTimelineEvent,
+        sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -377,7 +378,7 @@ Thanks`
                 <Input data-testid="phone-input" size="small" placeholder={phonePlaceholder}
                     type='tel'
                     value={phone} onChange={e => setPhone(e.target.value)} />
-                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
+                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!invitationLink || !name || !phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
             </Stack>
         </form>
     </Box >
