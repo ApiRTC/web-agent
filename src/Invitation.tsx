@@ -195,7 +195,14 @@ Thanks`
         const logLevel = appConfig.logLevel && appConfig.logLevel !== DEFAULT_LOG_LEVEL ? `&lL=${appConfig.logLevel}` : '';
         const logRocket = appConfig.logRocketAppID ? encodeURI(`&lRAppID=${appConfig.logRocketAppID}`) : '';
         if (invitationData) {
+            // fetch timeout
+            // By default, fetch timeout is 90s on FF and 300s on Chrome.
+            // This might be too much to wait before going to long link fallback
+            // so we use an AbortController set with 10 seconds delay.
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10 * 1000);
             fetch(appConfig.invitationServiceUrl, {
+                signal: controller.signal,
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${apiRTC.session.JWTApzToken}`,
@@ -218,11 +225,12 @@ Thanks`
                     type: OutputMessageType.Warning,
                     reason: `Failed to create short link: received ${error}`
                 })
-
                 if (globalThis.logLevel.isWarnEnabled) {
                     console.warn(`${COMPONENT_NAME}|failed to get short link, using long instead`, error)
                 }
                 setInvitationLink(encodeURI(`${appConfig.guestUrl}?i=${base64_encode(JSON.stringify(invitationData))}${logLevel}${logRocket}`))
+            }).finally(() => {
+                clearTimeout(timeoutId)
             })
             return () => {
                 setInvitationLink(undefined)
