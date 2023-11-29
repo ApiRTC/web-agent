@@ -63,9 +63,9 @@ To enable such **real-time interaction**, the **web-agent** application implemen
 In order for host application to receive messages from **web-agent**, it has to register a **window** listener for _message_ events:
 
 ```js
-const IFRAME_HOST = "https://apirtc.github.io";
+const WEB_AGENT_APP_ORIGIN = "https://apirtc.github.io";
 const receiveMessage = (event) => {
-  if (event.origin !== IFRAME_HOST) return;
+  if (event.origin !== WEB_AGENT_APP_ORIGIN) return;
 
   const message = event.data;
 
@@ -94,13 +94,16 @@ The actual **message** is an object in _event.data_. A **message** has a _type_ 
 
 | message type       | field(s)         | Description                                                                   |
 | ------------------ | ---------------- | ----------------------------------------------------------------------------- |
+| error              | reason           | an error happened                                                             |
 | joined             | N/A              | **Conversation** was joined                                                   |
 | left               | N/A              | **Conversation** was left                                                     |
+| link_copied        | name, link       | user copied invitation link to clipboard                                      |
 | ready              | N/A              | notifies when **web-agent** is ready to receive messages                      |
 | sms_fail           | phone,name,link  | notifies when an sms post failed                                              |
 | sms_sent           | phone,name,link  | notifies an sms has been sent                                                 |
 | snapshot           | contact, dataUrl | notifies when a snapshot taken on a **Stream** from a **Contact** is received |
 | subscribed_streams | length           | fired every time the number of subscribed streams changes                     |
+| warning            | reason           | a warning happened                                                            |
 
 ### Host to web-agent communication
 
@@ -112,7 +115,7 @@ iframe.contentWindow.postMessage(
     type: "conversation",
     name: "new_conversation_name",
   },
-  IFRAME_HOST
+  WEB_AGENT_APP_ORIGIN
 );
 ```
 
