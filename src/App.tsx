@@ -25,10 +25,11 @@ import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@
 
 import LogRocket from 'logrocket';
 
+import { Invitation } from './Invitation';
+import { Room } from './Room';
+
 import { AppContext } from './AppContext';
-import { Invitation } from "./Invitation";
 import { OutputMessageType } from './MessageTypes';
-import { Room } from "./Room";
 import { TimelineContext } from './TimelineContext';
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
@@ -43,24 +44,17 @@ const SETTINGS_THEME = createTheme({
                     style: {
                         padding: 4,
                         margin: 2,
-                        // color: '#111313',
-                        // backgroundColor: '#F76B40',
-                        // borderRadius: '4px',
                         color: '#2E455C',
                         backgroundColor: '#F7F7F8',
                         borderRadius: '4px',
                         border: '2px solid #2E455C',
-                        // opacity: '75%',
                         ':hover': {
-                            //backgroundColor: '#F88562',
                             color: '#1D2C3A',
                             backgroundColor: 'D3DEE9',
-                            // opacity: '100%',
                         },
                         ':disabled': {
                             color: '#7A8085',
                             backgroundColor: '#CACCCE',
-                            // opacity: '75%',
                         }
                     },
                 },
@@ -82,8 +76,7 @@ export type AppProps = {
     audioOffTooltip?: string,
     audioOnTooltip?: string,
     videoOffTooltip?: string,
-    videoOnTooltip?: string,
-    // getSnapshotComment?: (name: string) => string,
+    videoOnTooltip?: string
 };
 const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
@@ -157,8 +150,9 @@ export function App(inProps: AppProps) {
 
     const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
         {
-            // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable), so the options object change
-            // and re-triggers rendering. To prevent this, build a constraints object using deviceId directly.
+            // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable),
+            // so the options object change and re-triggers rendering.
+            // To prevent this, build a constraints object using deviceId directly.
             //audioInputId: selectedAudioIn?.id,
             //videoInputId: selectedVideoIn?.id,
             constraints: constraints
@@ -328,11 +322,9 @@ export function App(inProps: AppProps) {
 
     const renderTimelineEvent = (event: TimelineEvent) => {
         const dateTimeString = event.dateTime.toLocaleString();
-        //const name = event.contact.getUserData().get('firstName');
         const name = event.name;
         if (event.dataUrl) {
             const filename = `${event.dateTime.getUTCFullYear()}${event.dateTime.getUTCMonth()}${event.dateTime.getDate()}_${event.dateTime.toLocaleTimeString()}_${name}_${event.message}.png`.replaceAll(':', '-');
-            // console.log(filename)
             return <>{dateTimeString}&nbsp;:&nbsp;
                 <Link href={event.dataUrl} underline='none' download={filename}>
                     {event.message}</Link>&nbsp;from&nbsp;{name}</>
@@ -388,7 +380,7 @@ export function App(inProps: AppProps) {
                             </Stack>
                         </Stack>
                     </Stack>
-                </MuiThemeProvider>;
+                </MuiThemeProvider>
             case MenuValues.Invite:
                 return <>
                     {connect && conversationName ?
@@ -418,7 +410,7 @@ export function App(inProps: AppProps) {
                 // do not display anything
                 return;
         }
-    }
+    };
 
     return <TimelineContext.Provider value={{ addTimelineEvent }}>
         <Stack direction="row" sx={{ px: 1, py: 1 }}
