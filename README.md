@@ -97,10 +97,10 @@ The actual **message** is an object in _event.data_. A **message** has a _type_ 
 | error              | reason           | an error happened                                                             |
 | joined             | N/A              | **Conversation** was joined                                                   |
 | left               | N/A              | **Conversation** was left                                                     |
-| link_copied        | name, link       | user copied invitation link to clipboard                                      |
+| link_copied        | name, link       | agent copied invitation **link** for guest **name** to clipboard              |
 | ready              | N/A              | notifies when **web-agent** is ready to receive messages                      |
 | sms_fail           | phone,name,link  | notifies when an sms post failed                                              |
-| sms_sent           | phone,name,link  | notifies an sms has been sent                                                 |
+| sms_sent           | phone,name,link  | notifies an sms has been sent to guest **name** and **phone** with **link**   |
 | snapshot           | contact, dataUrl | notifies when a snapshot taken on a **Stream** from a **Contact** is received |
 | subscribed_streams | length           | fired every time the number of subscribed streams changes                     |
 | warning            | reason           | a warning happened                                                            |
