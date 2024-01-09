@@ -76,16 +76,21 @@ export type AppProps = {
     audioOffTooltip?: string,
     audioOnTooltip?: string,
     videoOffTooltip?: string,
-    videoOnTooltip?: string
+    videoOnTooltip?: string,
+    contactJoined?: string,// (name: string) => string
+    contactLeft?: string
 };
 const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
 
     const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
     const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
-        audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On"
+        audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
+        contactJoined = "joined conversation", contactLeft = "left"
     } = props;
+
+    // contactJoined?: string | ((name: string) => string)
 
     const { appConfig, userData,
         audio,
@@ -160,6 +165,7 @@ export function App(inProps: AppProps) {
 
     const { conversation, joined } = useConversation(session, conversationName,
         {
+            // moderationEnabled: true, moderator: true,
             meshModeEnabled: true
         },
         join,
@@ -176,11 +182,11 @@ export function App(inProps: AppProps) {
 
     // use useCallbacks here to avoid useConversationContacts re-renders
     const onContactJoined = useCallback((contact: Contact) => {
-        addTimelineEvent({ severity: 'info', name: contact.getUserData().get('firstName'), message: `enters app`, dateTime: new Date() })
-    }, [addTimelineEvent]);
+        addTimelineEvent({ severity: 'info', name: contact.getUserData().get('firstName'), message: contactJoined, dateTime: new Date() })
+    }, [addTimelineEvent, contactJoined]);
     const onContactLeft = useCallback((contact: Contact) => {
-        addTimelineEvent({ severity: 'warning', name: contact.getUserData().get('firstName'), message: `left`, dateTime: new Date() })
-    }, [addTimelineEvent]);
+        addTimelineEvent({ severity: 'warning', name: contact.getUserData().get('firstName'), message: contactLeft, dateTime: new Date() })
+    }, [addTimelineEvent, contactLeft]);
 
     //const { contacts } =
     useConversationContacts(conversation, onContactJoined, onContactLeft);

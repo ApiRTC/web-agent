@@ -54,9 +54,9 @@ export type InvitationProps = {
     sendEmailText?: string,
     sentEmailText?: string,
     emailFailText?: string,
-    sendSmsText?: string,
-    sentSmsText?: string,
-    smsFailText?: string,
+    sendShortMsgText?: string,
+    shortMsgSentText?: string,
+    shortMsgFailText?: string,
     commentFailText?: string,
     facingModeText?: string,
     userFacingModeText?: string,
@@ -93,9 +93,9 @@ export function Invitation(inProps: InvitationProps) {
         // sendEmailText = "Send e-mail",
         // sentEmailText = "E-mail sent",
         // emailFailText = "Failed to send e-mail",
-        sendSmsText = "Send",
-        sentSmsText = "Sms sent",
-        smsFailText = "Failed to send sms",
+        sendShortMsgText = "Send",
+        shortMsgSentText = "Short-message sent",
+        shortMsgFailText = "Short-message failed",
         // commentFailText = "Failed add comment",
         copyLinkText = "Copy",
         openLinkText = "Open",
@@ -115,7 +115,7 @@ export function Invitation(inProps: InvitationProps) {
         // WARNING: do not put a character like '.' close to ${link} because it sometimes breaks the hyperlink (depending on devices)
         getSmsText = (name: string, link: string) => `Hello ${name},
 Please join at ${link}
-Thanks`
+Thanks`,
     } = props;
 
     // name to handle typing
@@ -272,9 +272,9 @@ Thanks`
                 throw new Error(response.statusText);
             }).then((body) => {
                 if (globalThis.logLevel.isInfoEnabled) {
-                    console.info(`${COMPONENT_NAME}|sms sent`, sentSmsText, getSmsSentComment(phone))
+                    console.info(`${COMPONENT_NAME}|sms sent`, shortMsgSentText, getSmsSentComment(phone))
                 }
-                addTimelineEvent({ severity: 'info', name: guestData.name, message: `sms sent`, dateTime: new Date() })
+                addTimelineEvent({ severity: 'info', name: guestData.name, message: shortMsgSentText, dateTime: new Date() })
                 notify({
                     type: OutputMessageType.SmsSent,
                     name: guestData?.name,
@@ -283,9 +283,9 @@ Thanks`
                 })
             }).catch((error) => {
                 if (globalThis.logLevel.isWarnEnabled) {
-                    console.error(`${COMPONENT_NAME}|send sms failed`, smsFailText, error)
+                    console.error(`${COMPONENT_NAME}|send sms failed`, shortMsgFailText, error)
                 }
-                addTimelineEvent({ severity: 'error', name: guestData?.name, message: `sms send failure`, dateTime: new Date() })
+                addTimelineEvent({ severity: 'error', name: guestData?.name, message: shortMsgFailText, dateTime: new Date() })
                 notify({
                     type: OutputMessageType.SmsFail,
                     name: guestData?.name,
@@ -299,7 +299,9 @@ Thanks`
     }, [notify,
         appConfig, guestData, invitationLink,
         addTimelineEvent,
-        sentSmsText, smsFailText, getSmsText, getSmsSentComment]);
+        shortMsgSentText, shortMsgFailText,
+        getSmsText, getSmsSentComment,
+    ]);
 
     // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     props.setModerationEnabled(event.target.checked)
@@ -386,7 +388,7 @@ Thanks`
                         // set phone in guestData
                         setGuestData((prev) => { return { ...prev, phone: e.target.value } })
                     } />
-                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!invitationLink || !guestData?.name || !guestData?.phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendSmsText}</Button>
+                <Button sx={{ minWidth: 120 }} variant='outlined' size="small" disabled={!invitationLink || !guestData?.name || !guestData?.phone || sending} onClick={doSendSms} startIcon={<SendIcon />}>{sendShortMsgText}</Button>
             </Stack>
         </form>
     </Box >

@@ -12,11 +12,13 @@ export const frFR: Localization = {
         App: {
             defaultProps: {
                 invitationLabel: "Invitation",
+                timelineLabel:"Evénements",
                 settingsLabel: "Paramètres",
                 audioOffTooltip: "Sans audio", audioOnTooltip: "Avec audio", videoOffTooltip: "Sans vidéo", videoOnTooltip: "Avec vidéo",
                 // audioInLabel: "Entrée audio", audioOutLabel: "Sortie audio", videoInLabel: "Entrée vidéo",
                 // getConversationDurationComment: (h: number, m: number, s: number) => `La conversation a duré ${hmsToString(h, m, s)}.`,
                 // getSnapshotComment: (name: string) => `Photo de ${name}.`
+                contactJoined: "a rejoint la conversation", contactLeft: "est parti"
             }
         },
         Invitation: {
@@ -24,10 +26,10 @@ export const frFR: Localization = {
                 copyLinkText: `Copier`,
                 openLinkText: 'Ouvrir',
                 sendEmailText: "Envoyer",
-                sendSmsText: "Envoyer",
+                sendShortMsgText: "Envoyer",
                 sentEmailText: "E-mel envoyé",
-                sentSmsText: "Sms envoyé",
-                emailFailText: "E-mel non envoyé", smsFailText: "Sms non envoyé",
+                shortMsgSentText: "Sms envoyé",
+                emailFailText: "E-mel non envoyé", shortMsgFailText: "Sms non envoyé",
                 commentFailText: "Commentaire non ajouté",
                 facingModeText: "Caméra",
                 userFacingModeText: "avant",

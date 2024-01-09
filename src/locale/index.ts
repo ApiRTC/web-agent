@@ -5,16 +5,17 @@ import { RoomProps } from "../Room";
 export default interface Localization {
     components?: {
         App?: {
-            defaultProps: Pick<AppProps, 'invitationLabel' | 'settingsLabel' |
-                'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip'
-            // 'audioInLabel' | 'audioOutLabel' | 'videoInLabel' |
-            // 'getConversationDurationComment' | 'getSnapshotComment'
+            defaultProps: Pick<AppProps, 'invitationLabel' | 'timelineLabel' | 'settingsLabel' |
+                'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip' |
+                // 'audioInLabel' | 'audioOutLabel' | 'videoInLabel' |
+                // 'getConversationDurationComment' | 'getSnapshotComment'
+                'contactJoined' | 'contactLeft'
             >;
         };
         Invitation?: {
             defaultProps: Pick<InvitationProps, 'copyLinkText' | 'openLinkText' |
-                'sendEmailText' | 'sendSmsText' | 'sentEmailText' | 'sentSmsText' |
-                'emailFailText' | 'smsFailText' |
+                'sendEmailText' | 'sentEmailText' | 'emailFailText' |
+                'sendShortMsgText' | 'shortMsgSentText' | 'shortMsgFailText' |
                 'commentFailText' |
                 'facingModeText' | 'userFacingModeText' | 'environmentFacingModeText' |
                 'namePlaceholder' | 'emailPlaceholder' | 'phonePlaceholder' |
