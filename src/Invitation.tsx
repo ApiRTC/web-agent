@@ -86,7 +86,7 @@ export function Invitation(inProps: InvitationProps) {
 
     const installationId = appConfig.installationId;
 
-    const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
+    const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const {
         // session,
         // moderationEnabledText = "Moderated",

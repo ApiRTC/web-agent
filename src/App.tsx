@@ -83,7 +83,7 @@ export type AppProps = {
 const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
 
-    const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
+    const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`

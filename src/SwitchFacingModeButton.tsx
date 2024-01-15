@@ -15,7 +15,7 @@ export interface SwitchFacingModeButtonProps extends IconButtonProps {
 const COMPONENT_NAME = "SwitchFacingModeButton";
 export function SwitchFacingModeButton(inProps: SwitchFacingModeButtonProps) {
 
-    const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
+    const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
 
     const { id = "switch-facing-mode-btn",
         tooltip = "Switch facing mode",

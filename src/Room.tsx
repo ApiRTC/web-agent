@@ -57,7 +57,7 @@ export type RoomProps = {
 const COMPONENT_NAME = "Room";
 export function Room(inProps: RoomProps) {
 
-    const props = useThemeProps({ props: inProps, name: `${COMPONENT_NAME}` });
+    const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const { conversation, stream,
         onDisplayChange,
         onSubscribedStreamsLengthChange,
@@ -244,7 +244,7 @@ export function Room(inProps: RoomProps) {
             <MuiThemeProvider theme={ROOM_THEME}>
                 <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                     {subscribedStreams.map((stream, index) =>
-                        <Stream id={'subscribed-stream-' + index} key={index}
+                        <Stream id={`subscribed-stream-${index}`} key={index}
                             sx={{
                                 ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
                             }}
@@ -291,7 +291,7 @@ export function Room(inProps: RoomProps) {
                 <MuiThemeProvider theme={ROOM_THEME}>
                     <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                         {publishedStreams.map((stream, index) =>
-                            <Stream id={'published-stream-' + index} key={index}
+                            <Stream id={`published-stream-${index}`} key={index}
                                 sx={{
                                     ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
                                 }}
