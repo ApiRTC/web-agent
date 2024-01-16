@@ -279,9 +279,24 @@ export function App(inProps: AppProps) {
         })
     }, [notify, stream])
 
+    useEffect(() => {
+        if (stream) {
+            stream.on('trackStopped', (event: any) => {
+                if (globalThis.logLevel.isWarnEnabled) {
+                    console.warn(`${COMPONENT_NAME}|stream trackStopped`, event);
+                }
+                // Notify
+                notify({
+                    type: OutputMessageType.Warning,
+                    reason: `${event.type} track ${event.reason}`,
+                })
+            });
+        }
+    }, [notify, stream])
+
     const onSnapshot = useCallback((contact: Contact, dataUrl: string) => {
         // Record timeline event for snapshot
-        addTimelineEvent({ severity: 'info', name: contact.getUserData().get('firstName'), message: `snapshot`, dataUrl, dateTime: new Date() })
+        addTimelineEvent({ severity: 'info', name: contact.getUserData().get('firstName'), message: 'snapshot', dataUrl, dateTime: new Date() })
         // notify parent
         return new Promise<void>((resolve) => {
             const message = {
