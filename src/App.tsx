@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { Contact, RegisterInformation, UserData } from '@apirtc/apirtc';
+import { Contact, JoinOptions, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
 import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useUserMediaDevices } from '@apirtc/react-lib';
 
@@ -77,7 +77,7 @@ export type AppProps = {
     audioOnTooltip?: string,
     videoOffTooltip?: string,
     videoOnTooltip?: string,
-    contactJoined?: string,// (name: string) => string
+    contactJoined?: string,
     contactLeft?: string
 };
 const COMPONENT_NAME = "App";
@@ -89,8 +89,6 @@ export function App(inProps: AppProps) {
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
         contactJoined = "joined conversation", contactLeft = "left"
     } = props;
-
-    // contactJoined?: string | ((name: string) => string)
 
     const { appConfig, userData,
         audio,
@@ -159,8 +157,7 @@ export function App(inProps: AppProps) {
     }, [withAudio, withVideo, selectedAudioIn, selectedVideoIn]);
 
     const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
-        createStreamOptions
-    );
+        createStreamOptions);
 
     const [conversationOptions] = useState({
         // moderationEnabled: true, moderator: true,
@@ -168,8 +165,8 @@ export function App(inProps: AppProps) {
     });
 
     // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
-    // thus we need to add 'as any'
-    const [joinOptions] = useState({ ...CODECS } as any);
+    // thus we need to force type with 'as'
+    const [joinOptions] = useState<JoinOptions>(CODECS as JoinOptions);
 
     const { conversation, joined } = useConversation(session,
         conversationName, conversationOptions, join, joinOptions

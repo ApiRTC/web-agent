@@ -4,7 +4,7 @@
   "homepage": "https://apirtc.github.io/web-agent",
   "private": true,
   "dependencies": {
-    "@apirtc/apirtc": "^5.0.17",
+    "@apirtc/apirtc": "^5.0.19",
     "@apirtc/mui-react-lib": "^1.0.10",
     "@apirtc/react-lib": "^1.1.2",
     "@emotion/react": "^11.11.1",

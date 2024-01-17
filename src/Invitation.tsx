@@ -18,7 +18,7 @@ import Stack from '@mui/material/Stack';
 import { encode as base64_encode } from 'base-64';
 import debounce from 'lodash.debounce';
 
-import { PublishOptions, Session } from '@apirtc/apirtc';
+import { JoinOptions, PublishOptions, Session } from '@apirtc/apirtc';
 import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
 
 import { InvitationData } from '@apirtc/shared-types';
@@ -153,7 +153,7 @@ Thanks`,
                     moderationEnabled: false,
                     meshModeEnabled: true
                 },
-                joinOptions: { ...CODECS } as any // 'as any' because supportedVideoCodecs is not in apirtc typings
+                joinOptions: CODECS as JoinOptions// 'as JoinOptions' because supportedVideoCodecs is not in apirtc typings
             },
             user: {
                 firstName: guestData.name,
