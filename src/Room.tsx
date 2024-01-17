@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Stream as ApiRTCStream, Contact, Conversation } from "@apirtc/apirtc";
 import {
@@ -71,8 +71,19 @@ export function Room(inProps: RoomProps) {
 
     const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
 
+    const streamsToPublish = useMemo(() =>
+        hasSubscribedStreams ?
+            [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])]
+            : [],
+        [hasSubscribedStreams, stream, screen]);
+
     const { publishedStreams, subscribedStreams, unsubscribeAll } = useConversationStreams(
-        conversation, hasSubscribedStreams ? [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])] : []);
+        conversation,
+        // Don't do:
+        //hasSubscribedStreams ? [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])] : []
+        // Used memoized array instead:
+        streamsToPublish
+    );
 
     if (globalThis.logLevel.isDebugEnabled) {
         console.debug(`${COMPONENT_NAME}|render|${conversation.getName()}`, stream, publishedStreams, subscribedStreams, hasSubscribedStreams)

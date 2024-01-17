@@ -126,52 +126,54 @@ export function App(inProps: AppProps) {
         }
     }, [appConfig]);
 
+    const sessionErrorCallback = useCallback((error: any) => {
+        console.error(`${COMPONENT_NAME}|useSession error`, error)
+        notify({
+            type: OutputMessageType.Error,
+            reason: `ApiRTC session failed`
+        })
+    }, [notify]);
+
     const { session } = useSession(connect ? credentials : undefined,
         registerInformation,
-        (error) => {
-            console.error(`${COMPONENT_NAME}|useSession error`, error)
-            notify({
-                type: OutputMessageType.Error,
-                reason: `ApiRTC session failed`
-            })
-        });
+        sessionErrorCallback
+    );
 
     const { userMediaDevices,
         selectedAudioIn, setSelectedAudioIn,
         selectedVideoIn, setSelectedVideoIn } = useUserMediaDevices(session, installationId);
 
-    const constraints = useMemo(() => {
+    const createStreamOptions = useMemo(() => {
         return {
-            audio: withAudio ? {
-                ...(selectedAudioIn && { deviceId: selectedAudioIn.id }),
-                echoCancellation: true,
-                noiseSuppression: true,
-            } : false,
-            video: withVideo && selectedVideoIn ? {
-                deviceId: selectedVideoIn.id
-            } : withVideo
+            constraints: {
+                audio: withAudio ? {
+                    ...(selectedAudioIn && { deviceId: selectedAudioIn.id }),
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                } : false,
+                video: withVideo && selectedVideoIn ? {
+                    deviceId: selectedVideoIn.id
+                } : withVideo
+            }
         }
     }, [withAudio, withVideo, selectedAudioIn, selectedVideoIn]);
 
     const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
-        {
-            // BUG@apirtc: audioInputId and videoInputId actually modify the CreateStreamOptions (it is not immutable),
-            // so the options object change and re-triggers rendering.
-            // To prevent this, build a constraints object using deviceId directly.
-            //audioInputId: selectedAudioIn?.id,
-            //videoInputId: selectedVideoIn?.id,
-            constraints: constraints
-        });
+        createStreamOptions
+    );
 
-    const { conversation, joined } = useConversation(session, conversationName,
-        {
-            // moderationEnabled: true, moderator: true,
-            meshModeEnabled: true
-        },
-        join,
-        // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
-        // thus we need to add 'as any'
-        { ...CODECS } as any);
+    const [conversationOptions] = useState({
+        // moderationEnabled: true, moderator: true,
+        meshModeEnabled: true
+    });
+
+    // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
+    // thus we need to add 'as any'
+    const [joinOptions] = useState({ ...CODECS } as any);
+
+    const { conversation, joined } = useConversation(session,
+        conversationName, conversationOptions, join, joinOptions
+    );
 
     // R&D: local timeline events
     //
@@ -288,7 +290,7 @@ export function App(inProps: AppProps) {
                 // Notify
                 notify({
                     type: OutputMessageType.Warning,
-                    reason: `${event.type} track ${event.reason}`,
+                    reason: `camera ${event.type} track ${event.reason}`,
                 })
             });
         }
