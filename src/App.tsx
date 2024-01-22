@@ -83,6 +83,10 @@ export type AppProps = {
 const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
 
+    if (globalThis.logLevel.isDebugEnabled) {
+        console.debug(`${COMPONENT_NAME}|render`);
+    }
+
     const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
@@ -138,23 +142,23 @@ export function App(inProps: AppProps) {
     );
 
     const { userMediaDevices,
-        selectedAudioIn, setSelectedAudioIn,
-        selectedVideoIn, setSelectedVideoIn } = useUserMediaDevices(session, installationId);
+        selectedAudioIn, selectedAudioInId, setSelectedAudioIn,
+        selectedVideoIn, selectedVideoInId, setSelectedVideoIn } = useUserMediaDevices(session, installationId);
 
     const createStreamOptions = useMemo(() => {
         return {
             constraints: {
                 audio: withAudio ? {
-                    ...(selectedAudioIn && { deviceId: selectedAudioIn.id }),
+                    ...(selectedAudioInId && { deviceId: selectedAudioInId }),
                     echoCancellation: true,
                     noiseSuppression: true,
                 } : false,
-                video: withVideo && selectedVideoIn ? {
-                    deviceId: selectedVideoIn.id
+                video: withVideo && selectedVideoInId ? {
+                    deviceId: selectedVideoInId
                 } : withVideo
             }
         }
-    }, [withAudio, withVideo, selectedAudioIn, selectedVideoIn]);
+    }, [withAudio, withVideo, selectedAudioInId, selectedVideoInId]);
 
     const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
         createStreamOptions);
@@ -324,20 +328,17 @@ export function App(inProps: AppProps) {
     };
 
     useEffect(() => {
-        if (hasSubscribedStreams) {
+        setMenuValue((prev) => {
             // when some subscribed streams appear, clear the menu selection
-            setMenuValue(undefined)
-        } else {
+            if (hasSubscribedStreams) return undefined
             // when there are no more subscribed streams
-            setMenuValue((prev) => {
-                // If a menu is selected, keep this one
-                if (prev) {
-                    return prev
-                }
-                // otherwise go to invite
-                return MenuValues.Invite
-            })
-        }
+            // If a menu is selected, keep this one
+            if (prev) {
+                return prev
+            }
+            // otherwise go to invite
+            return MenuValues.Invite
+        })
     }, [hasSubscribedStreams])
 
     const renderTimelineEvent = (event: TimelineEvent) => {
