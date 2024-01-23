@@ -4,10 +4,11 @@ import { Stream as ApiRTCStream, Contact, Conversation } from "@apirtc/apirtc";
 import {
     Grid as ApiRtcGrid,
     frFR as ApiRtcMuiReactLib_frFR,
-    Audio as AudioComponent, AudioEnableButton,
+    Audio as AudioComponent,
+    AudioEnableButton,
     MuteButton,
     SnapshotButton,
-    Stream, TorchButton, Video, VideoEnableButton
+    Stream, TorchButton, Video, VideoEnableButton,
 } from "@apirtc/mui-react-lib";
 import { useConversationStreams } from "@apirtc/react-lib";
 
@@ -275,8 +276,10 @@ export function Room(inProps: RoomProps) {
                                         }
                                     }} />
                                 </>}
-                                <MuteButton />
-                                {stream.hasAudio() && <AudioEnableButton />}
+                                {/* <MuteButton /> */}
+                                {stream.hasAudio() && <MuteButton />}
+                                {/* {stream.hasAudio() && <AudioEnableButton />}*/}
+                                <AudioEnableButton />
                                 {stream.hasVideo() && <VideoEnableButton />}
                             </>}
                             muted={false}
