@@ -1,3 +1,3 @@
 [submodule "shared-types"]
 	path = shared-types
-	url = https://github.com:ApiRTC/shared-types.git
+	url = https://github.com/ApiRTC/shared-types.git
