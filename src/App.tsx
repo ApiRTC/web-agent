@@ -63,6 +63,11 @@ const SETTINGS_THEME = createTheme({
     }
 });
 
+const const_conversationOptions = {
+    // moderationEnabled: true, moderator: true,
+    meshModeEnabled: true
+};
+
 enum MenuValues {
     Invite = 'invite',
     Settings = 'settings',
@@ -163,17 +168,15 @@ export function App(inProps: AppProps) {
     const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
         createStreamOptions);
 
-    const [conversationOptions] = useState({
-        // moderationEnabled: true, moderator: true,
-        meshModeEnabled: true
-    });
-
-    // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
-    // thus we need to force type with 'as'
-    const [joinOptions] = useState<JoinOptions>(CODECS as JoinOptions);
-
     const { conversation, joined } = useConversation(session,
-        conversationName, conversationOptions, join, joinOptions
+        conversationName,
+        // no need for using useState nor useMemo as longs as the value is a constant
+        const_conversationOptions,
+        join,
+        // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
+        // thus we need to force type with 'as'
+        // no need for using useState as longs as the value is a constant
+        CODECS as JoinOptions
     );
 
     // R&D: local timeline events
