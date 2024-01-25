@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import { Contact, JoinOptions, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
@@ -12,7 +12,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
+import Badge from '@mui/material/Badge';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
@@ -88,10 +88,6 @@ export type AppProps = {
 const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
 
-    if (globalThis.logLevel.isDebugEnabled) {
-        console.debug(`${COMPONENT_NAME}|render`);
-    }
-
     const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
@@ -106,8 +102,8 @@ export function App(inProps: AppProps) {
 
     const installationId = appConfig.installationId;
 
-    const { value: withAudio, toggle: toggleAudio } = useToggle(audio ? (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'false')) : false);
-    const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'false')));
+    const { value: withAudio, toggle: toggleAudio } = useToggle(audio ? (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'true')) : false);
+    const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'true')));
     useEffect(() => {
         setLocalStorage(`${installationId}.withAudio`, `${withAudio}`)
         setLocalStorage(`${installationId}.withVideo`, `${withVideo}`)
@@ -152,6 +148,11 @@ export function App(inProps: AppProps) {
 
     const createStreamOptions = useMemo(() => {
         return {
+            // does it makes sens to set it also here ?
+            // what does apirtc do differently than with constraints only ?
+            // ...(withAudio && selectedAudioInId && { audioInputId: selectedAudioInId }),
+            // ...(withVideo && selectedVideoInId && { videoInputId: selectedVideoInId }),
+            //
             constraints: {
                 audio: withAudio ? {
                     ...(selectedAudioInId && { deviceId: selectedAudioInId }),
@@ -165,8 +166,18 @@ export function App(inProps: AppProps) {
         }
     }, [withAudio, withVideo, selectedAudioInId, selectedVideoInId]);
 
-    const { stream, grabbing } = useCameraStream((withAudio || withVideo) ? session : undefined,
-        createStreamOptions);
+    // const cameraErrorCallback = useCallback((error: any) => {
+    //     if (globalThis.logLevel.isWarnEnabled) {
+    //         console.warn(`${COMPONENT_NAME}|useCameraStream error`, error);
+    //     }
+    //     notify({
+    //         type: OutputMessageType.Error,
+    //         reason: error.message
+    //     })
+    // }, [notify]);
+
+    const { stream, grabbing, error: cameraError } = useCameraStream((withAudio || withVideo) ? session : undefined,
+        createStreamOptions);    // cameraErrorCallback
 
     const { conversation, joined } = useConversation(session,
         conversationName,
@@ -344,6 +355,31 @@ export function App(inProps: AppProps) {
         })
     }, [hasSubscribedStreams])
 
+    const _settingsErrors = useMemo(() => [
+        // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
+        ...(cameraError ? ['Please check a device is available and not already grabbed by another software'] : []),
+        ...(withAudio && !grabbing && stream && !stream.hasAudio() ? ["Failed to grab audio"] : []),
+        ...(withVideo && !grabbing && stream && !stream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
+    ], [stream, grabbing, cameraError, withAudio, withVideo])
+
+    // Kind of debounce the settingsErrors_ to prevent BadgeError to show
+    // between withAudio/Video toggle and grabbing
+    const settingsErrors = useDeferredValue(_settingsErrors);
+
+    useEffect(() => {
+        setMenuValue((prev) => {
+            // when some subscribed streams appear, clear the menu selection
+            if (settingsErrors.length !== 0) return MenuValues.Settings
+            // when there are no more errors
+            // If a menu is selected, keep this one
+            if (prev) {
+                return prev
+            }
+            // otherwise go to invite
+            return MenuValues.Invite
+        })
+    }, [settingsErrors])
+
     const renderTimelineEvent = (event: TimelineEvent) => {
         const dateTimeString = event.dateTime.toLocaleString();
         const name = event.name;
@@ -361,49 +397,62 @@ export function App(inProps: AppProps) {
         switch (menuValue) {
             case MenuValues.Settings:
                 return <MuiThemeProvider theme={SETTINGS_THEME}>
-                    <Stack direction={{ xs: 'column', sm: 'row' }}
-                        alignItems='center' justifyContent='center'
-                        spacing={2}>
-                        {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
-                        {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
-                            stream={stream} muted={true}>
-                            {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
-                                data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
-                        </Stream>}
-                        <Stack spacing={2}>
-                            {audio &&
+                    <Stack direction="column" spacing={1}>
+                        <Stack direction={{ xs: 'column', sm: 'row' }}
+                            alignItems='center' justifyContent='center'
+                            spacing={2}>
+                            {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
+                            {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
+                                stream={stream} muted={true}>
+                                {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
+                                    data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
+                            </Stream>}
+                            <Stack spacing={2}>
+                                {audio &&
+                                    <Stack direction="row" spacing={1}>
+                                        <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
+                                            <IconButton data-testid='audio-btn'
+                                                color='primary' size='small'
+                                                disabled={session ? undefined : true}
+                                                onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
+                                        </Tooltip>
+                                        <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
+                                            id='audio-in'
+                                            size='small'
+                                            disabled={!withAudio}
+                                            devices={userMediaDevices.audioinput}
+                                            selectedDevice={selectedAudioIn}
+                                            setSelectedDevice={setSelectedAudioIn} />
+                                    </Stack>}
                                 <Stack direction="row" spacing={1}>
-                                    <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
-                                        <IconButton data-testid='audio-btn'
+                                    <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
+                                        <IconButton data-testid='video-btn'
                                             color='primary' size='small'
                                             disabled={session ? undefined : true}
-                                            onClick={toggleAudio}>{withAudio ? <MicIcon /> : <MicOffIcon />}</IconButton>
+                                            onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
                                     </Tooltip>
                                     <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                                        id='audio-in'
+                                        id='video-in'
                                         size='small'
-                                        disabled={!withAudio}
-                                        devices={userMediaDevices.audioinput}
-                                        selectedDevice={selectedAudioIn}
-                                        setSelectedDevice={setSelectedAudioIn} />
-                                </Stack>}
-                            <Stack direction="row" spacing={1}>
-                                <Tooltip title={withVideo ? videoOnTooltip : videoOffTooltip}>
-                                    <IconButton data-testid='video-btn'
-                                        color='primary' size='small'
-                                        disabled={session ? undefined : true}
-                                        onClick={toggleVideo}>{withVideo ? <VideocamIcon /> : <VideocamOffIcon />}</IconButton>
-                                </Tooltip>
-                                <MediaDeviceSelect sx={{ mt: 1, minWidth: '120px', maxWidth: '240px' }}
-                                    id='video-in'
-                                    size='small'
-                                    disabled={!withVideo}
-                                    devices={userMediaDevices.videoinput}
-                                    selectedDevice={selectedVideoIn}
-                                    setSelectedDevice={setSelectedVideoIn} />
+                                        disabled={!withVideo}
+                                        devices={userMediaDevices.videoinput}
+                                        selectedDevice={selectedVideoIn}
+                                        setSelectedDevice={setSelectedVideoIn} />
+                                </Stack>
                             </Stack>
                         </Stack>
+                        {settingsErrors.length !== 0 &&
+                            <Stack direction="column"
+                                justifyContent="center" alignItems="center"
+                                spacing={1}>
+                                {
+                                    settingsErrors.map((entry: string, index: number) =>
+                                        <Alert key={index} variant='outlined' severity='error'>{entry}</Alert>)
+                                }
+                            </Stack>
+                        }
                     </Stack>
+
                 </MuiThemeProvider>
             case MenuValues.Invite:
                 return <>
@@ -419,17 +468,15 @@ export function App(inProps: AppProps) {
                     }
                 </>
             case MenuValues.Timeline:
-                return <Box alignItems='center' justifyContent='center'>
-                    <Stack direction="column"
-                        justifyContent="center" alignItems="center"
-                        spacing={1}>
-                        {timelineEvents.length === 0 ?
-                            <Alert key={0} variant='outlined' severity='info'>no events yet</Alert> :
-                            timelineEvents.map((event: TimelineEvent, index: number) =>
-                                <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEvent(event)}</Alert>)
-                        }
-                    </Stack>
-                </Box>
+                return <Stack direction="column"
+                    justifyContent="center" alignItems="center"
+                    spacing={1}>
+                    {timelineEvents.length === 0 ?
+                        <Alert key={0} variant='outlined' severity='info'>no events yet</Alert> :
+                        timelineEvents.map((event: TimelineEvent, index: number) =>
+                            <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEvent(event)}</Alert>)
+                    }
+                </Stack>
             default:
                 // do not display anything
                 return;
@@ -458,7 +505,11 @@ export function App(inProps: AppProps) {
                 </ToggleButton>
                 <ToggleButton value={MenuValues.Settings} aria-label={settingsLabel}>
                     <Tooltip title={settingsLabel}>
-                        <VideoSettingsIcon />
+                        {settingsErrors.length !== 0 ?
+                            <Badge color="error" badgeContent={settingsErrors.length}>
+                                <VideoSettingsIcon />
+                            </Badge> :
+                            <VideoSettingsIcon />}
                     </Tooltip>
                 </ToggleButton>
             </ToggleButtonGroup>
