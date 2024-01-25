@@ -14,6 +14,7 @@ import { useConversationStreams } from "@apirtc/react-lib";
 
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
+import StopScreenShareIcon from '@mui/icons-material/StopScreenShare';
 import ButtonGroup from "@mui/material/ButtonGroup";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
@@ -175,7 +176,7 @@ export function Room(inProps: RoomProps) {
         }
     }, [onDisplayChange, publishedStreams, subscribedStreams])
 
-    const shareScreen = () => {
+    const screenShare = () => {
         ApiRTCStream.createDisplayMediaStream({}, false).then((localStream: ApiRTCStream) => {
             if (globalThis.logLevel.isInfoEnabled) {
                 console.info(`${COMPONENT_NAME}|createDisplayMediaStream`, localStream)
@@ -186,6 +187,13 @@ export function Room(inProps: RoomProps) {
         }).finally(() => {
             // setGrabbing(false)
         })
+    };
+
+    const stopScreenShare = () => {
+        if (screen) {
+            screen.release()
+            setScreen(undefined)
+        }
     };
 
     useEffect(() => {
@@ -329,8 +337,10 @@ export function Room(inProps: RoomProps) {
                     <Stack direction='column' alignItems='center' justifyContent='center'>
                         <ButtonGroup variant="outlined" size="small" aria-label="call-bar">
                             <Tooltip title={shareScreenText}>
-                                <IconButton color='info'
-                                    onClick={shareScreen}><ScreenShareIcon /></IconButton>
+                                {screen ? <IconButton color='warning'
+                                    onClick={stopScreenShare}><StopScreenShareIcon /></IconButton>
+                                    : <IconButton color='info'
+                                        onClick={screenShare}><ScreenShareIcon /></IconButton>}
                             </Tooltip>
                             <Tooltip title={hangUpText}>
                                 <IconButton color='error'
