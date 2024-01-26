@@ -83,7 +83,9 @@ export type AppProps = {
     videoOffTooltip?: string,
     videoOnTooltip?: string,
     contactJoined?: string,
-    contactLeft?: string
+    contactLeft?: string,
+    noEventsText?: string,
+    noConversationText?: string
 };
 const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
@@ -92,7 +94,9 @@ export function App(inProps: AppProps) {
     const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
-        contactJoined = "joined conversation", contactLeft = "left"
+        contactJoined = "joined conversation", contactLeft = "left",
+        noEventsText = 'no events yet',
+        noConversationText = 'Session and Conversation name required'
     } = props;
 
     const { appConfig, userData,
@@ -464,7 +468,7 @@ export function App(inProps: AppProps) {
                                 <Skeleton variant="rectangular" width={345} height={226} />
                             }
                         </Stack> :
-                        <Alert severity="warning">Invitation requires connection and conversation name</Alert>
+                        <Alert severity="warning">{noConversationText}</Alert>
                     }
                 </>
             case MenuValues.Timeline:
@@ -472,7 +476,7 @@ export function App(inProps: AppProps) {
                     justifyContent="center" alignItems="center"
                     spacing={1}>
                     {timelineEvents.length === 0 ?
-                        <Alert key={0} variant='outlined' severity='info'>no events yet</Alert> :
+                        <Alert key={0} variant='outlined' severity='info'>{noEventsText}</Alert> :
                         timelineEvents.map((event: TimelineEvent, index: number) =>
                             <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEvent(event)}</Alert>)
                     }

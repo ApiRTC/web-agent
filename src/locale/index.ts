@@ -9,7 +9,8 @@ export default interface Localization {
                 'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip' |
                 // 'audioInLabel' | 'audioOutLabel' | 'videoInLabel' |
                 // 'getConversationDurationComment' | 'getSnapshotComment'
-                'contactJoined' | 'contactLeft'
+                'contactJoined' | 'contactLeft' |
+                'noEventsText' | 'noConversationText'
             >;
         };
         Invitation?: {

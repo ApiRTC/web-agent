@@ -12,13 +12,14 @@ export const frFR: Localization = {
         App: {
             defaultProps: {
                 invitationLabel: "Invitation",
-                timelineLabel:"Evénements",
+                timelineLabel: "Evènements",
                 settingsLabel: "Paramètres",
                 audioOffTooltip: "Sans audio", audioOnTooltip: "Avec audio", videoOffTooltip: "Sans vidéo", videoOnTooltip: "Avec vidéo",
                 // audioInLabel: "Entrée audio", audioOutLabel: "Sortie audio", videoInLabel: "Entrée vidéo",
                 // getConversationDurationComment: (h: number, m: number, s: number) => `La conversation a duré ${hmsToString(h, m, s)}.`,
                 // getSnapshotComment: (name: string) => `Photo de ${name}.`
-                contactJoined: "a rejoint la conversation", contactLeft: "est parti"
+                contactJoined: "a rejoint la conversation", contactLeft: "est parti",
+                noEventsText: "pas d'évènements", noConversationText:"Session et Conversation requises"
             }
         },
         Invitation: {
