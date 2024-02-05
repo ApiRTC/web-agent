@@ -12,6 +12,7 @@ import merge from 'lodash.merge';
 
 import { App } from './App';
 import { AppContext } from './AppContext';
+import { languageToLocale } from './locale';
 import { frFR } from './locale/frFR';
 import { LogLevelText, setLogLevel } from './logLevel';
 import { InputMessageType, OutputMessageType } from './MessageTypes';
@@ -23,15 +24,6 @@ import { AppConfig, UserData } from './types';
 // By default, set this as early as possible, to prevent some error cases to fail
 // finding  globalThis.logLevel
 setLogLevel(DEFAULT_LOG_LEVEL)
-
-const languageToLocale = (language: string) => {
-    switch (language) {
-        case 'fr':
-            return 'fr-FR'
-        default:
-            return 'en-US'
-    }
-};
 
 const APZ_ORANGE = "#F76B40";
 
@@ -55,7 +47,7 @@ enum RequestParameters {
     installationId = 'iI',
     invitationServiceUrl = 'iU',
     join = 'j',
-    locale = 'l',
+    lang = 'l',
     logLevel = 'lL',
     logRocketAppID = 'lRAppID',
     userId = 'uId'
@@ -134,7 +126,6 @@ export function Wrapper() {
 
     const theme = useMemo(() => {
         switch (locale) {
-            case 'fr':
             case 'fr-FR':
                 return createTheme(options, frFR,
                     mui_frFR, ApiRtcMuiReactLib_frFR);
@@ -282,9 +273,9 @@ export function Wrapper() {
             setConversationName(conversationName)
         }
 
-        const locale: string | null = searchParams.get(RequestParameters.locale);
-        if (locale) {
-            setLocale(locale)
+        const lang: string | null = searchParams.get(RequestParameters.lang);
+        if (lang) {
+            setLocale(languageToLocale(lang))
         }
 
     }, [searchParams, logLevel, logRocketAppID])

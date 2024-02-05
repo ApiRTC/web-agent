@@ -28,3 +28,13 @@ export default interface Localization {
         };
     };
 }
+
+export const languageToLocale = (language: string) => {
+    switch (language) {
+        case 'fr':
+        case 'fr-FR':
+            return 'fr-FR'
+        default:
+            return 'en-US'
+    }
+};

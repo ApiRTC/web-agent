@@ -23,6 +23,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { ROOM_THEME_OPTIONS, VIDEO_ROUNDED_CORNERS } from './constants';
+import { languageToLocale } from "./locale";
 import { frFR } from './locale/frFR';
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
@@ -34,6 +35,9 @@ const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 const AUDIO_IN = new Audio(inNotification);
 const AUDIO_OFF = new Audio(offNotification);
 
+const locale = languageToLocale(navigator.language);
+const langDict = (locale === 'fr-FR') ? { ...frFR, ...ApiRtcMuiReactLib_frFR } : {};
+
 const ROOM_THEME = createTheme({
     ...ROOM_THEME_OPTIONS,
     typography: {
@@ -41,8 +45,8 @@ const ROOM_THEME = createTheme({
             textTransform: 'none',
             letterSpacing: 0.25,
         }
-    },
-}, frFR, ApiRtcMuiReactLib_frFR);
+    }
+}, langDict);
 
 export type RoomProps = {
     sx?: SxProps,
@@ -56,6 +60,7 @@ export type RoomProps = {
     hangUpText?: string,
     shareScreenText?: string
 };
+
 const COMPONENT_NAME = "Room";
 export function Room(inProps: RoomProps) {
 
@@ -66,6 +71,8 @@ export function Room(inProps: RoomProps) {
         // onStart, onEnd
         hangUpText = "HangUp", shareScreenText = "Share screen"
     } = props;
+
+
 
     // const boxRef = useRef<HTMLElement>(null);
 
