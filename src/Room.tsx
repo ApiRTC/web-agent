@@ -94,6 +94,8 @@ export function Room(inProps: RoomProps) {
         streamsToPublish
     );
 
+    //const _subscribedStreams = useMemo(() => subscribedStreams.length > 0 ? Array(8).fill(subscribedStreams[0]) : [], [subscribedStreams]);
+
     if (globalThis.logLevel.isDebugEnabled) {
         console.debug(`${COMPONENT_NAME}|render|${conversation.getName()}`, stream, publishedStreams, subscribedStreams, hasSubscribedStreams)
     }
