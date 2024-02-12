@@ -5,7 +5,9 @@ import { RoomProps } from "../Room";
 export default interface Localization {
     components?: {
         App?: {
-            defaultProps: Pick<AppProps, 'invitationLabel' | 'timelineLabel' | 'settingsLabel' |
+            defaultProps: Pick<AppProps,
+                'blurLabel' | 'noiseReductionLabel' |
+                'invitationLabel' | 'timelineLabel' | 'settingsLabel' |
                 'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip' |
                 // 'audioInLabel' | 'audioOutLabel' | 'videoInLabel' |
                 // 'getConversationDurationComment' | 'getSnapshotComment'

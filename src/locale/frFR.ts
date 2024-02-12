@@ -11,6 +11,8 @@ export const frFR: Localization = {
     components: {
         App: {
             defaultProps: {
+                blurLabel: "Flou",
+                noiseReductionLabel: "Réduction de bruit",
                 invitationLabel: "Invitation",
                 timelineLabel: "Evènements",
                 settingsLabel: "Paramètres",
@@ -19,7 +21,7 @@ export const frFR: Localization = {
                 // getConversationDurationComment: (h: number, m: number, s: number) => `La conversation a duré ${hmsToString(h, m, s)}.`,
                 // getSnapshotComment: (name: string) => `Photo de ${name}.`
                 contactJoined: "a rejoint la conversation", contactLeft: "est parti",
-                noEventsText: "pas d'évènements", noConversationText:"Session et Conversation requises"
+                noEventsText: "pas d'évènements", noConversationText: "Session et Conversation requises"
             }
         },
         Invitation: {

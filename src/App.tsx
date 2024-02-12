@@ -2,7 +2,7 @@ import { useCallback, useContext, useDeferredValue, useEffect, useMemo, useState
 
 import { Contact, JoinOptions, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { Audio, MediaDeviceSelect, Stream, Video, useToggle } from '@apirtc/mui-react-lib';
-import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useUserMediaDevices } from '@apirtc/react-lib';
+import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useStreamApplyAudioProcessor, useStreamApplyVideoProcessor, useUserMediaDevices } from '@apirtc/react-lib';
 
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
@@ -14,10 +14,12 @@ import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
 import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
 import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
@@ -34,6 +36,7 @@ import { TimelineContext } from './TimelineContext';
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { TimelineEvent } from './types';
+
 
 const SETTINGS_THEME = createTheme({
     components: {
@@ -75,6 +78,8 @@ enum MenuValues {
 }
 
 export type AppProps = {
+    blurLabel?: string,
+    noiseReductionLabel?: string,
     invitationLabel?: string,
     timelineLabel?: string,
     settingsLabel?: string,
@@ -91,7 +96,8 @@ const COMPONENT_NAME = "App";
 export function App(inProps: AppProps) {
 
     const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
-    const { invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
+    const { blurLabel = "Blur", noiseReductionLabel = "Noise reduction",
+        invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
         contactJoined = "joined conversation", contactLeft = "left",
@@ -112,6 +118,13 @@ export function App(inProps: AppProps) {
         setLocalStorage(`${installationId}.withAudio`, `${withAudio}`)
         setLocalStorage(`${installationId}.withVideo`, `${withVideo}`)
     }, [installationId, withAudio, withVideo])
+
+    const { value: blurred, toggle: toggleBlur } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.blurred`, 'false')));
+    const { value: noiseReduction, toggle: toggleNoiseReduction } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.noiseReduction`, 'false')));
+    useEffect(() => {
+        setLocalStorage(`${installationId}.blurred`, `${blurred}`)
+        setLocalStorage(`${installationId}.noiseReduction`, `${noiseReduction}`)
+    }, [installationId, blurred, noiseReduction])
 
     const registerInformation: RegisterInformation = useMemo(() => {
         return {
@@ -180,8 +193,18 @@ export function App(inProps: AppProps) {
     //     })
     // }, [notify]);
 
-    const { stream, grabbing, error: cameraError } = useCameraStream((withAudio || withVideo) ? session : undefined,
+    const { stream: cameraStream, grabbing, error: cameraError } = useCameraStream((withAudio || withVideo) ? session : undefined,
         createStreamOptions);    // cameraErrorCallback
+
+    // Does not work fine due to apirtc bug :
+    // https://apizee.atlassian.net/browse/APIRTC-1366
+    const { stream: cameraStream2, error: noiseReductionError } = useStreamApplyAudioProcessor(cameraStream,
+        noiseReduction ? 'noiseReduction' : 'none');
+    // const noiseReductionError = undefined;
+
+    // applied: appliedVideoProcessorType
+    const { stream, error: blurError } = useStreamApplyVideoProcessor(cameraStream2,
+        blurred ? 'blur' : 'none'); //videoProcessorErrorCallback
 
     const { conversation, joined } = useConversation(session,
         conversationName,
@@ -362,9 +385,11 @@ export function App(inProps: AppProps) {
     const _settingsErrors = useMemo(() => [
         // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
         ...(cameraError ? ['Please check a device is available and not already grabbed by another software'] : []),
+        ...(noiseReductionError ? [`${noiseReductionError}`] : []),
+        ...(blurError ? [`${blurError}`] : []),
         ...(withAudio && !grabbing && stream && !stream.hasAudio() ? ["Failed to grab audio"] : []),
         ...(withVideo && !grabbing && stream && !stream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
-    ], [stream, grabbing, cameraError, withAudio, withVideo])
+    ], [stream, grabbing, cameraError, noiseReductionError, blurError, withAudio, withVideo])
 
     // Kind of debounce the settingsErrors_ to prevent BadgeError to show
     // between withAudio/Video toggle and grabbing
@@ -409,9 +434,9 @@ export function App(inProps: AppProps) {
                             {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
                                 stream={stream} muted={true}>
                                 {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
-                                    data-testid={`video-${conversationName}`} /> : <Audio data-testid={`audio-${conversationName}`} />}
+                                    data-testid={`video - ${conversationName}`} /> : <Audio data-testid={`audio - ${conversationName}`} />}
                             </Stream>}
-                            <Stack spacing={2}>
+                            <Stack spacing={1}>
                                 {audio &&
                                     <Stack direction="row" spacing={1}>
                                         <Tooltip title={withAudio ? audioOnTooltip : audioOffTooltip}>
@@ -442,6 +467,18 @@ export function App(inProps: AppProps) {
                                         devices={userMediaDevices.videoinput}
                                         selectedDevice={selectedVideoIn}
                                         setSelectedDevice={setSelectedVideoIn} />
+                                </Stack>
+                                <Stack>
+                                    <FormControlLabel control={<Switch
+                                        checked={blurred}
+                                        onChange={toggleBlur}
+                                        inputProps={{ 'aria-label': blurred ? 'blurred' : 'not-blurred' }}
+                                    />} label={blurLabel} />
+                                    {/* <FormControlLabel control={<Switch
+                                        checked={noiseReduction}
+                                        onChange={toggleNoiseReduction}
+                                        inputProps={{ 'aria-label': noiseReduction ? 'noise-reduction' : 'no-noise-reduction' }}
+                                    />} label={noiseReductionLabel} /> */}
                                 </Stack>
                             </Stack>
                         </Stack>
