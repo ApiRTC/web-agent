@@ -1,6 +1,7 @@
 import { AppProps } from "../App";
 import { InvitationProps } from "../Invitation";
 import { RoomProps } from "../Room";
+import { TimelineProps } from "../Timeline";
 
 export default interface Localization {
     components?: {
@@ -12,7 +13,7 @@ export default interface Localization {
                 // 'audioInLabel' | 'audioOutLabel' | 'videoInLabel' |
                 // 'getConversationDurationComment' | 'getSnapshotComment'
                 'contactJoined' | 'contactLeft' |
-                'noEventsText' | 'noConversationText'
+                'noConversationText'
             >;
         };
         Invitation?: {
@@ -24,6 +25,9 @@ export default interface Localization {
                 'namePlaceholder' | 'emailPlaceholder' | 'phonePlaceholder' |
                 'getInviteComment' | 'getEmailSentComment' | 'getSmsSentComment' |
                 'getEmailHtml' | 'getEmailText' | 'getSmsText'>;
+        };
+        Timeline?: {
+            defaultProps: Pick<TimelineProps, 'noEventsText'>;
         };
         Room?: {
             defaultProps: Pick<RoomProps, 'hangUpText' | 'shareScreenText'>;

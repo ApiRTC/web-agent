@@ -21,7 +21,7 @@ export const frFR: Localization = {
                 // getConversationDurationComment: (h: number, m: number, s: number) => `La conversation a duré ${hmsToString(h, m, s)}.`,
                 // getSnapshotComment: (name: string) => `Photo de ${name}.`
                 contactJoined: "a rejoint la conversation", contactLeft: "est parti",
-                noEventsText: "pas d'évènements", noConversationText: "Session et Conversation requises"
+                noConversationText: "Session et Conversation requises"
             }
         },
         Invitation: {
@@ -53,6 +53,11 @@ Je vous invite en visio, pour rejoindre : ${link}`,
                 getSmsText: (name: string, link: string) => `Bonjour ${name},
 Je vous invite en visio, pour rejoindre : ${link}`,
                 // WARNING: do not put a character like '.' close to ${link} because it breaks the hyperlink
+            }
+        },
+        Timeline: {
+            defaultProps: {
+                noEventsText: "pas d'évènements",
             }
         },
         Room: {

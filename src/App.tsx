@@ -36,6 +36,7 @@ import { TimelineContext } from './TimelineContext';
 import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { TimelineEvent } from './types';
+import { Timeline } from './Timeline';
 
 const SETTINGS_THEME = createTheme({
     components: {
@@ -88,7 +89,6 @@ export type AppProps = {
     videoOnTooltip?: string,
     contactJoined?: string,
     contactLeft?: string,
-    noEventsText?: string,
     noConversationText?: string
 };
 const COMPONENT_NAME = "App";
@@ -100,7 +100,6 @@ export function App(inProps: AppProps) {
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
         // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
         contactJoined = "joined conversation", contactLeft = "left",
-        noEventsText = 'no events yet',
         noConversationText = 'Session and Conversation name required'
     } = props;
 
@@ -412,19 +411,6 @@ export function App(inProps: AppProps) {
         })
     }, [settingsErrors])
 
-    const renderTimelineEvent = (event: TimelineEvent) => {
-        const dateTimeString = event.dateTime.toLocaleString();
-        const name = event.name;
-        if (event.dataUrl) {
-            const filename = `${event.dateTime.getUTCFullYear()}${event.dateTime.getUTCMonth()}${event.dateTime.getDate()}_${event.dateTime.toLocaleTimeString()}_${name}_${event.message}.png`.replaceAll(':', '-');
-            return <>{dateTimeString}&nbsp;:&nbsp;
-                <Link href={event.dataUrl} underline='none' download={filename}>
-                    {event.message}</Link>&nbsp;from&nbsp;{name}</>
-        } else {
-            return `${dateTimeString} : ${name} ${event.message}`
-        }
-    };
-
     const renderMenuContent = () => {
         switch (menuValue) {
             case MenuValues.Settings:
@@ -512,15 +498,7 @@ export function App(inProps: AppProps) {
                     }
                 </>
             case MenuValues.Timeline:
-                return <Stack direction="column"
-                    justifyContent="center" alignItems="center"
-                    spacing={1}>
-                    {timelineEvents.length === 0 ?
-                        <Alert key={0} variant='outlined' severity='info'>{noEventsText}</Alert> :
-                        timelineEvents.map((event: TimelineEvent, index: number) =>
-                            <Alert key={index} variant='outlined' severity={event.severity}>{renderTimelineEvent(event)}</Alert>)
-                    }
-                </Stack>
+                return <Timeline events={timelineEvents}/>
             default:
                 // do not display anything
                 return;
