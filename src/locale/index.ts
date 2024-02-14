@@ -1,15 +1,14 @@
 import { AppProps } from "../App";
 import { InvitationProps } from "../Invitation";
 import { RoomProps } from "../Room";
+import { SettingsProps } from "../Settings";
 import { TimelineProps } from "../Timeline";
 
 export default interface Localization {
     components?: {
         App?: {
             defaultProps: Pick<AppProps,
-                'blurLabel' | 'noiseReductionLabel' |
                 'invitationLabel' | 'timelineLabel' | 'settingsLabel' |
-                'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip' |
                 // 'audioInLabel' | 'audioOutLabel' | 'videoInLabel' |
                 // 'getConversationDurationComment' | 'getSnapshotComment'
                 'contactJoined' | 'contactLeft' |
@@ -31,6 +30,10 @@ export default interface Localization {
         };
         Room?: {
             defaultProps: Pick<RoomProps, 'hangUpText' | 'shareScreenText'>;
+        };
+        Settings?: {
+            defaultProps: Pick<SettingsProps,
+                'blurLabel' | 'noiseReductionLabel' | 'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip'>;
         };
     };
 }

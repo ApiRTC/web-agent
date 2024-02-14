@@ -11,12 +11,9 @@ export const frFR: Localization = {
     components: {
         App: {
             defaultProps: {
-                blurLabel: "Flou",
-                noiseReductionLabel: "Réduction de bruit",
                 invitationLabel: "Invitation",
                 timelineLabel: "Evènements",
                 settingsLabel: "Paramètres",
-                audioOffTooltip: "Sans audio", audioOnTooltip: "Avec audio", videoOffTooltip: "Sans vidéo", videoOnTooltip: "Avec vidéo",
                 // audioInLabel: "Entrée audio", audioOutLabel: "Sortie audio", videoInLabel: "Entrée vidéo",
                 // getConversationDurationComment: (h: number, m: number, s: number) => `La conversation a duré ${hmsToString(h, m, s)}.`,
                 // getSnapshotComment: (name: string) => `Photo de ${name}.`
@@ -64,6 +61,13 @@ Je vous invite en visio, pour rejoindre : ${link}`,
             defaultProps: {
                 hangUpText: "Raccrocher",
                 shareScreenText: "Partage écran"
+            }
+        },
+        Settings: {
+            defaultProps: {
+                blurLabel: "Flou",
+                noiseReductionLabel: "Réduction de bruit",
+                audioOffTooltip: "Sans audio", audioOnTooltip: "Avec audio", videoOffTooltip: "Sans vidéo", videoOnTooltip: "Avec vidéo",
             }
         },
     }
