@@ -37,7 +37,6 @@ import { CODECS, VIDEO_ROUNDED_CORNERS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { TimelineEvent } from './types';
 
-
 const SETTINGS_THEME = createTheme({
     components: {
         MuiIconButton: {
@@ -119,12 +118,12 @@ export function App(inProps: AppProps) {
         setLocalStorage(`${installationId}.withVideo`, `${withVideo}`)
     }, [installationId, withAudio, withVideo])
 
-    const { value: blurred, toggle: toggleBlur } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.blurred`, 'false')));
+    const { value: blur, toggle: toggleBlur } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.blur`, 'false')));
     const { value: noiseReduction, toggle: toggleNoiseReduction } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.noiseReduction`, 'false')));
     useEffect(() => {
-        setLocalStorage(`${installationId}.blurred`, `${blurred}`)
+        setLocalStorage(`${installationId}.blur`, `${blur}`)
         setLocalStorage(`${installationId}.noiseReduction`, `${noiseReduction}`)
-    }, [installationId, blurred, noiseReduction])
+    }, [installationId, blur, noiseReduction])
 
     const registerInformation: RegisterInformation = useMemo(() => {
         return {
@@ -193,18 +192,22 @@ export function App(inProps: AppProps) {
     //     })
     // }, [notify]);
 
-    const { stream: cameraStream, grabbing, error: cameraError } = useCameraStream((withAudio || withVideo) ? session : undefined,
-        createStreamOptions);    // cameraErrorCallback
+    const { stream: cameraStream, grabbing, error: cameraError } = useCameraStream(
+        (withAudio || withVideo) ? session : undefined,
+        createStreamOptions); // cameraErrorCallback
 
     // Does not work fine due to apirtc bug :
     // https://apizee.atlassian.net/browse/APIRTC-1366
-    const { stream: cameraStream2, error: noiseReductionError } = useStreamApplyAudioProcessor(cameraStream,
+    const { stream: cameraStream2, error: noiseReductionError } = useStreamApplyAudioProcessor(
+        cameraStream,
         noiseReduction ? 'noiseReduction' : 'none');
-    // const noiseReductionError = undefined;
 
     // applied: appliedVideoProcessorType
-    const { stream, error: blurError } = useStreamApplyVideoProcessor(cameraStream2,
-        blurred ? 'blur' : 'none'); //videoProcessorErrorCallback
+    const { stream, error: blurError } = useStreamApplyVideoProcessor(
+        cameraStream2,
+        blur ? 'blur' : 'none'); //videoProcessorErrorCallback
+
+    //const blurred = appliedVideoProcessorType === 'blur';
 
     const { conversation, joined } = useConversation(session,
         conversationName,
@@ -385,8 +388,8 @@ export function App(inProps: AppProps) {
     const _settingsErrors = useMemo(() => [
         // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
         ...(cameraError ? ['Please check a device is available and not already grabbed by another software'] : []),
-        ...(noiseReductionError ? [`${noiseReductionError}`] : []),
-        ...(blurError ? [`${blurError}`] : []),
+        ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
+        ...(blurError ? [`Blur error : ${blurError}`] : []),
         ...(withAudio && !grabbing && stream && !stream.hasAudio() ? ["Failed to grab audio"] : []),
         ...(withVideo && !grabbing && stream && !stream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
     ], [stream, grabbing, cameraError, noiseReductionError, blurError, withAudio, withVideo])
@@ -470,9 +473,9 @@ export function App(inProps: AppProps) {
                                 </Stack>
                                 <Stack>
                                     <FormControlLabel control={<Switch
-                                        checked={blurred}
+                                        checked={blur}
                                         onChange={toggleBlur}
-                                        inputProps={{ 'aria-label': blurred ? 'blurred' : 'not-blurred' }}
+                                        inputProps={{ 'aria-label': blur ? 'blurred' : 'not-blurred' }}
                                     />} label={blurLabel} />
                                     {/* <FormControlLabel control={<Switch
                                         checked={noiseReduction}
