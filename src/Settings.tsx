@@ -48,9 +48,7 @@ const SETTINGS_THEME = createTheme({
 
 export type SettingsProps = {
     session: Session | undefined,
-    cameraError?: any,
-    noiseReductionError?: any,
-    blurError?: any,
+    settingsErrors: string[],
     withAudio: boolean, toggleAudio: () => void,
     withVideo: boolean, toggleVideo: () => void,
     blur: boolean, toggleBlur: () => void,
@@ -73,7 +71,7 @@ export function Settings(inProps: SettingsProps) {
     const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const {
         session,
-        cameraError, noiseReductionError, blurError,
+        settingsErrors,
         withAudio, toggleAudio, withVideo, toggleVideo,
         blur, toggleBlur,
         noiseReduction, toggleNoiseReduction,
@@ -87,19 +85,6 @@ export function Settings(inProps: SettingsProps) {
     } = props;
 
     const { audio } = useContext(AppContext);
-
-    const _settingsErrors = useMemo(() => [
-        // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
-        ...(cameraError ? ['Please check a device is available and not already grabbed by another software'] : []),
-        ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
-        ...(blurError ? [`Blur error : ${blurError}`] : []),
-        ...(withAudio && !grabbing && stream && !stream.hasAudio() ? ["Failed to grab audio"] : []),
-        ...(withVideo && !grabbing && stream && !stream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
-    ], [stream, grabbing, cameraError, noiseReductionError, blurError, withAudio, withVideo]);
-
-    // Kind of debounce the settingsErrors_ to prevent BadgeError to show
-    // between withAudio/Video toggle and grabbing
-    const settingsErrors = useDeferredValue(_settingsErrors);
 
     return <MuiThemeProvider theme={SETTINGS_THEME}>
         <Stack direction="column" spacing={1}>

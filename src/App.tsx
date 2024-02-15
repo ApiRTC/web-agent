@@ -134,7 +134,8 @@ export function App(inProps: AppProps) {
                 video: withVideo && selectedVideoInId ? {
                     deviceId: selectedVideoInId
                 } : withVideo
-            }
+            },
+            tryAudioCallAfterUserMediaError: true
         }
     }, [withAudio, withVideo, selectedAudioInId, selectedVideoInId]);
 
@@ -343,7 +344,7 @@ export function App(inProps: AppProps) {
 
     const _settingsErrors = useMemo(() => [
         // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
-        ...(cameraError ? ['Please check a device is available and not already grabbed by another software'] : []),
+        ...(cameraError ? [`Camera error : ${cameraError.message}`] : []),
         ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
         ...(blurError ? [`Blur error : ${blurError}`] : []),
         ...(withAudio && !grabbing && cameraStream && !cameraStream.hasAudio() ? ["Failed to grab audio"] : []),
@@ -372,7 +373,7 @@ export function App(inProps: AppProps) {
         switch (menuValue) {
             case MenuValues.Settings:
                 return <Settings session={session}
-                    cameraError={cameraError} noiseReductionError={noiseReductionError} blurError={blurError}
+                    settingsErrors={settingsErrors}
                     withAudio={withAudio} toggleAudio={toggleAudio} withVideo={withVideo} toggleVideo={toggleVideo}
                     blur={blur} toggleBlur={toggleBlur}
                     noiseReduction={noiseReduction} toggleNoiseReduction={toggleNoiseReduction}
