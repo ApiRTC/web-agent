@@ -55,7 +55,6 @@ export function App(inProps: AppProps) {
     const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const {
         invitationLabel = "Invite", timelineLabel = "Timeline", settingsLabel = "My settings",
-        // getSnapshotComment = (name: string) => `Snapshot from ${name}.`
         contactJoined = "joined conversation", contactLeft = "left",
         noConversationText = 'Session and Conversation name required'
     } = props;
@@ -135,7 +134,6 @@ export function App(inProps: AppProps) {
                     deviceId: selectedVideoInId
                 } : withVideo
             },
-            // tryAudioCallAfterUserMediaError: false,
             tryAudioOnlyAfterUserMediaError: true,
         }
     }, [withAudio, withVideo, selectedAudioInId, selectedVideoInId]);
@@ -165,8 +163,6 @@ export function App(inProps: AppProps) {
         lStream2,
         blur ? 'blur' : 'none'); //videoProcessorErrorCallback
 
-    //const blurred = appliedVideoProcessorType === 'blur';
-
     const { conversation, joined } = useConversation(session,
         conversationName,
         // no need for using useState nor useMemo as longs as the value is a constant
@@ -193,7 +189,6 @@ export function App(inProps: AppProps) {
         addTimelineEvent({ severity: 'warning', name: contact.getUserData().get('firstName'), message: contactLeft, dateTime: new Date() })
     }, [addTimelineEvent, contactLeft]);
 
-    //const { contacts } =
     useConversationContacts(conversation, onContactJoined, onContactLeft);
 
     // number of subscribed streams boolean projection
@@ -344,7 +339,6 @@ export function App(inProps: AppProps) {
     }, [hasSubscribedStreams])
 
     const _settingsErrors = useMemo(() => [
-        // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
         ...(grabError ? [`Camera error : ${grabError.message}`] : []),
         ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
         ...(blurError ? [`Blur error : ${blurError}`] : []),
@@ -375,7 +369,8 @@ export function App(inProps: AppProps) {
             case MenuValues.Settings:
                 return <Settings session={session}
                     settingsErrors={settingsErrors}
-                    withAudio={withAudio} toggleAudio={toggleAudio} withVideo={withVideo} toggleVideo={toggleVideo}
+                    withAudio={withAudio} toggleAudio={toggleAudio}
+                    withVideo={withVideo} toggleVideo={toggleVideo}
                     blur={blur} toggleBlur={toggleBlur}
                     noiseReduction={noiseReduction} toggleNoiseReduction={toggleNoiseReduction}
                     userMediaDevices={userMediaDevices}
