@@ -135,7 +135,8 @@ export function App(inProps: AppProps) {
                     deviceId: selectedVideoInId
                 } : withVideo
             },
-            tryAudioCallAfterUserMediaError: true
+            // tryAudioCallAfterUserMediaError: false,
+            tryAudioOnlyAfterUserMediaError: true,
         }
     }, [withAudio, withVideo, selectedAudioInId, selectedVideoInId]);
 
@@ -149,7 +150,7 @@ export function App(inProps: AppProps) {
         })
     }, [notify]);
 
-    const { stream: lStream, grabbing, error: cameraError } = useCameraStream(
+    const { stream: lStream, grabbing, error: grabError } = useCameraStream(
         (withAudio || withVideo) ? session : undefined,
         createStreamOptions, cameraErrorCallback);
 
@@ -344,12 +345,12 @@ export function App(inProps: AppProps) {
 
     const _settingsErrors = useMemo(() => [
         // ...(cameraError ? [cameraError.name === 'NotAllowedError' ? 'Please authorize device(s) access' : cameraError.message] : []),
-        ...(cameraError ? [`Camera error : ${cameraError.message}`] : []),
+        ...(grabError ? [`Camera error : ${grabError.message}`] : []),
         ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
         ...(blurError ? [`Blur error : ${blurError}`] : []),
         ...(withAudio && !grabbing && cameraStream && !cameraStream.hasAudio() ? ["Failed to grab audio"] : []),
         ...(withVideo && !grabbing && cameraStream && !cameraStream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
-    ], [cameraStream, grabbing, cameraError, noiseReductionError, blurError, withAudio, withVideo]);
+    ], [cameraStream, grabbing, grabError, noiseReductionError, blurError, withAudio, withVideo]);
 
     // Kind of debounce the settingsErrors_ to prevent BadgeError to show
     // between withAudio/Video toggle and grabbing
