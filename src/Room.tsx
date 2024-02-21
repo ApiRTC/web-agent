@@ -279,7 +279,7 @@ export function Room(inProps: RoomProps) {
                             }}
                             stream={stream} detectSpeaking={true}
                             controls={<>
-                                {stream.hasVideo() && <>
+                                {stream.hasVideo() && !stream.isScreensharing() && <>
                                     <SwitchFacingModeButton />
                                     {/* TODO : display TorchButton only if 'environment' facing mode */}
                                     <TorchButton />
@@ -296,11 +296,11 @@ export function Room(inProps: RoomProps) {
                                 {/* <MuteButton /> */}
                                 {stream.hasAudio() && <MuteButton />}
                                 {/* {stream.hasAudio() && <AudioEnableButton />}*/}
-                                <AudioEnableButton />
-                                {stream.hasVideo() && <VideoEnableButton />}
+                                {!stream.isScreensharing() && <AudioEnableButton />}
+                                {stream.hasVideo() && !stream.isScreensharing() && <VideoEnableButton />}
                             </>}
                             muted={false}
-                            name={stream.getContact().getUserData().get('firstName')}
+                            name={`${stream.getContact().getUserData().get('firstName')}${stream.isScreensharing() && '-screen'}`}
                         // onMouseDown={(event: React.MouseEvent) => {
                         //     event.preventDefault()
                         //     onStreamMouseDown(stream, event)
