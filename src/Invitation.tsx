@@ -3,9 +3,9 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LinkIcon from '@mui/icons-material/Link';
 import SendIcon from '@mui/icons-material/Send';
-import { ButtonGroup, SxProps, useThemeProps } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -14,12 +14,14 @@ import Input from '@mui/material/Input';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import { SxProps, useThemeProps } from '@mui/material/styles';
 
 import { encode as base64_encode } from 'base-64';
 import debounce from 'lodash.debounce';
 
 import { JoinOptions, PublishOptions, Session } from '@apirtc/apirtc';
-import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
+import { PublishOptions as PublishOptionsComponent, useToggle, useToggleArray } from '@apirtc/mui-react-lib';
 
 import { InvitationData } from '@apirtc/shared-types';
 
@@ -64,6 +66,8 @@ export type InvitationProps = {
     namePlaceholder?: string,
     emailPlaceholder?: string,
     phonePlaceholder?: string,
+    avShareLabel?: string,
+    screenShareLabel?: string,
 
     /**
       * Accepts a function which returns a string value that provides a user-friendly comment for the invitation.
@@ -104,6 +108,8 @@ export function Invitation(inProps: InvitationProps) {
         namePlaceholder = "Name",
         // emailPlaceholder = "Email",
         phonePlaceholder = "Phone",
+        avShareLabel = "Request audio/video sharing",
+        screenShareLabel = "Request screen sharing",
         //         getInviteComment = (name: string, link: string) => `Hello ${name},
         // I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
         // getEmailSentComment = (to: string) => `An e-mail was sent to ${to}`,
@@ -121,28 +127,47 @@ Thanks`,
     // name to handle typing
     const [name, setName] = useState<string>(guestData?.name || EMPTY_STRING);
 
-    const [publishOptions, setPublishOptions] = useState<PublishOptions>(allowAudio ? storageToPublishOptions(`${installationId}.guest.publishOptions`) : { videoOnly: true });
+    const avShareInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.guest.avShare`, 'true')),
+        [installationId]);
+    const { value: avShare, toggle: toggleAvShare } = useToggle(avShareInitValue);
+
+    const publishOptionsInitValue = useMemo(() => storageToPublishOptions(`${installationId}.guest.publishOptions`),
+        [installationId]);
+    const [publishOptions, setPublishOptions] = useState<PublishOptions>(allowAudio ? publishOptionsInitValue : { videoOnly: true });
+
+    const facingModeInitValue = useMemo(() => getFromLocalStorage(`${installationId}.guest.facingMode`, FACING_MODES[0]),
+        [installationId]);
     const { value: facingMode, index: facingModeIndex,
         setIndex: setFacingModeIndex } = useToggleArray(FACING_MODES,
-            FACING_MODES.indexOf(getFromLocalStorage(`${installationId}.guest.facingMode`, FACING_MODES[0])));
+            FACING_MODES.indexOf(facingModeInitValue));
 
     const [invitationLink, setInvitationLink] = useState<string>();
 
     const [sending, setSending] = useState<boolean>(false);
 
+    const screenShareInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.guest.screenShare`, 'false')),
+        [installationId]);
+    const { value: screenShare, toggle: toggleScreenShare } = useToggle(screenShareInitValue);
+
     useEffect(() => {
+        setLocalStorage(`${installationId}.guest.avShare`, `${avShare}`)
+        setLocalStorage(`${installationId}.guest.publishOptions`, JSON.stringify(publishOptions))
+        setLocalStorage(`${installationId}.guest.facingMode`, facingMode ?? FACING_MODES[0])
+        setLocalStorage(`${installationId}.guest.screenShare`, `${screenShare}`)
+    }, [installationId, avShare, publishOptions, facingMode, screenShare])
+
+    useEffect(() => {
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`${COMPONENT_NAME}|useEffect guestData`, guestData)
+        }
         if (guestData?.name) {
             setName(guestData.name)
         }
     }, [guestData])
 
-    useEffect(() => {
-        setLocalStorage(`${installationId}.guest.publishOptions`, JSON.stringify(publishOptions));
-        setLocalStorage(`${installationId}.guest.facingMode`, facingMode ?? FACING_MODES[0]);
-    }, [installationId, publishOptions, facingMode])
-
     const invitationData: InvitationData | undefined = useMemo(() => {
-        return guestData?.name && guestData.name !== EMPTY_STRING ? {
+        return guestData?.name && guestData.name !== EMPTY_STRING
+            && (avShare || screenShare) ? {
             cloudUrl: appConfig.apiRtc.cloudUrl,
             apiKey: appConfig.apiRtc.apiKey,
             callStatsMonitoringInterval: appConfig.apiRtc.callStatsMonitoringInterval,
@@ -160,8 +185,8 @@ Thanks`,
                 lastName: "",
             },
             streams: [
-                {
-                    type: 'user-media',
+                ...(avShare ? [{
+                    type: 'user-media' as 'user-media',
                     constraints: {
                         audio: publishOptions.videoOnly ? false : {
                             echoCancellation: true,
@@ -173,13 +198,13 @@ Thanks`,
                         }
                     },
                     publishOptions: publishOptions
-                },
-                // {
-                //     type: 'display-media'
-                // }
+                }] : []),
+                ...(screenShare ? [{
+                    type: 'display-media' as 'display-media'
+                }] : [])
             ]
         } : undefined;
-    }, [appConfig, props.conversationName, guestData?.name, facingMode, publishOptions]);
+    }, [appConfig, props.conversationName, guestData?.name, facingMode, publishOptions, avShare, screenShare]);
 
     useEffect(() => {
         if (globalThis.logLevel.isDebugEnabled) {
@@ -339,6 +364,11 @@ Thanks`,
 
     return <Box sx={props.sx}>
         <form>
+            <FormControlLabel control={<Switch
+                checked={avShare}
+                onChange={toggleAvShare}
+                inputProps={{ 'aria-label': avShare ? 'audio-video-share' : 'no-audio-video-share' }}
+            />} label={avShareLabel} />
             <Stack direction="row" spacing={2}>
                 {/* <FormControlLabel control={<Switch
                     checked={props.moderationEnabled}
@@ -346,13 +376,14 @@ Thanks`,
                 />} label={moderationEnabledText} />
                 <Divider orientation="vertical" flexItem>
                 </Divider> */}
-                <PublishOptionsComponent value={publishOptions}
+                <PublishOptionsComponent disabled={!avShare}
+                    value={publishOptions}
                     audioAndVideoOption={allowAudio}
                     audioOnlyOption={allowAudio}
                     onChange={setPublishOptions} />
                 <Divider orientation="vertical" flexItem>
                 </Divider>
-                <FormControl disabled={publishOptions.audioOnly === true}>
+                <FormControl disabled={!avShare || publishOptions.audioOnly === true}>
                     <FormLabel data-testid="facing-mode-label">{facingModeText}</FormLabel>
                     <RadioGroup
                         aria-labelledby="publish-options"
@@ -364,6 +395,11 @@ Thanks`,
                     </RadioGroup>
                 </FormControl>
             </Stack>
+            <FormControlLabel control={<Switch
+                checked={screenShare}
+                onChange={toggleScreenShare}
+                inputProps={{ 'aria-label': screenShare ? 'screen-share' : 'no-screen-share' }}
+            />} label={screenShareLabel} />
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}
                 alignItems="flex-end">

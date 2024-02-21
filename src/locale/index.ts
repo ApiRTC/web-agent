@@ -22,6 +22,7 @@ export default interface Localization {
                 'commentFailText' |
                 'facingModeText' | 'userFacingModeText' | 'environmentFacingModeText' |
                 'namePlaceholder' | 'emailPlaceholder' | 'phonePlaceholder' |
+                'avShareLabel' | 'screenShareLabel' |
                 'getInviteComment' | 'getEmailSentComment' | 'getSmsSentComment' |
                 'getEmailHtml' | 'getEmailText' | 'getSmsText'>;
         };

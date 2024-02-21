@@ -3,7 +3,11 @@
 
 export const getFromLocalStorage = (key: string, defaultValue: any): string => {
     try {
-        return localStorage.getItem(key) ?? defaultValue;
+        const value = localStorage.getItem(key) ?? defaultValue;
+        if (globalThis.logLevel.isDebugEnabled) {
+            console.debug(`getFromLocalStorage ${key}`, value)
+        }
+        return value;
     } catch (error: any) {
         if (globalThis.logLevel.isWarnEnabled) {
             console.warn(`getFromLocalStorage caught error`, error)

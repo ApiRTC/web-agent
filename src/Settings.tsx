@@ -1,3 +1,5 @@
+import { useContext } from "react";
+
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -14,7 +16,6 @@ import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@
 import { Stream as ApiRTCStream, MediaDevice, MediaDeviceList, Session } from "@apirtc/apirtc";
 import { Audio, MediaDeviceSelect, Stream, Video } from "@apirtc/mui-react-lib";
 
-import { useContext, useDeferredValue, useMemo } from "react";
 import { AppContext } from "./AppContext";
 import { VIDEO_ROUNDED_CORNERS } from "./constants";
 

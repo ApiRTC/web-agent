@@ -66,15 +66,25 @@ export function App(inProps: AppProps) {
 
     const installationId = appConfig.installationId;
 
-    const { value: withAudio, toggle: toggleAudio } = useToggle(audio ? (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'true')) : false);
-    const { value: withVideo, toggle: toggleVideo } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'true')));
+    const withAudioInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.withAudio`, 'true')),
+        [installationId]);
+    const { value: withAudio, toggle: toggleAudio } = useToggle(audio ? withAudioInitValue : false);
+    const withVideoInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.withVideo`, 'true')),
+        [installationId]);
+    const { value: withVideo, toggle: toggleVideo } = useToggle(withVideoInitValue);
     useEffect(() => {
         setLocalStorage(`${installationId}.withAudio`, `${withAudio}`)
         setLocalStorage(`${installationId}.withVideo`, `${withVideo}`)
     }, [installationId, withAudio, withVideo])
 
-    const { value: blur, toggle: toggleBlur } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.blur`, 'false')));
-    const { value: noiseReduction, toggle: toggleNoiseReduction } = useToggle((/true/i).test(getFromLocalStorage(`${installationId}.noiseReduction`, 'false')));
+    const blurInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.blur`, 'false')),
+        [installationId]);
+    const { value: blur, toggle: toggleBlur } = useToggle(blurInitValue);
+
+    const noiseReductionInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.noiseReduction`, 'false')),
+        [installationId]);
+    const { value: noiseReduction, toggle: toggleNoiseReduction } = useToggle(noiseReductionInitValue);
+
     useEffect(() => {
         setLocalStorage(`${installationId}.blur`, `${blur}`)
         setLocalStorage(`${installationId}.noiseReduction`, `${noiseReduction}`)
