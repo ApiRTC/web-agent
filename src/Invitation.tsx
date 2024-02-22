@@ -129,7 +129,7 @@ Thanks`,
 
     const avShareInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.guest.avShare`, 'true')),
         [installationId]);
-    const { value: avShare, toggle: toggleAvShare } = useToggle(avShareInitValue);
+    const { value: avShare, setValue: setAvShare } = useToggle(avShareInitValue);
 
     const publishOptionsInitValue = useMemo(() => storageToPublishOptions(`${installationId}.guest.publishOptions`),
         [installationId]);
@@ -147,7 +147,7 @@ Thanks`,
 
     const screenShareInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.guest.screenShare`, 'false')),
         [installationId]);
-    const { value: screenShare, toggle: toggleScreenShare } = useToggle(screenShareInitValue);
+    const { value: screenShare, setValue: setScreenShare } = useToggle(screenShareInitValue);
 
     useEffect(() => {
         setLocalStorage(`${installationId}.guest.avShare`, `${avShare}`)
@@ -361,6 +361,24 @@ Thanks`,
         // Finally manage guestName setting through debounce.
         debouncedSetGuestName(event.target.value)
     };
+
+    const toggleAvShare = useCallback(() => {
+        setAvShare((prev) => {
+            if (prev === true && screenShare === false) {
+                setScreenShare(true)
+            }
+            return !prev
+        })
+    }, [screenShare, setAvShare, setScreenShare]);
+
+    const toggleScreenShare = useCallback(() => {
+        setScreenShare((prev) => {
+            if (prev === true && avShare === false) {
+                setAvShare(true)
+            }
+            return !prev
+        })
+    }, [avShare, setAvShare, setScreenShare]);
 
     return <Box sx={props.sx}>
         <form>

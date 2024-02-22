@@ -283,16 +283,16 @@ export function Room(inProps: RoomProps) {
                                     <SwitchFacingModeButton />
                                     {/* TODO : display TorchButton only if 'environment' facing mode */}
                                     <TorchButton />
-                                    <SnapshotButton onSnapshot={(dataUrl: string) => {
-                                        if (props.onSnapshot) {
-                                            return props.onSnapshot(stream.getContact(), dataUrl)
-                                        } else {
-                                            return new Promise((resolve) => {
-                                                resolve();
-                                            })
-                                        }
-                                    }} />
                                 </>}
+                                {stream.hasVideo() && <SnapshotButton onSnapshot={(dataUrl: string) => {
+                                    if (props.onSnapshot) {
+                                        return props.onSnapshot(stream.getContact(), dataUrl)
+                                    } else {
+                                        return new Promise((resolve) => {
+                                            resolve();
+                                        })
+                                    }
+                                }} />}
                                 {/* <MuteButton /> */}
                                 {stream.hasAudio() && <MuteButton />}
                                 {/* {stream.hasAudio() && <AudioEnableButton />}*/}
@@ -300,7 +300,7 @@ export function Room(inProps: RoomProps) {
                                 {stream.hasVideo() && !stream.isScreensharing() && <VideoEnableButton />}
                             </>}
                             muted={false}
-                            name={`${stream.getContact().getUserData().get('firstName')}${stream.isScreensharing() && '-screen'}`}
+                            name={`${stream.getContact().getUserData().get('firstName')}${stream.isScreensharing() ? '-screen' : ''}`}
                         // onMouseDown={(event: React.MouseEvent) => {
                         //     event.preventDefault()
                         //     onStreamMouseDown(stream, event)
