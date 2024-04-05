@@ -327,7 +327,10 @@ export function Room(inProps: RoomProps) {
                                     ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
                                 }}
                                 stream={stream} muted={true}
-                                controls={<><AudioEnableButton />{stream.hasVideo() && <VideoEnableButton />}</>}>
+                                controls={<>
+                                    {!stream.isScreensharing() && <AudioEnableButton />}
+                                    {stream.hasVideo() && !stream.isScreensharing() && <VideoEnableButton />}
+                                </>}>
                                 {stream.hasVideo() ?
                                     <Video
                                         sx={VIDEO_SIZING}
