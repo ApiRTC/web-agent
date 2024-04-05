@@ -136,11 +136,11 @@ export function Settings(inProps: SettingsProps) {
                             onChange={toggleBlur}
                             inputProps={{ 'aria-label': blur ? 'blurred' : 'not-blurred' }}
                         />} label={blurLabel} />
-                        {/* <FormControlLabel control={<Switch
-                        checked={noiseReduction}
-                        onChange={toggleNoiseReduction}
-                        inputProps={{ 'aria-label': noiseReduction ? 'noise-reduction' : 'no-noise-reduction' }}
-                    />} label={noiseReductionLabel} /> */}
+                        <FormControlLabel control={<Switch
+                            checked={noiseReduction}
+                            onChange={toggleNoiseReduction}
+                            inputProps={{ 'aria-label': noiseReduction ? 'noise-reduction' : 'no-noise-reduction' }}
+                        />} label={noiseReductionLabel} />
                     </Stack>
                 </Stack>
             </Stack>
@@ -154,6 +154,9 @@ export function Settings(inProps: SettingsProps) {
                     }
                 </Stack>
             }
+            {stream && stream.data && <div>{stream.data.id}</div>}
+            {stream && <div>{stream.audioAppliedFilter}</div>}
+            {stream && <div>{stream.videoAppliedFilter}</div>}
         </Stack>
     </MuiThemeProvider>
 }

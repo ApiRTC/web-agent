@@ -2,7 +2,7 @@ import { useCallback, useContext, useDeferredValue, useEffect, useMemo, useState
 
 import { Contact, JoinOptions, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { useToggle } from '@apirtc/mui-react-lib';
-import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useStreamApplyAudioProcessor, useStreamApplyVideoProcessor, useUserMediaDevices } from '@apirtc/react-lib';
+import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useUserMediaDevices } from '@apirtc/react-lib';
 
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
@@ -29,6 +29,8 @@ import { TimelineContext } from './TimelineContext';
 import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { TimelineEvent } from './types';
+import useStreamApplyAudioProcessor from './useStreamApplyAudioProcessor';
+import useStreamApplyVideoProcessor from './useStreamApplyVideoProcessor';
 
 const const_conversationOptions = {
     // moderationEnabled: true, moderator: true,
@@ -167,11 +169,39 @@ export function App(inProps: AppProps) {
     const { stream: lStream2, error: noiseReductionError } = useStreamApplyAudioProcessor(
         lStream,
         noiseReduction ? 'noiseReduction' : 'none');
+    //noiseReduction && !blur ? 'noiseReduction' : 'none');
 
     // applied: appliedVideoProcessorType
-    const { stream: cameraStream, error: blurError } = useStreamApplyVideoProcessor(
-        lStream2,
+    const { stream: lStream3, error: blurError } = useStreamApplyVideoProcessor(
+        lStream,
         blur ? 'blur' : 'none'); //videoProcessorErrorCallback
+
+    // const { stream: lStream3, error: blurError } = useStreamApplyVideoProcessor(
+    //     lStream2,
+    //     noiseReduction && blur ? 'blur' : 'none'); //videoProcessorErrorCallback
+
+    // const { stream: lStream4, error: blurError2 } = useStreamApplyVideoProcessor(
+    //     lStream,
+    //     blur && !noiseReduction ? 'blur' : 'none'); //videoProcessorErrorCallback
+
+    // useEffect(() => {
+    //     if (globalThis.logLevel.isDebugEnabled) {
+    //         console.debug(`${COMPONENT_NAME}|CURRENTDEBUG useEffect lStream, cameraStream`, lStream, lStream2, lStream3);
+    //     }
+    // }, [lStream, lStream2, lStream3])
+
+    const cameraStream = useMemo(() => {
+        if (lStream3) return lStream3;
+        if (lStream2) return lStream2;
+        return lStream
+    }, [lStream, lStream2, lStream3]);
+
+    // const cameraStream = useMemo(() => {
+    //     if (blur && noiseReduction && lStream3) return lStream3;
+    //     if (blur && lStream4) return lStream4
+    //     if (noiseReduction && lStream2) return lStream2
+    //     return lStream
+    // }, [blur, noiseReduction, lStream, lStream2, lStream3, lStream4])
 
     const { conversation, joined } = useConversation(session,
         conversationName,
@@ -352,6 +382,7 @@ export function App(inProps: AppProps) {
         ...(grabError ? [`Camera error : ${grabError.message}`] : []),
         ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
         ...(blurError ? [`Blur error : ${blurError}`] : []),
+        // ...(blurError2 ? [`Blur error2 : ${blurError2}`] : []),
         ...(withAudio && !grabbing && cameraStream && !cameraStream.hasAudio() ? ["Failed to grab audio"] : []),
         ...(withVideo && !grabbing && cameraStream && !cameraStream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
     ], [cameraStream, grabbing, grabError, noiseReductionError, blurError, withAudio, withVideo]);
