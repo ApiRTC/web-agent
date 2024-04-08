@@ -14,10 +14,10 @@ import Tooltip from "@mui/material/Tooltip";
 import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@mui/material/styles';
 
 import { Stream as ApiRTCStream, MediaDevice, MediaDeviceList, Session } from "@apirtc/apirtc";
-import { Audio, MediaDeviceSelect, Stream, Video } from "@apirtc/mui-react-lib";
+import { Audio, AudioEnableButton, MediaDeviceSelect, Stream, Video, VideoEnableButton } from "@apirtc/mui-react-lib";
 
 import { AppContext } from "./AppContext";
-import { VIDEO_ROUNDED_CORNERS } from "./constants";
+import { ROOM_THEME, VIDEO_ROUNDED_CORNERS } from "./constants";
 
 const SETTINGS_THEME = createTheme({
     components: {
@@ -93,11 +93,16 @@ export function Settings(inProps: SettingsProps) {
                 alignItems='center' justifyContent='center'
                 spacing={2}>
                 {grabbing && !stream && <Skeleton variant="rectangular" width={237} height={178} />}
-                {stream && <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
-                    stream={stream} muted={true}>
-                    {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
-                        data-testid='local-stream-video' /> : <Audio data-testid='local-stream-audio' />}
-                </Stream>}
+                {stream && <MuiThemeProvider theme={ROOM_THEME}>
+                    <Stream sx={{ maxWidth: '237px', maxHeight: '260px' }}
+                        stream={stream} muted={true}
+                        controls={<>
+                            {stream.hasAudio() && <AudioEnableButton />}
+                            {stream.hasVideo() && <VideoEnableButton />}
+                        </>}>
+                        {stream.hasVideo() ? <Video style={{ maxWidth: '100%', ...VIDEO_ROUNDED_CORNERS }}
+                            data-testid='local-stream-video' /> : <Audio data-testid='local-stream-audio' />}
+                    </Stream></MuiThemeProvider>}
                 <Stack spacing={1}>
                     {audio &&
                         <Stack direction="row" spacing={1}>

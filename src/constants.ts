@@ -1,3 +1,9 @@
+import { frFR as ApiRtcMuiReactLib_frFR } from "@apirtc/mui-react-lib";
+import { createTheme } from '@mui/material/styles';
+
+import { languageToLocale } from "./locale";
+import { frFR } from './locale/frFR';
+
 export const MAX_HEIGHT = 1280;
 
 // radius used for images attached to a comment in Zendesk is 5px
@@ -61,3 +67,16 @@ export const ROOM_THEME_OPTIONS = {
         },
     }
 };
+
+const locale = languageToLocale(navigator.language);
+const langDict = (locale === 'fr-FR') ? { ...frFR, ...ApiRtcMuiReactLib_frFR } : {};
+
+export const ROOM_THEME = createTheme({
+    ...ROOM_THEME_OPTIONS,
+    typography: {
+        button: {
+            textTransform: 'none',
+            letterSpacing: 0.25,
+        }
+    }
+}, langDict);

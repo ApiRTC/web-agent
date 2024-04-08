@@ -3,12 +3,11 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Stream as ApiRTCStream, Contact, Conversation } from "@apirtc/apirtc";
 import {
     Grid as ApiRtcGrid,
-    frFR as ApiRtcMuiReactLib_frFR,
     Audio as AudioComponent,
     AudioEnableButton,
     MuteButton,
     SnapshotButton,
-    Stream, TorchButton, Video, VideoEnableButton,
+    Stream, TorchButton, Video, VideoEnableButton
 } from "@apirtc/mui-react-lib";
 import { useConversationStreams } from "@apirtc/react-lib";
 
@@ -18,13 +17,11 @@ import StopScreenShareIcon from '@mui/icons-material/StopScreenShare';
 import ButtonGroup from "@mui/material/ButtonGroup";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import { createTheme, ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/material/styles';
 import Tooltip from "@mui/material/Tooltip";
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { ROOM_THEME_OPTIONS, VIDEO_ROUNDED_CORNERS } from './constants';
-import { languageToLocale } from "./locale";
-import { frFR } from './locale/frFR';
+import { ROOM_THEME, VIDEO_ROUNDED_CORNERS } from './constants';
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
 import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
@@ -34,19 +31,6 @@ const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
 const AUDIO_IN = new Audio(inNotification);
 const AUDIO_OFF = new Audio(offNotification);
-
-const locale = languageToLocale(navigator.language);
-const langDict = (locale === 'fr-FR') ? { ...frFR, ...ApiRtcMuiReactLib_frFR } : {};
-
-const ROOM_THEME = createTheme({
-    ...ROOM_THEME_OPTIONS,
-    typography: {
-        button: {
-            textTransform: 'none',
-            letterSpacing: 0.25,
-        }
-    }
-}, langDict);
 
 export type RoomProps = {
     sx?: SxProps,
@@ -71,9 +55,7 @@ export function Room(inProps: RoomProps) {
         // onStart, onEnd
         hangUpText = "HangUp", shareScreenText = "Share screen"
     } = props;
-
-
-
+    
     // const boxRef = useRef<HTMLElement>(null);
 
     const [screen, setScreen] = useState<ApiRTCStream>();
