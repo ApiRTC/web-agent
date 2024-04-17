@@ -94,6 +94,7 @@ The actual **message** is an object in _event.data_. A **message** has a _type_ 
 
 | message type       | field(s)         | Description                                                                   |
 | ------------------ | ---------------- | ----------------------------------------------------------------------------- |
+| contacts           | length           | fired every time the number of **Conversation** contacts changes              |
 | error              | reason           | an error happened                                                             |
 | joined             | N/A              | **Conversation** was joined                                                   |
 | left               | N/A              | **Conversation** was left                                                     |

@@ -10,6 +10,7 @@ export enum InputMessageType {
 }
 
 export enum OutputMessageType {
+    Contacts = 'contacts',
     Error = 'error',
     Joined = 'joined',
     Left = 'left',

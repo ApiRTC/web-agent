@@ -30,6 +30,12 @@ import { CODECS } from './constants';
 import { getFromLocalStorage, setLocalStorage } from './local-storage';
 import { TimelineEvent } from './types';
 
+import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
+import offNotification from "./assets/mixkit-electric-pop-2365.wav";
+
+const AUDIO_IN = new Audio(inNotification);
+const AUDIO_OFF = new Audio(offNotification);
+
 const const_conversationOptions = {
     // moderationEnabled: true, moderator: true,
     meshModeEnabled: true
@@ -199,10 +205,9 @@ export function App(inProps: AppProps) {
         addTimelineEvent({ severity: 'warning', name: contact.getUserData().get('firstName'), message: contactLeft, dateTime: new Date() })
     }, [addTimelineEvent, contactLeft]);
 
-    useConversationContacts(conversation, onContactJoined, onContactLeft);
+    const { contacts } = useConversationContacts(conversation, onContactJoined, onContactLeft);
 
-    // number of subscribed streams boolean projection
-    const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
+    const hasContacts = useMemo(() => contacts.length > 0, [contacts]);
 
     // manage menu
     const [menuValue, setMenuValue] = useState<MenuValues | undefined>(MenuValues.Invite);
@@ -283,6 +288,33 @@ export function App(inProps: AppProps) {
     }, [notify, joined])
 
     useEffect(() => {
+        notify({
+            type: OutputMessageType.Contacts,
+            length: contacts.length,
+        })
+    }, [contacts, notify])
+
+    useEffect(() => {
+        if (hasContacts) {
+            AUDIO_IN.play().catch((error) => {
+                // Don't forget to catch otherwise the page fails in error cases
+                if (globalThis.logLevel.isWarnEnabled) {
+                    console.warn(`${COMPONENT_NAME}|Audio Error`, error)
+                }
+            })
+            return () => {
+                // play sound corresponding to no more subscribedStreams
+                AUDIO_OFF.play().catch((error) => {
+                    // Don't forget to catch otherwise the page fails in error cases
+                    if (globalThis.logLevel.isWarnEnabled) {
+                        console.warn(`${COMPONENT_NAME}|Audio Error`, error)
+                    }
+                })
+            }
+        }
+    }, [hasContacts])
+
+    useEffect(() => {
         // Notify parent resize might be necessary
         notify({
             type: OutputMessageType.Resize
@@ -325,19 +357,10 @@ export function App(inProps: AppProps) {
         });
     }, [notify, addTimelineEvent]);
 
-    const onSubscribedStreamsLengthChange = (length: number) => {
-        setHasSubscribedStreams(length > 0)
-        // Notify
-        notify({
-            type: OutputMessageType.SubscribedStreams,
-            length,
-        })
-    };
-
     useEffect(() => {
         setMenuValue((prev) => {
             // when some subscribed streams appear, clear the menu selection
-            if (hasSubscribedStreams) return undefined
+            if (hasContacts) return undefined
             // when there are no more subscribed streams
             // If a menu is selected, keep this one
             if (prev) {
@@ -346,7 +369,7 @@ export function App(inProps: AppProps) {
             // otherwise go to invite
             return MenuValues.Invite
         })
-    }, [hasSubscribedStreams])
+    }, [hasContacts])
 
     const _settingsErrors = useMemo(() => [
         ...(grabError ? [`Camera error : ${grabError.message}`] : []),
@@ -443,9 +466,9 @@ export function App(inProps: AppProps) {
 
         {renderMenuContent()}
 
-        {menuValue && hasSubscribedStreams && <Divider sx={{ m: 2 }} />}
+        {menuValue && hasContacts && <Divider sx={{ m: 2 }} />}
 
-        {conversation && <Room sx={{
+        {conversation && hasContacts && <Room sx={{
             mt: 1, px: 1,
             minHeight: '100%', width: '100%',
         }}
@@ -457,7 +480,6 @@ export function App(inProps: AppProps) {
                     type: OutputMessageType.Resize
                 })
             }}
-            onSubscribedStreamsLengthChange={onSubscribedStreamsLengthChange}
         />}
 
     </TimelineContext.Provider>

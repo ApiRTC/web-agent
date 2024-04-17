@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { Stream as ApiRTCStream, Contact, Conversation } from "@apirtc/apirtc";
 import {
@@ -9,7 +9,7 @@ import {
     SnapshotButton,
     Stream, TorchButton, Video, VideoEnableButton
 } from "@apirtc/mui-react-lib";
-import { useConversationStreams } from "@apirtc/react-lib";
+// import { useConversationStreams } from "@apirtc/react-lib";
 
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
@@ -21,25 +21,20 @@ import { ThemeProvider as MuiThemeProvider, SxProps, useThemeProps } from '@mui/
 import Tooltip from "@mui/material/Tooltip";
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { AppContext } from './AppContext';
 import { ROOM_THEME, VIDEO_ROUNDED_CORNERS } from './constants';
+import { OutputMessageType } from "./MessageTypes";
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
-import inNotification from "./assets/mixkit-bubble-pop-up-alert-notification-2357.wav";
-import offNotification from "./assets/mixkit-electric-pop-2365.wav";
+import useConversationStreams from "./useConversationStreams";
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
-
-const AUDIO_IN = new Audio(inNotification);
-const AUDIO_OFF = new Audio(offNotification);
 
 export type RoomProps = {
     sx?: SxProps,
     conversation: Conversation,
     stream?: ApiRTCStream,
     onSnapshot?: (contact: Contact, dataUrl: string) => Promise<void>,
-    // onStart?: (timestamp: number) => void,
-    // onEnd?: (durationMilliseconds: number) => void,
-    onSubscribedStreamsLengthChange?: (length: number) => void,
     onDisplayChange?: () => void,
     hangUpText?: string,
     shareScreenText?: string
@@ -48,27 +43,20 @@ export type RoomProps = {
 const COMPONENT_NAME = "Room";
 export function Room(inProps: RoomProps) {
 
+    const { notify } = useContext(AppContext);
+
     const props = useThemeProps({ props: inProps, name: COMPONENT_NAME });
     const { conversation, stream,
         onDisplayChange,
-        onSubscribedStreamsLengthChange,
-        // onStart, onEnd
         hangUpText = "HangUp", shareScreenText = "Share screen"
     } = props;
-    
-    // const boxRef = useRef<HTMLElement>(null);
 
     const [screen, setScreen] = useState<ApiRTCStream>();
 
-    const [hasSubscribedStreams, setHasSubscribedStreams] = useState<boolean>(false);
+    const streamsToPublish = useMemo(() => [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])],
+        [stream, screen]);
 
-    const streamsToPublish = useMemo(() =>
-        hasSubscribedStreams ?
-            [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])]
-            : [],
-        [hasSubscribedStreams, stream, screen]);
-
-    const { publishedStreams, subscribedStreams, unsubscribeAll } = useConversationStreams(
+    const { publishedStreams, subscribedStreams, unpublishAll, unsubscribeAll } = useConversationStreams(
         conversation,
         // Don't do:
         //hasSubscribedStreams ? [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])] : []
@@ -76,10 +64,8 @@ export function Room(inProps: RoomProps) {
         streamsToPublish
     );
 
-    //const _subscribedStreams = useMemo(() => subscribedStreams.length > 0 ? Array(8).fill(subscribedStreams[0]) : [], [subscribedStreams]);
-
     if (globalThis.logLevel.isDebugEnabled) {
-        console.debug(`${COMPONENT_NAME}|render|${conversation.getName()}`, stream, publishedStreams, subscribedStreams, hasSubscribedStreams)
+        console.debug(`${COMPONENT_NAME}|render|${conversation.getName()}`, stream, publishedStreams, subscribedStreams)
     }
 
     // useEffect(() => {
@@ -107,58 +93,14 @@ export function Room(inProps: RoomProps) {
     //     }
     // }, [conversation])
 
-    useEffect(() => {
-        // Reduce subscribedStreams.length to a boolean (which can have ony 2 possible values)
-        setHasSubscribedStreams(subscribedStreams.length > 0)
-
-        // notify parent
-        if (onSubscribedStreamsLengthChange) {
-            onSubscribedStreamsLengthChange(subscribedStreams.length)
-        }
-    }, [subscribedStreams.length, onSubscribedStreamsLengthChange])
+    const subscribedStreamsLength = useMemo(() => subscribedStreams.length, [subscribedStreams]);
 
     useEffect(() => {
-        if (hasSubscribedStreams) {
-            AUDIO_IN.play().catch((error) => {
-                // Don't forget to catch otherwise the page fails in error cases
-                if (globalThis.logLevel.isWarnEnabled) {
-                    console.warn(`${COMPONENT_NAME}|Audio Error`, error)
-                }
-            })
-            return () => {
-                // play sound corresponding to no more subscribedStreams
-                AUDIO_OFF.play().catch((error) => {
-                    // Don't forget to catch otherwise the page fails in error cases
-                    if (globalThis.logLevel.isWarnEnabled) {
-                        console.warn(`${COMPONENT_NAME}|Audio Error`, error)
-                    }
-                })
-            }
-        }
-    }, [hasSubscribedStreams])
-
-    //
-    // Manage onStart/onEnd
-    // COMMENTED OUT : because linking start/end to hasSubscribedStreams or not may not be accurate
-    // as one subscribed stream may go off for a short period during stream break for example...
-    // So I replace onStart/onEnd by a more generic onSubscribedStreamsSizeChange to let the application above
-    // handle this.
-    // Using hasSubscribedStreams value change allows to detect start and end (has or no more has subscribed streams)
-    // useEffect(() => {
-    //     if (hasSubscribedStreams) {
-    //         const start = Date.now();
-    //         if (onStart) {
-    //             onStart(start)
-    //         }
-    //         return () => {
-    //             // if hasSubscribedStreams was true, it is now false,
-    //             // so this is the end of a conversation
-    //             if (onEnd) {
-    //                 onEnd(Date.now() - start)
-    //             }
-    //         }
-    //     }
-    // }, [hasSubscribedStreams, onStart, onEnd]) //onStart, onEnd
+        notify({
+            type: OutputMessageType.SubscribedStreams,
+            length: subscribedStreamsLength,
+        })
+    }, [notify, subscribedStreamsLength])
 
     useEffect(() => {
         // This is to externally trigger resize when display changes
@@ -222,9 +164,10 @@ export function Room(inProps: RoomProps) {
             // But it also prevents from a problem when guest app and apirtc do not clean properly
             // the published streams : it results in agent app to wait for calls termination from Janus/CCS sig.
             //
+            unpublishAll()
             unsubscribeAll()
         })
-    }, [conversation, unsubscribeAll]);
+    }, [conversation, unpublishAll, unsubscribeAll]);
 
     // const onStreamMouseDown = useCallback((stream: ApiRTCStream, event: React.MouseEvent) => {
     //     if (globalThis.logLevel.isDebugEnabled) {
@@ -304,7 +247,8 @@ export function Room(inProps: RoomProps) {
                 <MuiThemeProvider theme={ROOM_THEME}>
                     <ApiRtcGrid sx={{ height: '100%', width: '100%' }}>
                         {publishedStreams.map((stream, index) =>
-                            <Stream id={`published-stream-${index}`} key={index}
+                            <Stream id={`published-stream-${index}-${stream.getId()}`} key={index}
+                                data-testid={stream.getId()}
                                 sx={{
                                     ...(stream.hasVideo() ? VIDEO_SIZING : { backgroundColor: 'grey' })
                                 }}
