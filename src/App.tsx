@@ -36,7 +36,7 @@ import offNotification from "./assets/mixkit-electric-pop-2365.wav";
 const AUDIO_IN = new Audio(inNotification);
 const AUDIO_OFF = new Audio(offNotification);
 
-const const_conversationOptions = {
+const CONVERSATION_OPTIONS = {
     // moderationEnabled: true, moderator: true,
     meshModeEnabled: true
 };
@@ -182,7 +182,7 @@ export function App(inProps: AppProps) {
     const { conversation, joined } = useConversation(session,
         conversationName,
         // no need for using useState nor useMemo as longs as the value is a constant
-        const_conversationOptions,
+        CONVERSATION_OPTIONS,
         join,
         // TODO: supportedVideoCodecs is not yet documented nor exposed as a possible JoinOptions in apirtc typings
         // thus we need to force type with 'as'
