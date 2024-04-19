@@ -14,14 +14,13 @@ import Input from '@mui/material/Input';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
 import { SxProps, useThemeProps } from '@mui/material/styles';
 
 import { encode as base64_encode } from 'base-64';
 import debounce from 'lodash.debounce';
 
 import { JoinOptions, PublishOptions, Session } from '@apirtc/apirtc';
-import { PublishOptions as PublishOptionsComponent, useToggle, useToggleArray } from '@apirtc/mui-react-lib';
+import { PublishOptions as PublishOptionsComponent, useToggleArray } from '@apirtc/mui-react-lib';
 
 import { InvitationData } from '@apirtc/shared-types';
 
@@ -65,9 +64,7 @@ export type InvitationProps = {
     environmentFacingModeText?: string,
     namePlaceholder?: string,
     emailPlaceholder?: string,
-    phonePlaceholder?: string,
-    avShareLabel?: string,
-    screenShareLabel?: string,
+    phonePlaceholder?: string
 
     /**
       * Accepts a function which returns a string value that provides a user-friendly comment for the invitation.
@@ -108,8 +105,6 @@ export function Invitation(inProps: InvitationProps) {
         namePlaceholder = "Name",
         // emailPlaceholder = "Email",
         phonePlaceholder = "Phone",
-        avShareLabel = "Request audio/video sharing",
-        screenShareLabel = "Request screen sharing",
         //         getInviteComment = (name: string, link: string) => `Hello ${name},
         // I would like to invite you to a visio call, please click this <a href='${link}'>link</a> to join.`,
         // getEmailSentComment = (to: string) => `An e-mail was sent to ${to}`,
@@ -127,10 +122,6 @@ Thanks`,
     // name to handle typing
     const [name, setName] = useState<string>(guestData?.name || EMPTY_STRING);
 
-    const avShareInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.guest.avShare`, 'true')),
-        [installationId]);
-    const { value: avShare, setValue: setAvShare } = useToggle(avShareInitValue);
-
     const publishOptionsInitValue = useMemo(() => storageToPublishOptions(`${installationId}.guest.publishOptions`),
         [installationId]);
     const [publishOptions, setPublishOptions] = useState<PublishOptions>(allowAudio ? publishOptionsInitValue : { videoOnly: true });
@@ -145,16 +136,11 @@ Thanks`,
 
     const [sending, setSending] = useState<boolean>(false);
 
-    const screenShareInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.guest.screenShare`, 'false')),
-        [installationId]);
-    const { value: screenShare, setValue: setScreenShare } = useToggle(screenShareInitValue);
 
     useEffect(() => {
-        setLocalStorage(`${installationId}.guest.avShare`, `${avShare}`)
         setLocalStorage(`${installationId}.guest.publishOptions`, JSON.stringify(publishOptions))
         setLocalStorage(`${installationId}.guest.facingMode`, facingMode ?? FACING_MODES[0])
-        setLocalStorage(`${installationId}.guest.screenShare`, `${screenShare}`)
-    }, [installationId, avShare, publishOptions, facingMode, screenShare])
+    }, [installationId, publishOptions, facingMode])
 
     useEffect(() => {
         if (globalThis.logLevel.isDebugEnabled) {
@@ -166,45 +152,42 @@ Thanks`,
     }, [guestData])
 
     const invitationData: InvitationData | undefined = useMemo(() => {
-        return guestData?.name && guestData.name !== EMPTY_STRING
-            && (avShare || screenShare) ? {
-            cloudUrl: appConfig.apiRtc.cloudUrl,
-            apiKey: appConfig.apiRtc.apiKey,
-            callStatsMonitoringInterval: appConfig.apiRtc.callStatsMonitoringInterval,
-            conversation: {
-                name: props.conversationName,
-                friendlyName: props.conversationName,
-                getOrCreateOptions: {
-                    moderationEnabled: false,
-                    meshModeEnabled: true
-                },
-                joinOptions: CODECS as JoinOptions// 'as JoinOptions' because supportedVideoCodecs is not in apirtc typings
-            },
-            user: {
-                firstName: guestData.name,
-                lastName: "",
-            },
-            streams: [
-                ...(avShare ? [{
-                    type: 'user-media' as 'user-media',
-                    constraints: {
-                        audio: publishOptions.videoOnly ? false : {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                        },
-                        video: publishOptions.audioOnly ? false : {
-                            facingMode: facingMode,
-                            // advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
-                        }
+        return guestData?.name && guestData.name !== EMPTY_STRING ?
+            {
+                cloudUrl: appConfig.apiRtc.cloudUrl,
+                apiKey: appConfig.apiRtc.apiKey,
+                callStatsMonitoringInterval: appConfig.apiRtc.callStatsMonitoringInterval,
+                conversation: {
+                    name: props.conversationName,
+                    friendlyName: props.conversationName,
+                    getOrCreateOptions: {
+                        moderationEnabled: false,
+                        meshModeEnabled: true
                     },
-                    publishOptions: publishOptions
-                }] : []),
-                ...(screenShare ? [{
-                    type: 'display-media' as 'display-media'
-                }] : [])
-            ]
-        } : undefined;
-    }, [appConfig, props.conversationName, guestData?.name, facingMode, publishOptions, avShare, screenShare]);
+                    joinOptions: CODECS as JoinOptions// 'as JoinOptions' because supportedVideoCodecs is not in apirtc typings
+                },
+                user: {
+                    firstName: guestData.name,
+                    lastName: "",
+                },
+                streams: [
+                    {
+                        type: 'user-media' as 'user-media',
+                        constraints: {
+                            audio: publishOptions.videoOnly ? false : {
+                                echoCancellation: true,
+                                noiseSuppression: true,
+                            },
+                            video: publishOptions.audioOnly ? false : {
+                                facingMode: facingMode,
+                                // advanced: [{ facingMode: facingMode }] // 'environment' or 'user'
+                            }
+                        },
+                        publishOptions: publishOptions
+                    }
+                ]
+            } : undefined;
+    }, [appConfig, props.conversationName, guestData?.name, facingMode, publishOptions]);
 
     useEffect(() => {
         if (globalThis.logLevel.isDebugEnabled) {
@@ -275,10 +258,6 @@ Thanks`,
         if (guestData?.name && phone !== EMPTY_STRING && invitationLink) {
             const url = `${appConfig.apiRtc.cloudUrl ?? 'https://cloud.apirtc.com'}/api/text-message`;
             setSending(true)
-            // client.request(options).then((data: any) => {
-            //     client.invoke('notify', sentSmsText, 'notice');
-            //     doComment(getSmsSentComment(phone))
-            // })
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -328,10 +307,6 @@ Thanks`,
         getSmsText, getSmsSentComment,
     ]);
 
-    // const handleModerationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     props.setModerationEnabled(event.target.checked)
-    // };
-
     const handleFacingModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFacingModeIndex(+(event.target as HTMLInputElement).value)
     };
@@ -362,46 +337,17 @@ Thanks`,
         debouncedSetGuestName(event.target.value)
     };
 
-    const toggleAvShare = useCallback(() => {
-        setAvShare((prev) => {
-            if (prev === true && screenShare === false) {
-                setScreenShare(true)
-            }
-            return !prev
-        })
-    }, [screenShare, setAvShare, setScreenShare]);
-
-    const toggleScreenShare = useCallback(() => {
-        setScreenShare((prev) => {
-            if (prev === true && avShare === false) {
-                setAvShare(true)
-            }
-            return !prev
-        })
-    }, [avShare, setAvShare, setScreenShare]);
-
     return <Box sx={props.sx}>
         <form>
-            <FormControlLabel control={<Switch
-                checked={avShare}
-                onChange={toggleAvShare}
-                inputProps={{ 'aria-label': avShare ? 'audio-video-share' : 'no-audio-video-share' }}
-            />} label={avShareLabel} />
             <Stack direction="row" spacing={2}>
-                {/* <FormControlLabel control={<Switch
-                    checked={props.moderationEnabled}
-                    onChange={handleModerationChange}
-                />} label={moderationEnabledText} />
-                <Divider orientation="vertical" flexItem>
-                </Divider> */}
-                <PublishOptionsComponent disabled={!avShare}
+                <PublishOptionsComponent
                     value={publishOptions}
                     audioAndVideoOption={allowAudio}
                     audioOnlyOption={allowAudio}
                     onChange={setPublishOptions} />
                 <Divider orientation="vertical" flexItem>
                 </Divider>
-                <FormControl disabled={!avShare || publishOptions.audioOnly === true}>
+                <FormControl disabled={publishOptions.audioOnly === true}>
                     <FormLabel data-testid="facing-mode-label">{facingModeText}</FormLabel>
                     <RadioGroup
                         aria-labelledby="publish-options"
@@ -413,11 +359,6 @@ Thanks`,
                     </RadioGroup>
                 </FormControl>
             </Stack>
-            <FormControlLabel control={<Switch
-                checked={screenShare}
-                onChange={toggleScreenShare}
-                inputProps={{ 'aria-label': screenShare ? 'screen-share' : 'no-screen-share' }}
-            />} label={screenShareLabel} />
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}
                 alignItems="flex-end">
@@ -428,12 +369,6 @@ Thanks`,
                     <Button data-testid="copy-link-btn" disabled={!invitationLink} onClick={doCopyLink} startIcon={<ContentCopyIcon />}>{copyLinkText}</Button>
                 </ButtonGroup>
             </Stack>
-            {/* <Link href={inviteLink}>Lien pour {name}</Link> */}
-            {/* <Stack sx={{ mt: 1 }}
-                direction="row" spacing={1}>
-                <Input data-testid="email-input" placeholder={emailPlaceholder} value={email} onChange={e => setEmail(e.target.value)} />
-                <Button sx={{ minWidth: 120 }} variant='outlined' disabled={sending} onClick={doSendEmail}>{sendEmailText}</Button>
-            </Stack>*/}
             <Stack sx={{ mt: 1 }}
                 direction="row" spacing={1}>
                 <Input data-testid="phone-input" size="small" placeholder={phonePlaceholder}
