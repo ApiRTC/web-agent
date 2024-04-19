@@ -466,9 +466,9 @@ export function App(inProps: AppProps) {
 
         {renderMenuContent()}
 
-        {menuValue && hasContacts && <Divider sx={{ m: 2 }} />}
+        {menuValue && conversation && hasContacts && <Divider sx={{ m: 2 }} />}
 
-        {conversation && <Room sx={{
+        {conversation && hasContacts && <Room sx={{
             mt: 1, px: 1,
             minHeight: '100%', width: '100%',
         }}

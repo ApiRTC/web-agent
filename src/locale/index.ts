@@ -22,7 +22,6 @@ export default interface Localization {
                 'commentFailText' |
                 'facingModeText' | 'userFacingModeText' | 'environmentFacingModeText' |
                 'namePlaceholder' | 'emailPlaceholder' | 'phonePlaceholder' |
-                'avShareLabel' | 'screenShareLabel' |
                 'getInviteComment' | 'getEmailSentComment' | 'getSmsSentComment' |
                 'getEmailHtml' | 'getEmailText' | 'getSmsText'>;
         };
@@ -30,7 +29,7 @@ export default interface Localization {
             defaultProps: Pick<TimelineProps, 'noEventsText'>;
         };
         Room?: {
-            defaultProps: Pick<RoomProps, 'hangUpText' | 'shareScreenText'>;
+            defaultProps: Pick<RoomProps, 'hangUpText'>;
         };
         Settings?: {
             defaultProps: Pick<SettingsProps,

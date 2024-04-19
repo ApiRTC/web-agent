@@ -1,4 +1,4 @@
-import Localization from '.'
+import Localization from '.';
 
 // const hmsToString = (h: number, m: number, s: number) => {
 //     const hDisplay = h > 0 ? h + (h === 1 ? " heure, " : " heures, ") : "";
@@ -37,8 +37,6 @@ export const frFR: Localization = {
                 namePlaceholder: "Nom",
                 emailPlaceholder: "e-mail",
                 phonePlaceholder: "Téléphone",
-                avShareLabel: "Demander le partage audio/video",
-                screenShareLabel: "Demander le partage d'écran",
                 getInviteComment: (name: string, link: string) => `Bonjour ${name},
 Je vous invite en visio, merci de cliquer <a href='${link}'>ici</a> pour me rejoindre.`,
                 getEmailSentComment: (to: string) => `Un mél a été envoyé à ${to}.`,
@@ -61,8 +59,7 @@ Je vous invite en visio, pour rejoindre : ${link}`,
         },
         Room: {
             defaultProps: {
-                hangUpText: "Raccrocher",
-                shareScreenText: "Partage écran"
+                hangUpText: "Raccrocher"
             }
         },
         Settings: {
