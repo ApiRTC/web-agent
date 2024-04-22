@@ -23,6 +23,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { AppContext } from './AppContext';
 import { ROOM_THEME, VIDEO_ROUNDED_CORNERS } from './constants';
 import { OutputMessageType } from "./MessageTypes";
+import { SwitchFacingModeButton } from "./SwitchFacingModeButton";
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
@@ -109,6 +110,9 @@ export function Room(inProps: RoomProps) {
                             }}
                             stream={stream} detectSpeaking={true}
                             controls={<>
+                                {stream.hasVideo() && !stream.isScreensharing() && <>
+                                    <SwitchFacingModeButton />
+                                </>}
                                 {stream.hasVideo() && <SnapshotButton onSnapshot={(dataUrl: string) => {
                                     if (props.onSnapshot) {
                                         return props.onSnapshot(stream.getContact(), dataUrl)
