@@ -5,11 +5,9 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import Alert from "@mui/material/Alert";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
-import Switch from '@mui/material/Switch';
 import Tooltip from "@mui/material/Tooltip";
 import { ThemeProvider as MuiThemeProvider, createTheme, useThemeProps } from '@mui/material/styles';
 
@@ -52,15 +50,11 @@ export type SettingsProps = {
     settingsErrors: string[],
     withAudio: boolean, toggleAudio: () => void,
     withVideo: boolean, toggleVideo: () => void,
-    blur: boolean, toggleBlur: () => void,
-    noiseReduction: boolean, toggleNoiseReduction: () => void,
     userMediaDevices: MediaDeviceList,
     selectedAudioIn: MediaDevice | undefined, setSelectedAudioIn: Function,
     selectedVideoIn: MediaDevice | undefined, setSelectedVideoIn: Function,
     grabbing: boolean,
     stream: ApiRTCStream | undefined,
-    blurLabel?: string,
-    noiseReductionLabel?: string,
     audioOffTooltip?: string,
     audioOnTooltip?: string,
     videoOffTooltip?: string,
@@ -74,14 +68,11 @@ export function Settings(inProps: SettingsProps) {
         session,
         settingsErrors,
         withAudio, toggleAudio, withVideo, toggleVideo,
-        blur, toggleBlur,
-        noiseReduction, toggleNoiseReduction,
         userMediaDevices,
         selectedAudioIn, setSelectedAudioIn,
         selectedVideoIn, setSelectedVideoIn,
         grabbing,
         stream,
-        blurLabel = "Blur", noiseReductionLabel = "Noise reduction",
         audioOffTooltip = "Audio Off", audioOnTooltip = "Audio On", videoOffTooltip = "Video Off", videoOnTooltip = "Video On",
     } = props;
 
@@ -134,18 +125,6 @@ export function Settings(inProps: SettingsProps) {
                             devices={userMediaDevices.videoinput}
                             selectedDevice={selectedVideoIn}
                             setSelectedDevice={setSelectedVideoIn} />
-                    </Stack>
-                    <Stack>
-                        <FormControlLabel control={<Switch
-                            checked={blur}
-                            onChange={toggleBlur}
-                            inputProps={{ 'aria-label': blur ? 'blurred' : 'not-blurred' }}
-                        />} label={blurLabel} />
-                        {/* <FormControlLabel control={<Switch
-                        checked={noiseReduction}
-                        onChange={toggleNoiseReduction}
-                        inputProps={{ 'aria-label': noiseReduction ? 'noise-reduction' : 'no-noise-reduction' }}
-                    />} label={noiseReductionLabel} /> */}
                     </Stack>
                 </Stack>
             </Stack>

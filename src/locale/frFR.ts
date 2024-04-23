@@ -64,8 +64,6 @@ Je vous invite en visio, pour rejoindre : ${link}`,
         },
         Settings: {
             defaultProps: {
-                blurLabel: "Flou",
-                noiseReductionLabel: "Réduction de bruit",
                 audioOffTooltip: "Sans audio", audioOnTooltip: "Avec audio", videoOffTooltip: "Sans vidéo", videoOnTooltip: "Avec vidéo",
             }
         },

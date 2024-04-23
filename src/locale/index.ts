@@ -33,7 +33,7 @@ export default interface Localization {
         };
         Settings?: {
             defaultProps: Pick<SettingsProps,
-                'blurLabel' | 'noiseReductionLabel' | 'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip'>;
+                'audioOffTooltip' | 'audioOnTooltip' | 'videoOffTooltip' | 'videoOnTooltip'>;
         };
     };
 }

@@ -2,7 +2,7 @@ import { useCallback, useContext, useDeferredValue, useEffect, useMemo, useState
 
 import { Contact, JoinOptions, RegisterInformation, UserData } from '@apirtc/apirtc';
 import { useToggle } from '@apirtc/mui-react-lib';
-import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useStreamApplyAudioProcessor, useStreamApplyVideoProcessor, useUserMediaDevices } from '@apirtc/react-lib';
+import { Credentials, useCameraStream, useConversation, useConversationContacts, useSession, useUserMediaDevices } from '@apirtc/react-lib';
 
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings';
@@ -83,19 +83,6 @@ export function App(inProps: AppProps) {
         setLocalStorage(`${installationId}.withVideo`, `${withVideo}`)
     }, [installationId, withAudio, withVideo])
 
-    const blurInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.blur`, 'false')),
-        [installationId]);
-    const { value: blur, toggle: toggleBlur } = useToggle(blurInitValue);
-
-    const noiseReductionInitValue = useMemo(() => (/true/i).test(getFromLocalStorage(`${installationId}.noiseReduction`, 'false')),
-        [installationId]);
-    const { value: noiseReduction, toggle: toggleNoiseReduction } = useToggle(noiseReductionInitValue);
-
-    useEffect(() => {
-        setLocalStorage(`${installationId}.blur`, `${blur}`)
-        setLocalStorage(`${installationId}.noiseReduction`, `${noiseReduction}`)
-    }, [installationId, blur, noiseReduction])
-
     const registerInformation: RegisterInformation = useMemo(() => {
         return {
             // do not set at all id in undefined
@@ -164,20 +151,9 @@ export function App(inProps: AppProps) {
         })
     }, [notify]);
 
-    const { stream: lStream, grabbing, error: grabError } = useCameraStream(
+    const { stream: cameraStream, grabbing, error: grabError } = useCameraStream(
         (withAudio || withVideo) ? session : undefined,
         createStreamOptions, cameraErrorCallback);
-
-    // Does not work fine due to apirtc bug :
-    // https://apizee.atlassian.net/browse/APIRTC-1366
-    const { stream: lStream2, error: noiseReductionError } = useStreamApplyAudioProcessor(
-        lStream,
-        noiseReduction ? 'noiseReduction' : 'none');
-
-    // applied: appliedVideoProcessorType
-    const { stream: cameraStream, error: blurError } = useStreamApplyVideoProcessor(
-        lStream2,
-        blur ? 'blur' : 'none'); //videoProcessorErrorCallback
 
     const { conversation, joined } = useConversation(session,
         conversationName,
@@ -373,11 +349,9 @@ export function App(inProps: AppProps) {
 
     const _settingsErrors = useMemo(() => [
         ...(grabError ? [`Camera error : ${grabError.message}`] : []),
-        ...(noiseReductionError ? [`Noise reduction error : ${noiseReductionError}`] : []),
-        ...(blurError ? [`Blur error : ${blurError}`] : []),
         ...(withAudio && !grabbing && cameraStream && !cameraStream.hasAudio() ? ["Failed to grab audio"] : []),
         ...(withVideo && !grabbing && cameraStream && !cameraStream.hasVideo() ? ["Failed to grab video: Please check a device is available and not already grabbed by another software"] : [])
-    ], [cameraStream, grabbing, grabError, noiseReductionError, blurError, withAudio, withVideo]);
+    ], [cameraStream, grabbing, grabError, withAudio, withVideo]);
 
     // Kind of debounce the settingsErrors_ to prevent BadgeError to show
     // between withAudio/Video toggle and grabbing
@@ -404,8 +378,6 @@ export function App(inProps: AppProps) {
                     settingsErrors={settingsErrors}
                     withAudio={withAudio} toggleAudio={toggleAudio}
                     withVideo={withVideo} toggleVideo={toggleVideo}
-                    blur={blur} toggleBlur={toggleBlur}
-                    noiseReduction={noiseReduction} toggleNoiseReduction={toggleNoiseReduction}
                     userMediaDevices={userMediaDevices}
                     selectedAudioIn={selectedAudioIn} setSelectedAudioIn={setSelectedAudioIn}
                     selectedVideoIn={selectedVideoIn} setSelectedVideoIn={setSelectedVideoIn}
