@@ -56,7 +56,8 @@ export function Room(inProps: RoomProps) {
     const streamsToPublish = useMemo(() => [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])],
         [stream, screen]);
 
-    const { publishedStreams, subscribedStreams, unpublishAll, unsubscribeAll } = useConversationStreams(
+    //unpublishAll
+    const { publishedStreams, subscribedStreams, unsubscribeAll } = useConversationStreams(
         conversation,
         // Don't do:
         //hasSubscribedStreams ? [...(stream ? [{ stream: stream }] : []), ...(screen ? [{ stream: screen }] : [])] : []
@@ -164,10 +165,12 @@ export function Room(inProps: RoomProps) {
             // But it also prevents from a problem when guest app and apirtc do not clean properly
             // the published streams : it results in agent app to wait for calls termination from Janus/CCS sig.
             //
-            unpublishAll()
+            //unpublishAll()
             unsubscribeAll()
         })
-    }, [conversation, unpublishAll, unsubscribeAll]);
+    }, [conversation,
+        //unpublishAll,
+        unsubscribeAll]);
 
     // const onStreamMouseDown = useCallback((stream: ApiRTCStream, event: React.MouseEvent) => {
     //     if (globalThis.logLevel.isDebugEnabled) {
