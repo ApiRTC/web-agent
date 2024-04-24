@@ -9,7 +9,7 @@ import {
     SnapshotButton,
     Stream, TorchButton, Video, VideoEnableButton
 } from "@apirtc/mui-react-lib";
-// import { useConversationStreams } from "@apirtc/react-lib";
+import { useConversationStreams } from "@apirtc/react-lib";
 
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ScreenShareIcon from '@mui/icons-material/ScreenShare';
@@ -26,7 +26,7 @@ import { ROOM_THEME, VIDEO_ROUNDED_CORNERS } from './constants';
 import { OutputMessageType } from "./MessageTypes";
 import { SwitchFacingModeButton } from './SwitchFacingModeButton';
 
-import useConversationStreams from "./useConversationStreams";
+// import useConversationStreams from "./useConversationStreams";
 
 const VIDEO_SIZING = { height: '100%', maxWidth: '100%' };
 
