@@ -473,7 +473,7 @@ export function App(inProps: AppProps) {
             minHeight: '100%', width: '100%',
         }}
             conversation={conversation}
-            stream={cameraStream}
+            stream={hasContacts ? cameraStream : undefined}
             onSnapshot={onSnapshot}
             onDisplayChange={() => {
                 notify({
