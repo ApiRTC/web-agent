@@ -1,8 +1,7 @@
 export const INSTALLATION_ID = 'apirtc-web-agent';
 export const CLOUD_URL = 'https://cloud.apirtc.com';
-export const GUEST_URL = 'https://apirtc.github.io/web-guest';
-//export const GUEST_URL = 'https://localhost:3400/web-guest';
-export const INVITATION_SERVICE_URL = 'https://is.dev.apizee.com/invitations';
+export const GUEST_URL = 'https://app.apizee.com/web-guest/v0.1';
+export const INVITATION_SERVICE_URL = 'https://is.apizee.com/invitations';
 export const DEFAULT_LOG_LEVEL = 'warn';
 
 export const APP_CONFIG = {
