@@ -1,7 +1,7 @@
 {
   "name": "web-agent",
   "version": "0.1.0",
-  "homepage": "https://app.apizee.com/web-agent/v0.1",
+  "homepage": "https://app.apizee.com/0.1/web-agent",
   "private": true,
   "dependencies": {
     "@apirtc/apirtc": "^5.0.20",
