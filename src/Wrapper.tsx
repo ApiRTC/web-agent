@@ -153,7 +153,7 @@ export function Wrapper() {
     // Inbound messages handling
     //
     useEffect(() => {
-        const receiveMessage = (event: any) => {
+        const receiveMessage = (event: MessageEvent) => {
             if (globalThis.logLevel.isDebugEnabled) {
                 console.debug(`${COMPONENT_NAME}|receives event`, event);
             }
