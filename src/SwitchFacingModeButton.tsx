@@ -7,6 +7,10 @@ import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 
 import { StreamContext } from '@apirtc/mui-react-lib';
 
+const stopPropagation = (event: React.SyntheticEvent) => {
+    event.stopPropagation()
+};
+
 export interface SwitchFacingModeButtonProps extends IconButtonProps {
     tooltip?: string,
     tooltipProps?: Omit<TooltipProps, 'title' | 'children'>,
@@ -50,7 +54,8 @@ export function SwitchFacingModeButton(inProps: SwitchFacingModeButtonProps) {
         position: 'relative'
     }}>
         <Tooltip title={tooltip} {...tooltipProps}>
-            <span>{/*required by mui tooltip in case button is disabled */}
+            <span /*required by mui tooltip in case button is disabled */
+                onClick={stopPropagation} /* to prevent click on underlying Stream (which might be clickable) even if IconButton is disabled */>
                 <IconButton id={id}
                     aria-label={ariaLabel}
                     sx={{
