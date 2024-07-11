@@ -36,7 +36,8 @@ To integrate the application within html, use an iframe as below :
 | c         | connect              | true                    | Connect with **ApiRTC** platform                                              |
 | cN        | conversationName     | empty                   | the **ApiRTC** **Conversation** **name**                                      |
 | cU        | cloudUrl             | CLOUD_URL               | the cloud url                                                                 |
-| gN        | guestName            | empty                   | name to be pre-set in the invitation form                                     |
+| aN        | agentName            | empty                   | name of agent                                                                 |
+| gN        | guestName            | empty                   | guest name to be pre-set in the invitation form                               |
 | gP        | guestPhone           | empty                   | phone number to be pre-set in the invitation form                             |
 | gU        | guestUrl             | GUEST_URL               | url of the web-guest web application                                          |
 | iI        | installationId       | INSTALLATION_ID         | used a header for local-storage keys                                          |
