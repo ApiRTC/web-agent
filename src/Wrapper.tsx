@@ -41,6 +41,7 @@ enum RequestParameters {
     cloudUrl = 'cU',
     connect = 'c',
     conversationName = 'cN',
+    agentName = 'aN',
     guestName = 'gN',
     guestPhone = 'gP',
     guestUrl = 'gU',
@@ -250,10 +251,10 @@ export function Wrapper() {
         // force new object, to enable react state change detection
         setAppConfig({ ...l_appConfig });
 
+        // (agent) user data
         const userId: string | null = searchParams.get(RequestParameters.userId);
-        if (userId) {
-            setUserData({ userId })
-        }
+        const agentName: string | null = searchParams.get(RequestParameters.agentName);
+        setUserData({ ...(userId ? { userId } : {}), ...(agentName ? { name: agentName, firstName: agentName } : {}) })
 
         // connect by default
         setConnect((/true/i).test(searchParams.get(RequestParameters.connect) ?? 'true'))
