@@ -212,7 +212,7 @@ export function Room(inProps: RoomProps) {
                                     {/* TODO : display TorchButton only if 'environment' facing mode */}
                                     <TorchButton />
                                 </>}
-                                {stream.hasVideo() && <SnapshotButton onSnapshot={(dataUrl: string) => {
+                                {stream.hasVideo() && <SnapshotButton options={{ applyRemotely: true }} onSnapshot={(dataUrl: string) => {
                                     if (props.onSnapshot) {
                                         return props.onSnapshot(stream.getContact(), dataUrl)
                                     } else {
