@@ -35,13 +35,47 @@
             margin-right: 20px;
         }
     </style>
+
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div class="flex-container">
+        <div class="flex-child">
+            <h1>i-framed web-agent app</h1>
+            <iframe id="i-frame" src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&lL=debug" height="720px"
+                width="100%" frameborder="0" referrerpolicy="no-referrer"
+                allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"></iframe>
+        </div>
+        <div class="flex-child">
+            <h1>real-time control</h1>
+            <form onSubmit="return setConversationName()">
+                <label for="cN">Conversation name :&nbsp;</label><input type="text" id="cN" name="cN">
+                <input type="submit" value="Submit">
+            </form>
+            <br>
+            <button id="join-btn" onclick="join()">Join</button><button id="leave-btn"
+                onclick="leave()">Leave</button><br><br>
+            <form onSubmit="return setGuestUserData()">
+                <label for="gN">Guest name :&nbsp;</label><input type="text" id="gN" name="gN"><br>
+                <label for="gP">Guest phone :&nbsp;</label><input type="text" id="gP" name="gP"><br>
+                <input type="submit" value="Submit">
+            </form>
+            <div>
+                <h2>Snapshot image</h2>
+                <img id="snapshot" alt="Snapshot image">
+            </div>
+        </div>
+    </div>
     <script>
 
         const IFRAME_HOST = "https://apirtc.github.io";
 
+        const IFRAME = document.getElementById('i-frame');
+
         function postAppConfig() {
-            let iframe = document.getElementById('i-frame');
-            iframe.contentWindow.postMessage(
+            //let iframe = document.getElementById('i-frame');
+            IFRAME.contentWindow.postMessage(
                 {
                     type: "configuration",
                     data: {
@@ -54,6 +88,8 @@
 
         const receiveMessage = (event) => {
             if (event.origin !== IFRAME_HOST) return;
+            // filter out messages from other possible iframes
+            if (event.source !== IFRAME.contentWindow) return;
 
             const message = event.data;
 
@@ -137,37 +173,6 @@
             return false;
         }
     </script>
-</head>
-
-<body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div class="flex-container">
-        <div class="flex-child">
-            <h1>i-framed web-agent app</h1>
-            <iframe id="i-frame" src="https://apirtc.github.io/web-agent?aK=myDemoApiKey&lL=debug" height="720px"
-                width="100%" frameborder="0" referrerpolicy="no-referrer"
-                allow="geolocation;autoplay;microphone;camera;display-capture;midi;encrypted-media;clipboard-write;"></iframe>
-        </div>
-        <div class="flex-child">
-            <h1>real-time control</h1>
-            <form onSubmit="return setConversationName()">
-                <label for="cN">Conversation name :&nbsp;</label><input type="text" id="cN" name="cN">
-                <input type="submit" value="Submit">
-            </form>
-            <br>
-            <button id="join-btn" onclick="join()">Join</button><button id="leave-btn"
-                onclick="leave()">Leave</button><br><br>
-            <form onSubmit="return setGuestUserData()">
-                <label for="gN">Guest name :&nbsp;</label><input type="text" id="gN" name="gN"><br>
-                <label for="gP">Guest phone :&nbsp;</label><input type="text" id="gP" name="gP"><br>
-                <input type="submit" value="Submit">
-            </form>
-            <div>
-                <h2>Snapshot image</h2>
-                <img id="snapshot" alt="Snapshot image">
-            </div>
-        </div>
-    </div>
 </body>
 
 </html>
